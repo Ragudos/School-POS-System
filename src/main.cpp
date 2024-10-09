@@ -26,7 +26,6 @@ class GUI {
     bool render() { throw logic_error("unimplemented"); }
 };
 
-// Playing around with controlling the terminal using ANSI codes
 int main() {
     while (true) {
         int pressedKeyCode = getPressedKeyCode();
