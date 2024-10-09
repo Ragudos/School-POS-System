@@ -9,9 +9,9 @@ body:
         This issue will allow me to see who is working on which feature. Please self-assign yourself after submitting this issue.
         Before doing so, please make sure that:
 
-        - [] I know what I'm going to do
-        - [] I have a clear estimated deadline on when I'll finish this.
-        - [] I will seek help from the group if I encounter difficulties
+        - [x] I know what I'm going to do
+        - [x] I have a clear estimated deadline on when I'll finish this.
+        - [x] I will seek help from the group if I encounter difficulties
 
   - type: textarea
     id: description
