@@ -88,7 +88,37 @@ git push
 
 ### Creating a Pull Request
 
-To be made...
+**Note:** If your forked repository is not in sync with the [main repository](https://github.com/Ragudos/School-POS-System), then you will see something like this:
+
+![image](https://github.com/user-attachments/assets/f78dd353-71b9-4b3b-8746-cec9832b8a89)
+
+If this is the case, you need to discard all your commits to your forked repository first. The steps are:
+
+1. Click the **Sync fork** button
+2. If the button **Update branch** is not visible, and instead, the button **Open pull request** is, please discard your commits first.
+3. If you discarded your commits, your forked repository should have its state before you pushed all your recent work and synced with the [main repository](https://github.com/Ragudos/School-POS-System)
+4. Now, back to your code editor, run:
+
+If you are running this for the first time:
+```bash
+git pull -u origin main
+```
+
+If not:
+```bash
+git pull
+```
+
+5. Your code editor should prompt you to fix **merge conflicts**. ⚠️ **BE CAREFUL AND GET IN TOUCH WITH US BEFORE YOU FIX MERGE CONFLICTS** ⚠️
+6. After fixing all **merge conflicts**, just re-run everyhing from the [Committing Your Work](#committing-your-work) section.
+
+After all is fixed, do these steps:
+
+1. Click the **Contribute** button
+2. If your forked repository has new commits, then a button **Open pull request** should appear, click it.
+3. You will be redirected to a pull request page. I will provide a template for you to fulfill to give me an idea about your changes.
+4. Click **Create pull request**
+5. Done! More information will be added here
 
 ### Creating a Commit Message
 
