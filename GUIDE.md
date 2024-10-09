@@ -10,17 +10,16 @@
 
 **Steps**
 
-1. If you don't have a GitHub account yet, please create one.
-2.  Create a **fork** of this repository.
-3.  Go to your **forked** repository.
-4.  Find the dropdown button with the text **"Code"** and click on it.
-5.  Copy the link of this repository.
-6.  Go to your code editor.
-7.  Open a folder in your code editor where you want to place this project in.
-8.  Open the terminal of your code editor.
-9.  Run:
+1.  Create a **fork** of this repository.
+2.  Go to your **forked** repository.
+3.  Find the dropdown button with the text **"Code"** and click on it.
+4.  Copy the link of this repository.
+5.  Go to your code editor.
+6.  Open a folder in your code editor where you want to place this project in.
+7.  Open the terminal of your code editor.
+8.  Run:
    
 ```bash
-git clone <paste link of forked repository here> .
+git clone <replace me with the link of forked repository here> .
 ```
-10. Done
+9. Done
