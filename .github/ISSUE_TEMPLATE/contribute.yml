@@ -22,7 +22,7 @@ body:
     validations:
       required: true
 
-  - type: number
+  - type: input
     id: deadline
     attributes:
       label: Description
