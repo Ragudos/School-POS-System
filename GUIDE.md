@@ -89,3 +89,23 @@ git push
 ### Creating a Pull Request
 
 To be made...
+
+### Creating a Commit Message
+
+1. Please use present tense for all actions. Some examples are:
+   - When you added a feature, use `add` at the beginning of a commit message.
+   - When you fixed a bug, use `fix` at the beginning of a commit message.
+   - When you refactored a source code (changed the names, logic, etc.), use `refactor` at the beginning of a commit message.
+   - When you change the formatting of a source code (changed variable names, spaces, etc.), use `format` at the beginning of a commit message.
+   
+2. After an action, specify what the action defines in 1 sentence.
+
+3. If you made more than one change, use a semi-colon-separated list for each different action.
+
+**Example:**
+
+If I added a function to calculate for a user's change:
+
+```bash
+git commit -m "add function getChange() for user"
+```
