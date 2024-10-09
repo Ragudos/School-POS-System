@@ -1,6 +1,23 @@
 ## How to contribute 
 
 1. You need to get a copy of this repository on your editor/computer. Refer to [Copying repository](#copying-repository) section to know how.
+2. I am going to setup code blocks that needs to be written. Please refer to the example of a function that needs to be populated with code:
+
+**empty function code block**
+```c++
+double getChange(double payment, double price) {
+    throw std::logic_error("unimplemented")
+}
+```
+
+Replace the existing line of code with the logic of the function.
+
+**Please refer below before writing code**
+  a. Go to the [main repository](https://github.com/Ragudos/School-POS-System)
+  b. Click on the **Issues** tab
+  c. Create an issue
+  d. Follow the format that you'll see on the text editor.
+  e. Submit the issue
 
 ### Copying Repository
 
