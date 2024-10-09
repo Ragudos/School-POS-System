@@ -13,11 +13,11 @@ double getChange(double payment, double price) {
 Replace the existing line of code with the logic of the function.
 
 **Please refer below before writing code**
-  a. Go to the [main repository](https://github.com/Ragudos/School-POS-System)
-  b. Click on the **Issues** tab
-  c. Create an issue
-  d. Follow the format that you'll see on the text editor.
-  e. Submit the issue
+  1. Go to the [main repository](https://github.com/Ragudos/School-POS-System)
+  2. Click on the **Issues** tab
+  3. Create an issue
+  4. Follow the format that you'll see on the text editor.
+  5. Submit the issue
 
 ### Copying Repository
 
