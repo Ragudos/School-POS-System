@@ -27,7 +27,7 @@ git clone <replace me with the link of forked repository here> .
 ```
 9. Done
 
-### Assigning a Task to Myself
+### Assigning a Task to Yourself
 
 Please refer to the example of a function that needs to be populated with code:
 
