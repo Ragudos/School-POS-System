@@ -21,7 +21,7 @@ jobs:
       run: choco install mingw
 
     - name: Add MinGW to PATH
-      run: echo "::add-path::C:/ProgramData/chocolatey/bin"
+      run: echo "##[add-path]C:/ProgramData/chocolatey/bin"
 
     - name: Verify g++ installation
       run: g++ --version
