@@ -13,15 +13,15 @@ jobs:
   build:
     runs-on: windows-latest
 
+    env:
+      PATH: C:\ProgramData\chocolater\bin;${{ github.env.PATH }}
+
     steps:
     - name: Checkout code
       uses: actions/checkout@v2
 
     - name: Install build tools
       run: choco install mingw
-
-    - name: Add MinGW to PATH
-      run: echo "##[add-path]C:/ProgramData/chocolatey/bin"
 
     - name: Verify g++ installation
       run: g++ --version
