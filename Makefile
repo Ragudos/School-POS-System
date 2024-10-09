@@ -11,7 +11,7 @@ BIN_DIR = bin
 INC_DIR = include
 
 # Source files
-SRCS = $(SRC_DIR)/utils.cpp $(SRC_DIR)/main.cpp
+SRCS = $(SRC_DIR)/utils.cpp $(SRC_DIR)/main.cpp $(SRC_DIR)/keyboard.cpp
 TEST_SRCS = $(TEST_DIR)/main_test.cpp
 
 # Object files

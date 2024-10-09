@@ -53,3 +53,8 @@ To run the tests:
 ```bash
 ./bin/main_test.exe
 ```
+
+## Resources
+
+- [ASCII Codes for User Input](https://www.ascii-code.com/)
+- [ANSI Codes for controlling terminal](https://en.wikipedia.org/wiki/ANSI_escape_code)
