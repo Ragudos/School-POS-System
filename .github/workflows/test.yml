@@ -29,8 +29,8 @@ jobs:
 
       - name: Configure CMake
         run: |
-          ls && cd build && ls
-          cmake ../CmakeLists.txt . -G "Unix Makefiles" # Adjust flags if necessary for specific platforms
+          cd build
+          cmake .. -G "Unix Makefiles" # Adjust flags if necessary for specific platforms
 
       - name: Build the project
         run: |

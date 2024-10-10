@@ -25,7 +25,7 @@
 
 using namespace std;
 
-int getPressedKeyCode() { throw logic_error("unimplemented") }
+int getPressedKeyCode() { throw logic_error("unimplemented"); }
 
 #elif defined(MAC_PLATFORM)
 
@@ -33,7 +33,7 @@ int getPressedKeyCode() { throw logic_error("unimplemented") }
 
 using namespace std;
 
-int getPressedKeyCode() { throw logic_error("unimplemented") }
+int getPressedKeyCode() { throw logic_error("unimplemented"); }
 
 #elif defined(WINDOWS_PLATFORM)
 
