@@ -34,7 +34,7 @@ jobs:
 
       - name: Build the project
         run: |
-          cmake --build .
+          cmake --build . --config Release
 
       - name: Run main_test.exe
         run: |
