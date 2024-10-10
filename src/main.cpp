@@ -1,5 +1,4 @@
 #include <signal.h>
-#include <windows.h>
 
 #include <iostream>
 #include <keyboard.hpp>
