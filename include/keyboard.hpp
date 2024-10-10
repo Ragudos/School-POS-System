@@ -1,7 +1,3 @@
-#ifndef KEYBOARD
-
-#define KEYBOARD
-
 #define KEY_UP 72
 #define KEY_DOWN 80
 #define KEY_LEFT 75
@@ -57,7 +53,5 @@ int getPressedKeyCode() {
 #else
 
 #error "Unsupported Platform!"
-
-#endif
 
 #endif
