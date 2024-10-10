@@ -35,14 +35,38 @@ pacman -Su    # Update installed packages
 pacman -S make
 ```
 3. If you don't have MSYS2, you can go to their [website](https://www.msys2.org/) to download it
-
-Now that you have `make`, you can start compiling the project by running this on your code editor's terminal:
+4. cmake (if you don't have it yet and you have MSYS2 already, just run these on MSYS2 terminal):
 
 ```bash
-make
+pacman -S mingw-w64-x86_64-cmake
 ```
 
-This will create a `bin` folder. To run the project, run:
+If you are using the 32-bit version of MSYS2:
+```bash
+pacman -S mingw-w64-i686-cmake
+```
+
+After that, add the `PATH` to your computer's env variables. It's generally in `C:\msys64\mingw64\bin`, where your
+MSYS2 executable files are stored.
+
+Now that you have `cmake` and `make`, you can start compiling the project by running this on your code editor's terminal:
+
+Create a folder/directory named build and go there
+```bash
+mkdir build && cd build
+```
+
+Run cmake:
+```bash
+cmake .. -G "Unix Makefiles"
+```
+
+Run make:
+```bash
+make -j 8
+```
+
+This will create a `bin` folder/directory under the `build` folder/directory. To run the project, run:
 
 ```bash
 ./bin/main.exe
