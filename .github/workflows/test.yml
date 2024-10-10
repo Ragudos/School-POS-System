@@ -44,4 +44,4 @@ jobs:
             .\bin\main_test.exe
           else
             ./bin/main_test
-          endif
+          fi
