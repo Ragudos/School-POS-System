@@ -28,14 +28,8 @@ Then, to automatically format the file you're working on, follow these steps if 
 
 **Prerequisites**
 1. g++ or gcc compiler
-2. make (if you don't have it yet and you have MSYS2 already, just run these on MSYS2 terminal)
-```bash
-pacman -Syu   # Update the package database
-pacman -Su    # Update installed packages
-pacman -S make
-```
-3. If you don't have MSYS2, you can go to their [website](https://www.msys2.org/) to download it
-4. cmake (if you don't have it yet and you have MSYS2 already, just run these on MSYS2 terminal):
+2. If you don't have MSYS2, you can go to their [website](https://www.msys2.org/) to download it
+3. cmake (if you don't have it yet and you have MSYS2 already, just run these on MSYS2 terminal):
 
 ```bash
 pacman -S mingw-w64-x86_64-cmake
@@ -49,7 +43,7 @@ pacman -S mingw-w64-i686-cmake
 After that, add the `PATH` to your computer's env variables. It's generally in `C:\msys64\mingw64\bin`, where your
 MSYS2 executable files are stored.
 
-Now that you have `cmake` and `make`, you can start compiling the project by running this on your code editor's terminal:
+Now that you have `cmake`, you can start compiling the project by running this on your code editor's terminal:
 
 Create a folder/directory named build and go there
 ```bash
@@ -61,9 +55,9 @@ Run cmake:
 cmake .. -G "Unix Makefiles"
 ```
 
-Run make:
+Run cmake to build:
 ```bash
-make -j 8
+cmake --build .
 ```
 
 This will create a `bin` folder/directory under the `build` folder/directory. To run the project, run:
