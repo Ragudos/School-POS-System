@@ -31,8 +31,6 @@ int main() {
         int pressedKeyCode = getPressedKeyCode();
 
         cout << pressedKeyCode << " ";
-
-        Sleep(100);
     }
 
     return 0;
