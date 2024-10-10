@@ -25,12 +25,12 @@ jobs:
           sudo apt-get install -y cmake || brew install cmake  # For macOS
 
       - name: Create build directory
-        run: mkdir build && ls
+        run: mkdir build
 
       - name: Configure CMake
         run: |
           cd build
-          cmake .. -G "Unix Makefiles" # Adjust flags if necessary for specific platforms
+          cmake -S .. -B . -G "Unix Makefiles" # Adjust flags if necessary for specific platforms
 
       - name: Build the project
         run: |
