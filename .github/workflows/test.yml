@@ -40,7 +40,7 @@ jobs:
       - name: Run main_test.exe
         run: |
           cd build
-          if ([${{ runner.os }}] == 'Windows')
+          if ([${{ runner.os }}] == 'Windows') then
             .\bin\main_test.exe
           else
             ./bin/main_test
