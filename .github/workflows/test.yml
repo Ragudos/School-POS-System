@@ -30,16 +30,14 @@ jobs:
       - name: Configure CMake
         run: |
           cd build
-          cmake .. -G "Unix Makefiles" # Adjust flags if necessary for specific platforms
+          cmake ../.. -G "Unix Makefiles" # Adjust flags if necessary for specific platforms
 
       - name: Build the project
         run: |
-          cd build
-          cmake --build . --config Debug  # or Release
+          cmake --build .
 
       - name: Run main_test.exe
         run: |
-          cd build
           if [ ${{ runner.os }} == 'Windows' ]; then
             .\main_test.exe
           else
