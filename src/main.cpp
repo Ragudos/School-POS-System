@@ -1,3 +1,4 @@
+#include <signal.h>
 #include <windows.h>
 
 #include <iostream>
@@ -6,20 +7,20 @@
 
 using namespace std;
 
-enum GUI_STATE { SHOP, ABOUT, CART, CHECKOUT };
+enum RendererState { SHOP, ABOUT, CART, CHECKOUT };
 
-class GUI {
+class Renderer {
    private:
-    GUI() : currentState(SHOP){};
+    Renderer() : currentState(SHOP){};
 
-    GUI(const GUI&) = delete;
-    GUI& operator=(const GUI&) = delete;
+    Renderer(const Renderer&) = delete;
+    Renderer& operator=(const Renderer&) = delete;
 
    public:
-    GUI_STATE currentState;
+    RendererState currentState;
 
-    static GUI& getInstance() {
-        static GUI instance;
+    static Renderer& getInstance() {
+        static Renderer instance;
         return instance;
     }
 

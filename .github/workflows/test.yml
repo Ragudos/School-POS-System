@@ -11,23 +11,17 @@ on:
 
 jobs:
   build:
-    runs-on: windows-latest
-
-    env:
-      PATH: C:\ProgramData\chocolater\bin;${{ github.env.PATH }}
+    runs-on: ubuntu-latest
 
     steps:
     - name: Checkout code
       uses: actions/checkout@v2
 
     - name: Install build tools
-      run: choco install mingw
-
-    - name: Verify g++ installation
-      run: g++ --version
+      run: sudo apt-get install -y g++
 
     - name: Build the project
-      run: mingw32-make
+      run: make
 
     - name: Run tests
       run: ./bin/main_test

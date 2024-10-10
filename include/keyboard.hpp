@@ -19,6 +19,24 @@
 #define KEY_ESC 27
 #define KEY_BACKSPACE 8
 
+#ifdef LINUX_PLATFORM
+
+#include <iostream>
+
+using namespace std;
+
+int getPressedKeyCode() { throw logic_error("unimplemented") }
+
+#elif defined(MAC_PLATFORM)
+
+#include <iostream>
+
+using namespace std;
+
+int getPressedKeyCode() { throw logic_error("unimplemented") }
+
+#elif defined(WINDOWS_PLATFORM)
+
 #include <conio.h>
 #include <windows.h>
 
@@ -35,5 +53,11 @@ int getPressedKeyCode() {
 
     return -1;
 }
+
+#else
+
+#error "Unsupported Platform!"
+
+#endif
 
 #endif
