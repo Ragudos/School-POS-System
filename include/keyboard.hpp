@@ -42,10 +42,6 @@ int getPressedKeyCode() { throw logic_error("unimplemented"); }
 
 #include <iostream>
 
-/**
- *
- * NOTE: Only for Windows
- */
 int getPressedKeyCode() {
     if (_kbhit()) {
         return _getch();
