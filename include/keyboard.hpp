@@ -10,22 +10,43 @@
 #define KEY_s 115
 #define KEY_A 65
 #define KEY_a 97
+#define KEY_B 66
 #define KEY_C 67
 #define KEY_c 99
+#define KEY_D 68
 #define KEY_Q 81
 #define KEY_q 113
 #define KEY_PLUS 43
 #define KEY_HYPHEN_MINUS 45
 #define KEY_ESC 27
 #define KEY_BACKSPACE 8
+#define KEY_OPENING_BRACKET 91
 
 #ifdef LINUX_PLATFORM
 
 #include <iostream>
+#include <termios.h>
+#include <unistd.h>
 
 using namespace std;
 
-int getPressedKeyCode() { throw logic_error("unimplemented"); }
+int getPressedKeyCode() {
+    struct termios oldt, newt;
+
+    int ch;
+
+    tcgetattr(STDIN_FILENO, &oldt);
+    newt = oldt;
+
+    newt.c_lflag &= ~(ICANON | ECHO);
+    tcsetattr(STDIN_FILENO, TCSANOW, &newt);
+
+    ch = getchar();
+
+    tcsetattr(STDIN_FILENO, TCSANOW, &oldt);
+
+    return ch;
+}
 
 #elif defined(MAC_PLATFORM)
 
