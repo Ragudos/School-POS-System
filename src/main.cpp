@@ -146,33 +146,64 @@ class Menu {
     }
 };
 
+void handleArrowKeys(int keyCode) {
+    switch (keyCode) {
+        case KEY_DOWN:
+        // TODO: Map KEY_A to KEY_DOWN for Linux/Unix
+        case KEY_B:
+            cout << "Arrow Down!" << endl;
+            break;
+        case KEY_UP:
+        case KEY_A:
+            cout << "Arrow Up!" << endl;
+            break;
+        case KEY_LEFT:
+        case KEY_D:
+            cout << "Arrow Left!" << endl;
+            break;
+        case KEY_RIGHT:
+        case KEY_C:
+            cout << "Arrow Right!" << endl;
+            break;
+    }
+}
+
+/** for unix/linux
+ * Returns 0 of arrow key wasn't pressed,
+ * returns arrow key pressed's ASCII code
+ */
+int arrowKeyPressed() {
+    int pressedKeyCode = getPressedKeyCode();
+
+    if (pressedKeyCode == KEY_OPENING_BRACKET) {
+        int pressedKeyCode2 = getPressedKeyCode();
+
+        switch (pressedKeyCode2) {
+            case KEY_A:
+            case KEY_B:
+            case KEY_C:
+            case KEY_D:
+                return pressedKeyCode2;
+                break;
+            default:
+                return 0;
+        }
+    }
+
+    return 0;
+}
+
 void programEntryPoint(ProgramLoop* programLoop) {
     Menu& menu = Menu::getInstance();
     Renderer& renderer = Renderer::getInstance();
     int pressedKeyCode = getPressedKeyCode();
 
     switch (pressedKeyCode) {
-        case KEY_UP: {
-            if (menu.getChosenChoice() == 1) {
-                menu.setChosenChoice(menu.MAX_MENU_CHOICES);
-            } else {
-                menu.setChosenChoice(menu.getChosenChoice() - 1);
-            }
-            renderer.clearArea(0, 0, 5);
-            menu.displayChoices();
-        }; break;
-        case KEY_DOWN: {
-            if (menu.getChosenChoice() == menu.MAX_MENU_CHOICES) {
-                menu.setChosenChoice(1);
-            } else {
-                menu.setChosenChoice(menu.getChosenChoice() + 1);
-            }
-            renderer.clearArea(0, 0, 5);
-            menu.displayChoices();
-        }; break;
+        case KEY_UP:
+        case KEY_DOWN:
         case KEY_LEFT:
-            break;
         case KEY_RIGHT:
+            handleArrowKeys(pressedKeyCode);
             break;
         case KEY_A:
         case KEY_a:
@@ -191,8 +222,13 @@ void programEntryPoint(ProgramLoop* programLoop) {
             break;
         case KEY_HYPHEN_MINUS:
             break;
-        case KEY_ESC:
-            break;
+        case KEY_ESC: {
+            int pressedArrowKey = arrowKeyPressed();
+
+            if (pressedArrowKey != 0) {
+                handleArrowKeys(pressedArrowKey);
+            }
+        } break;
         case KEY_BACKSPACE:
             break;
     }
