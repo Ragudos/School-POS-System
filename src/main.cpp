@@ -3,7 +3,6 @@
 #include <renderer.hpp>
 #include <utils.hpp>
 
-using namespace std;
 using namespace miscellaneous;
 
 void programEntryPoint(LoopLambda* loop) {

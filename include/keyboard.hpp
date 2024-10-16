@@ -33,6 +33,8 @@
 #error "Unsupported platform!"
 #endif
 
+#include <iostream>
+
 using namespace std;
 
 class Keyboard {
