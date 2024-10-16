@@ -1,4 +1,11 @@
 {
   "editor.formatOnSave": true,
-  "cmake.ignoreCMakeListsMissing": true
+  "cmake.ignoreCMakeListsMissing": true,
+  "files.associations": {
+    ".stylelintrc": "json",
+    ".clang-format": "yaml",
+    "iosfwd": "cpp",
+    "ios": "cpp",
+    "ostream": "cpp"
+  }
 }
