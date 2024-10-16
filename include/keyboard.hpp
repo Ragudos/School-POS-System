@@ -22,6 +22,11 @@
 #define KEY_BACKSPACE 8
 #define KEY_OPENING_BRACKET 91
 
+// Special values for specfic platforms
+#ifdef WINDOWS_PLATFORM
+#define KEY_SPECIAL_PREFIX 224
+#endif
+
 #ifdef LINUX_PLATFORM
 #include <termios.h>
 #include <unistd.h>
@@ -59,10 +64,16 @@ class Keyboard {
 #elif defined(WINDOWS_PLATFORM)
     static int getPressedKeyCode() {
         if (_kbhit()) {
-            return _getch();
+            int key = _getch();
+
+            if (key == KEY_SPECIAL_PREFIX) {
+                return _getch();
+            } else {
+                return key;
+            }
         }
 
-        return -1;
+        return 0;
     }
 #else
 #error "Unsupported platform!"
