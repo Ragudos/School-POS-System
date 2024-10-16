@@ -1,7 +1,7 @@
 #ifndef KEYBOARD
-
 #define KEYBOARD
 
+// ASCII Key Code Definitions
 #define KEY_UP 72
 #define KEY_DOWN 80
 #define KEY_LEFT 75
@@ -23,58 +23,90 @@
 #define KEY_OPENING_BRACKET 91
 
 #ifdef LINUX_PLATFORM
-
-#include <iostream>
 #include <termios.h>
 #include <unistd.h>
-
-using namespace std;
-
-int getPressedKeyCode() {
-    struct termios oldt, newt;
-
-    int ch;
-
-    tcgetattr(STDIN_FILENO, &oldt);
-    newt = oldt;
-
-    newt.c_lflag &= ~(ICANON | ECHO);
-    tcsetattr(STDIN_FILENO, TCSANOW, &newt);
-
-    ch = getchar();
-
-    tcsetattr(STDIN_FILENO, TCSANOW, &oldt);
-
-    return ch;
-}
-
 #elif defined(MAC_PLATFORM)
-
-#include <iostream>
-
-using namespace std;
-
-int getPressedKeyCode() { throw logic_error("unimplemented"); }
-
 #elif defined(WINDOWS_PLATFORM)
-
 #include <conio.h>
 #include <windows.h>
-
-#include <iostream>
-
-int getPressedKeyCode() {
-    if (_kbhit()) {
-        return _getch();
-    }
-
-    return -1;
-}
-
 #else
-
-#error "Unsupported Platform!"
-
+#error "Unsupported platform!"
 #endif
+
+using namespace std;
+
+class Keyboard {
+   public:
+#ifdef LINUX_PLATFORM
+    static int getPressedKeyCode() {
+        int pressedKeyCode = getPressedKeyCodeRaw();
+
+        // Handle all escape sequences for Linux and return
+        // the true pressed key's code
+        if (pressedKeyCode == KEY_ESC &&
+            getPressedKeyCodeRaw() == KEY_OPENING_BRACKET) {
+            // Since we only care about arrow keys now, we just
+            // we just do this:
+            return mapESQToPressedArrowKey();
+        } else {
+            return pressedKeyCode;
+        }
+    }
+#elif defined(MAC_PLATFORM)
+    static int getPressedKeyCode() { throw logic_error("unimplemented"); }
+#elif defined(WINDOWS_PLATFORM)
+    static int getPressedKeyCode() {
+        if (_kbhit()) {
+            return _getch();
+        }
+
+        return -1;
+    }
+#else
+#error "Unsupported platform!"
+#endif
+   private:
+#ifdef LINUX_PLATFORM
+    /**
+     * Maps Unix' escape sequence's values to arrow key codes
+     *
+     * Returns 0 if no arrow key was pressed
+     */
+    static int mapESQToPressedArrowKey() {
+        switch (getPressedKeyCodeRaw()) {
+            case KEY_A:
+                return KEY_UP;
+            case KEY_B:
+                return KEY_DOWN;
+            case KEY_C:
+                return KEY_RIGHT;
+            case KEY_D:
+                return KEY_LEFT;
+            default:
+                return 0;
+        }
+
+        return 0;
+    }
+    /** From ChatGPT */
+    static int getPressedKeyCodeRaw() {
+        struct termios oldt, newt;
+
+        int ch;
+
+        tcgetattr(STDIN_FILENO, &oldt);
+        newt = oldt;
+
+        newt.c_lflag &= ~(ICANON | ECHO);
+        tcsetattr(STDIN_FILENO, TCSANOW, &newt);
+
+        ch = getchar();
+
+        tcsetattr(STDIN_FILENO, TCSANOW, &oldt);
+
+        return ch;
+    }
+#endif
+};
 
 #endif

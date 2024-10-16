@@ -6,6 +6,9 @@
     ".clang-format": "yaml",
     "iosfwd": "cpp",
     "ios": "cpp",
-    "ostream": "cpp"
+    "ostream": "cpp",
+    "functional": "cpp",
+    "atomic": "cpp",
+    "memory": "cpp"
   }
 }
