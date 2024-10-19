@@ -29,6 +29,7 @@ void programEntryPoint(LoopLambda* loop) {
             break;
         case KEY_Q:
         case KEY_q:
+            // TODO: Cleanup operations
             loop->stop();
             break;
         case KEY_PLUS:

@@ -3,6 +3,24 @@
 
 using namespace std;
 
+/**
+ *
+ * This will be mainly used for the navigation bar
+ */
+struct Tab {
+    bool isActive;
+    /** A tuple of [x,y] dimensions */
+    int pos[2];
+    /** A tuple of [x,y] dimensions */
+    int dimensions[2];
+    string text;
+    /**
+     * A tuple of [lowercase,uppercase] ASCII codes of the corresponding key
+     * that will activate this tab.
+     */
+    int keyCodes[2];
+};
+
 enum RendererState {
     SHOP,
     SHOP_CONFIRMATION,
