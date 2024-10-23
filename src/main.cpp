@@ -11,8 +11,16 @@ void programEntryPoint(LoopLambda* loop) {
 
     switch (pressedKeyCode) {
         case KEY_UP:
+            if (renderer.currentState == SHOP) {
+                Shop::getInstance().menuItems.prev();
+                renderer.render();
+            }
             break;
         case KEY_DOWN:
+            if (renderer.currentState == SHOP) {
+                Shop::getInstance().menuItems.next();
+                renderer.render();
+            }
             break;
         case KEY_LEFT:
             break;

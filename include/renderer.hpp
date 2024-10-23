@@ -1,6 +1,8 @@
 #include <iostream>
 #include <sstream>
 
+#include "./components/select.hpp"
+
 using namespace std;
 
 /**
@@ -33,6 +35,38 @@ enum RendererState {
     ADMIN_FINISH_ORDER,
     ADMIN_FINISH_ORDER_CONFIRM,
     ADMIN_FINISH_ORDER_RESULTS
+};
+
+class Shop {
+   private:
+    Shop()
+        : menuItems({{"Caramel Macchiato", "caramel-macchiato"},
+                     {"Java Chip", "java-chip"},
+                     {"Decaf", "decaf"},
+                     {"Cold Brew", "cold-brew"},
+                     {"Caffe Americano", "caffe-americano"},
+                     {"Blonde Roast", "blonde-roast"}}){};
+    Shop(const Shop&) = delete;
+    Shop& operator=(const Shop&) = delete;
+
+   public:
+    Select menuItems;
+    static Shop& getInstance() {
+        static Shop instance;
+        return instance;
+    }
+
+    void buffer(ostringstream* buf) {
+        for (size_t i = 0; i < menuItems.choices.size(); ++i) {
+            SelectChoice item = menuItems.choices.at(i);
+
+            if (i == menuItems.getCurrentChoice()) {
+                *buf << "\033[30m\033[47m";
+            }
+
+            *buf << item.name << "\033[0m" << endl;
+        }
+    }
 };
 
 class Renderer {
@@ -76,6 +110,17 @@ class Renderer {
         }
     }
 
+    void bufferContents() {
+        moveCursorTo(DYNAMIC_STARTING_ROW, 1, false);
+        cout << "\033[J";
+
+        moveCursorTo(DYNAMIC_STARTING_ROW, 1);
+
+        if (currentState == SHOP) {
+            Shop::getInstance().buffer(&buf);
+        }
+    }
+
    public:
     /** The row and below that can isn't controlled by this Renderer */
     const int DYNAMIC_STARTING_ROW = 6;
@@ -101,6 +146,7 @@ class Renderer {
     void render() {
         bufferHeroSection();
         bufferNav();
+        bufferContents();
 
         cout << buf.str();
         buf.str("");
@@ -109,16 +155,27 @@ class Renderer {
 
     void changeNavTab(int key) {
         for (int i = 0; i < 3; ++i) {
-            Tab& tab = navigationTabs[i];
+            Tab* tab = &navigationTabs[i];
 
-            if (tab.isActive) {
-                if (tab.keyCodes[0] == key || tab.keyCodes[1] == key) {
+            if (tab->isActive) {
+                if (tab->keyCodes[0] == key || tab->keyCodes[1] == key) {
                     return;
                 }
 
-                tab.isActive = false;
-            } else if (tab.keyCodes[0] == key || tab.keyCodes[1] == key) {
-                tab.isActive = true;
+                tab->isActive = false;
+
+                if (tab->text == "shop") {
+                    Shop::getInstance().menuItems.reset();
+                }
+            } else if (tab->keyCodes[0] == key || tab->keyCodes[1] == key) {
+                if (tab->text == "shop") {
+                    currentState = SHOP;
+                } else if (tab->text == "admin") {
+                    currentState = ADMIN_OPTIONS;
+                } else if (tab->text == "checkout") {
+                    currentState = SHOP_CONFIRMATION;
+                }
+                tab->isActive = true;
             }
         }
 

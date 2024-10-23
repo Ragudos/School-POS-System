@@ -18,7 +18,7 @@ class Select {
     Select(const vector<SelectChoice> choices)
         : choices(choices), currentChoice(0){};
 
-    void next() { int currentChoice = (currentChoice + 1) % choices.size(); }
+    void next() { currentChoice = (currentChoice + 1) % choices.size(); }
     void prev() {
         if (currentChoice == 0) {
             currentChoice = choices.size() - 1;
@@ -26,9 +26,12 @@ class Select {
             currentChoice -= 1;
         }
     }
+    void reset() { currentChoice = 0; }
+
+    size_t getCurrentChoice() { return currentChoice; }
 
    private:
-    int currentChoice;
+    size_t currentChoice;
 };
 
 #endif
