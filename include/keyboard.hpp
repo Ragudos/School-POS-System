@@ -16,6 +16,8 @@
 #define KEY_D 68
 #define KEY_Q 81
 #define KEY_q 113
+#define KEY_R 82
+#define KEY_r 114
 #define KEY_PLUS 43
 #define KEY_HYPHEN_MINUS 45
 #define KEY_ESC 27

@@ -43,6 +43,5 @@ class Node : public enable_shared_from_this<Node> {
 class TextNode : public Node, public enable_shared_from_this<Node> {
    public:
     void render(ostringstream *buf) const override { *buf << ""; }
-
     bool canHaveChildren() const override { return false; }
 };

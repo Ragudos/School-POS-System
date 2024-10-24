@@ -12,14 +12,12 @@ void programEntryPoint(LoopLambda* loop) {
     switch (pressedKeyCode) {
         case KEY_UP:
             if (renderer.currentState == SHOP) {
-                renderer.menuItems.prev();
-                renderer.render();
+                renderer.prevMenu();
             }
             break;
         case KEY_DOWN:
             if (renderer.currentState == SHOP) {
-                renderer.menuItems.next();
-                renderer.render();
+                renderer.nextMenu();
             }
             break;
         case KEY_LEFT:
@@ -37,14 +35,26 @@ void programEntryPoint(LoopLambda* loop) {
             // in the cart).
             renderer.changeNavTab(pressedKeyCode);
             break;
+        case KEY_R:
+        case KEY_r:
+            if (renderer.currentState == SHOP) {
+                renderer.resetMenuChoices();
+            }
+            break;
         case KEY_Q:
         case KEY_q:
             // TODO: Cleanup operations
             loop->stop();
             break;
         case KEY_PLUS:
+            if (renderer.currentState == SHOP) {
+                renderer.increment();
+            }
             break;
         case KEY_HYPHEN_MINUS:
+            if (renderer.currentState == SHOP) {
+                renderer.decrement();
+            }
             break;
         case KEY_ESC:
             break;
