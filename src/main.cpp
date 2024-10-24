@@ -12,13 +12,13 @@ void programEntryPoint(LoopLambda* loop) {
     switch (pressedKeyCode) {
         case KEY_UP:
             if (renderer.currentState == SHOP) {
-                Shop::getInstance().menuItems.prev();
+                renderer.menuItems.prev();
                 renderer.render();
             }
             break;
         case KEY_DOWN:
             if (renderer.currentState == SHOP) {
-                Shop::getInstance().menuItems.next();
+                renderer.menuItems.next();
                 renderer.render();
             }
             break;
@@ -79,12 +79,20 @@ int main() {
     Renderer& renderer = Renderer::getInstance();
 
     // Disable text wrapping
-    renderer.buf << "\e[?7l";
+    cout << "\033[?7l";
+    // Hide cursor
+    cout << "\033[?25l";
+
     renderer.render();
 
     LoopLambda loop(10, programEntryPoint);
 
     loop.start();
+
+    // Clear everything on terminal when program ends.
+    clearTerminal();
+    // Show cursor
+    cout << "\033[?25h";
 
     return 0;
 }

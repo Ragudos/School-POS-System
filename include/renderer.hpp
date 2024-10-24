@@ -1,5 +1,9 @@
+#ifndef RENDERER_MODULE
+#define RENDERER_MODULE
+
 #include <iostream>
 #include <sstream>
+#include <tuple>
 
 #include "./components/select.hpp"
 
@@ -10,17 +14,35 @@ using namespace std;
  * This will be mainly used for the navigation bar
  */
 struct Tab {
-    bool isActive;
     /** A tuple of [x,y] dimensions */
-    int pos[2];
+    tuple<int, int> pos;
     /** A tuple of [x,y] dimensions */
-    int dimensions[2];
-    string text;
+    tuple<int, int> dimensions;
     /**
      * A tuple of [lowercase,uppercase] ASCII codes of the corresponding key
      * that will activate this tab.
      */
-    int keyCodes[2];
+    tuple<int, int> keyCodes;
+    string text;
+
+    Tab(tuple<int, int> pos, tuple<int, int> dimensions,
+        tuple<int, int> keyCodes, string text)
+        : pos(pos), dimensions(dimensions), keyCodes(keyCodes), text(text) {}
+};
+
+struct InteractableTab : public Tab {
+    bool isActive;
+
+    InteractableTab(Tab tab, bool isActive) : Tab(tab), isActive(isActive) {}
+};
+
+struct MenuChoice {
+    /** The id/value of the choice */
+    string value;
+    /** The quantity */
+    int qty;
+    /** The price of this menu choice in Php */
+    double price;
 };
 
 enum RendererState {
@@ -37,41 +59,33 @@ enum RendererState {
     ADMIN_FINISH_ORDER_RESULTS
 };
 
-class Shop {
+// TODO:
+// Read a JSON file that will contain everything (
+// menu item, its category, price, etc., and just have that be
+// here)
+
+class Renderer {
    private:
-    Shop()
-        : menuItems({{"Caramel Macchiato", "caramel-macchiato"},
+    ostringstream buf;
+    Renderer()
+        : currentState(SHOP),
+          toolTips({{{1, 4}, {4, 1}, {KEY_q, KEY_Q}, "quit"},
+                    {{5, 4}, {9, 1}, {KEY_PLUS, KEY_PLUS}, "increment"},
+                    {{14, 4},
+                     {9, 1},
+                     {KEY_HYPHEN_MINUS, KEY_HYPHEN_MINUS},
+                     "decrement"}}),
+          navigationTabs({
+              {{{1, 8}, {4, 1}, {KEY_s, KEY_S}, "shop"}, true},
+              {{{5, 8}, {5, 1}, {KEY_a, KEY_A}, "admin"}, false},
+              {{{10, 8}, {8, 1}, {KEY_c, KEY_C}, "checkout"}, false},
+          }),
+          menuItems({{"Caramel Macchiato", "caramel-macchiato"},
                      {"Java Chip", "java-chip"},
                      {"Decaf", "decaf"},
                      {"Cold Brew", "cold-brew"},
                      {"Caffe Americano", "caffe-americano"},
                      {"Blonde Roast", "blonde-roast"}}){};
-    Shop(const Shop&) = delete;
-    Shop& operator=(const Shop&) = delete;
-
-   public:
-    Select menuItems;
-    static Shop& getInstance() {
-        static Shop instance;
-        return instance;
-    }
-
-    void buffer(ostringstream* buf) {
-        for (size_t i = 0; i < menuItems.choices.size(); ++i) {
-            SelectChoice item = menuItems.choices.at(i);
-
-            if (i == menuItems.getCurrentChoice()) {
-                *buf << "\033[30m\033[47m";
-            }
-
-            *buf << item.name << "\033[0m" << endl;
-        }
-    }
-};
-
-class Renderer {
-   private:
-    Renderer() : currentState(SHOP){};
     Renderer(const Renderer&) = delete;
     Renderer& operator=(const Renderer&) = delete;
 
@@ -83,18 +97,19 @@ class Renderer {
     }
 
     void bufferNav() {
-        for (int i = 0; i < 3; ++i) {
-            Tab& tab = navigationTabs[i];
+        for (size_t i = 0; i < navigationTabs.size(); ++i) {
+            InteractableTab& tab = navigationTabs.at(i);
             int prevTabWidth = 1;
 
             if (i != 0) {
-                Tab prevTab = navigationTabs[i - 1];
-                prevTabWidth = prevTab.pos[0] + prevTab.dimensions[0] + (4 * i);
+                InteractableTab prevTab = navigationTabs.at(i - 1);
+                prevTabWidth =
+                    get<0>(prevTab.pos) + get<0>(prevTab.dimensions) + (4 * i);
             }
 
-            moveCursorTo(tab.pos[1], prevTabWidth);
-            buf << "\033[1m" << (char)tab.keyCodes[0] << "\033[0m";
-            moveCursorTo(tab.pos[1], prevTabWidth + 2);
+            moveCursorTo(get<1>(tab.pos), prevTabWidth);
+            buf << "\033[1m" << (char)get<0>(tab.keyCodes) << "\033[0m";
+            moveCursorTo(get<1>(tab.pos), prevTabWidth + 2);
 
             if (!tab.isActive) {
                 buf << "\033[2m";
@@ -117,20 +132,67 @@ class Renderer {
         moveCursorTo(DYNAMIC_STARTING_ROW, 1);
 
         if (currentState == SHOP) {
-            Shop::getInstance().buffer(&buf);
+            for (size_t i = 0; i < menuItems.choices.size(); ++i) {
+                SelectChoice item = menuItems.choices.at(i);
+
+                if (i == menuItems.getCurrentChoice()) {
+                    buf << "\033[30m\033[47m";
+                }
+
+                buf << item.name << "\033[0m";
+                moveCursorTo(DYNAMIC_STARTING_ROW + i + 1, 1);
+            }
+        }
+    }
+
+    void bufferToolBar() {
+        moveCursorTo(3, 1);
+
+        for (int i = 0; i < 50; ++i) {
+            buf << "-";
+        }
+
+        moveCursorTo(4, 1);
+
+        buf << "\033[K";
+
+        for (size_t i = 0; i < toolTips.size(); ++i) {
+            Tab* toolTip = &toolTips.at(i);
+
+            if (currentState != SHOP) {
+                if (toolTip->text == "increment" ||
+                    toolTip->text == "decrement") {
+                    continue;
+                }
+            }
+
+            int prevToolTipWidth = 1;
+
+            if (i != 0) {
+                Tab* prevToolTip = &toolTips.at(i - 1);
+                prevToolTipWidth = get<0>(prevToolTip->pos) +
+                                   get<0>(prevToolTip->dimensions) + (4 * i);
+            }
+
+            moveCursorTo(get<1>(toolTip->pos), prevToolTipWidth);
+            buf << "\033[1m" << (char)get<0>(toolTip->keyCodes) << "\033[0m";
+            moveCursorTo(get<1>(toolTip->pos), prevToolTipWidth + 2);
+            buf << "\033[2m" << toolTip->text << "\033[0m";
+        }
+
+        moveCursorTo(5, 1);
+
+        for (int i = 0; i < 50; ++i) {
+            buf << "-";
         }
     }
 
    public:
-    /** The row and below that can isn't controlled by this Renderer */
-    const int DYNAMIC_STARTING_ROW = 6;
-    Tab navigationTabs[3] = {
-        {true, {1, 3}, {4, 1}, "shop", {KEY_s, KEY_S}},
-        {false, {5, 3}, {5, 1}, "admin", {KEY_a, KEY_A}},
-        {false, {10, 3}, {8, 1}, "checkout", {KEY_c, KEY_C}},
-    };
-    ostringstream buf;
+    const int DYNAMIC_STARTING_ROW = 12;
     RendererState currentState;
+    vector<Tab> toolTips;
+    vector<InteractableTab> navigationTabs;
+    Select menuItems;
 
     /**
      *
@@ -145,6 +207,7 @@ class Renderer {
 
     void render() {
         bufferHeroSection();
+        bufferToolBar();
         bufferNav();
         bufferContents();
 
@@ -154,20 +217,22 @@ class Renderer {
     }
 
     void changeNavTab(int key) {
-        for (int i = 0; i < 3; ++i) {
-            Tab* tab = &navigationTabs[i];
+        for (size_t i = 0; i < 3; ++i) {
+            InteractableTab* tab = &navigationTabs.at(i);
 
             if (tab->isActive) {
-                if (tab->keyCodes[0] == key || tab->keyCodes[1] == key) {
+                if (get<0>(tab->keyCodes) == key ||
+                    get<1>(tab->keyCodes) == key) {
                     return;
                 }
 
                 tab->isActive = false;
 
                 if (tab->text == "shop") {
-                    Shop::getInstance().menuItems.reset();
+                    menuItems.reset();
                 }
-            } else if (tab->keyCodes[0] == key || tab->keyCodes[1] == key) {
+            } else if (get<0>(tab->keyCodes) == key ||
+                       get<1>(tab->keyCodes) == key) {
                 if (tab->text == "shop") {
                     currentState = SHOP;
                 } else if (tab->text == "admin") {
@@ -201,3 +266,4 @@ class Renderer {
         moveCursorTo(fromRow, fromCol);
     }
 };
+#endif

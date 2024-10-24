@@ -9,6 +9,8 @@
     "ostream": "cpp",
     "functional": "cpp",
     "atomic": "cpp",
-    "memory": "cpp"
+    "memory": "cpp",
+    "sstream": "cpp",
+    "tuple": "cpp"
   }
 }
