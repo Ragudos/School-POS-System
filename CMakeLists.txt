@@ -39,8 +39,8 @@ add_executable(main ${SRCS})
 add_executable(main_test ${TEST_SRCS})
 
 # Specify compilation flags
-target_compile_options(main PRIVATE -Wall -Wextra)
-target_compile_options(main_test PRIVATE -Wall -Wextra)
+target_compile_options(main PRIVATE)
+target_compile_options(main_test PRIVATE)
 
 # Specify output directory for binaries
 set_target_properties(main PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${BIN_DIR})

@@ -84,42 +84,21 @@ void programEntryPoint(LoopLambda* loop) {
 }
 
 int main() {
-    // Reset the terminal so cursor gets reset
-    clearTerminal();
+    enterAlternativeScreen();
 
-    int i = 0;
+    Renderer& renderer = Renderer::getInstance();
 
-    while (true) {
-        clearLine();
-        restoreSavedCursorPosition();
-        saveCursorPosition();
-        moveCursorAtCol(i % 5);
-        tuple<int, int> cursorPos = getCursorPosition();
-        // Reset to beginning to display the text below;
-        moveCursorAtCol(1);
-        cout << "Row: " << get<0>(cursorPos) << ", Col: " << get<1>(cursorPos)
-             << " " << i++ << endl;
-
-        wait(100);
-    }
-
-    /*Renderer& renderer = Renderer::getInstance();
-
-    // Disable text wrapping
-    cout << "\033[?7l";
-    // Hide cursor
-    cout << "\033[?25l";
+    disableTextWrapping();
+    hideCursor();
 
     renderer.render();
 
     LoopLambda loop(10, programEntryPoint);
 
     loop.start();
+    showCursor();
 
-    // Clear everything on terminal when program ends.
-    clearTerminal();
-    // Show cursor
-    cout << "\033[?25h"; */
+    exitAlternativeScreen();
 
     return 0;
 }
