@@ -4,6 +4,7 @@
 #include <utils.hpp>
 
 using namespace miscellaneous;
+using namespace terminal;
 
 void programEntryPoint(LoopLambda* loop) {
     Renderer& renderer = Renderer::getInstance();
@@ -86,7 +87,23 @@ int main() {
     // Reset the terminal so cursor gets reset
     clearTerminal();
 
-    Renderer& renderer = Renderer::getInstance();
+    int i = 0;
+
+    while (true) {
+        clearLine();
+        restoreSavedCursorPosition();
+        saveCursorPosition();
+        moveCursorAtCol(i % 5);
+        tuple<int, int> cursorPos = getCursorPosition();
+        // Reset to beginning to display the text below;
+        moveCursorAtCol(1);
+        cout << "Row: " << get<0>(cursorPos) << ", Col: " << get<1>(cursorPos)
+             << " " << i++ << endl;
+
+        wait(100);
+    }
+
+    /*Renderer& renderer = Renderer::getInstance();
 
     // Disable text wrapping
     cout << "\033[?7l";
@@ -102,7 +119,7 @@ int main() {
     // Clear everything on terminal when program ends.
     clearTerminal();
     // Show cursor
-    cout << "\033[?25h";
+    cout << "\033[?25h"; */
 
     return 0;
 }
