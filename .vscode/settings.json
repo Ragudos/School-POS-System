@@ -11,6 +11,16 @@
     "atomic": "cpp",
     "memory": "cpp",
     "sstream": "cpp",
-    "tuple": "cpp"
+    "tuple": "cpp",
+    "deque": "cpp",
+    "list": "cpp",
+    "system_error": "cpp",
+    "vector": "cpp",
+    "xhash": "cpp",
+    "xiosbase": "cpp",
+    "xstring": "cpp",
+    "xtree": "cpp",
+    "*.tcc": "cpp",
+    "unordered_map": "cpp"
   }
 }

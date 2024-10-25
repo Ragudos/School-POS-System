@@ -77,15 +77,15 @@ namespace terminal {
 const string ESC = "\033[";
 const string SEP = ";";
 
-void moveCursorTo(int col) { cout << ESC << col + 1 << "G"; }
+void moveCursorTo(int col) { cout << ESC << (col + 1) << "G"; }
 void moveCursorTo(int col, int row) {
-    cout << ESC << row + 1 << SEP << col + 1 << "H";
+    cout << ESC << (row + 1) << SEP << (col + 1) << "H";
 }
 void moveCursorTo(ostringstream *buf, int col) {
-    *buf << ESC << col + 1 << "G";
+    *buf << ESC << (col + 1) << "G";
 }
 void moveCursorTo(ostringstream *buf, int col, int row) {
-    *buf << ESC << row + 1 << SEP << col + 1 << "H";
+    *buf << ESC << (row + 1) << SEP << (col + 1) << "H";
 }
 void moveCursor(int cols) {
     if (cols < 0) {
@@ -163,32 +163,88 @@ void clearFromCursorToStartOfLine() { cout << ESC << "1K"; }
 void clearFromCursorToStartOfLine(ostringstream *buf) { *buf << ESC << "1K"; }
 void clearLine() { cout << ESC << "2K"; }
 void clearLine(ostringstream *buf) { *buf << ESC << "2K"; }
-void clearLines(int amount = 1) {
+void clearLinesFromCursorToEndOfLine(size_t amount = 1) {
     if (amount <= 0) {
         throw logic_error(
             "Cannot clear a non-positive integer amount of lines");
     }
 
     for (int i = 0, l = amount - 1; i < l; ++i) {
-        cout << ESC << "2K";
+        clearFromCursorToEndOfLine();
         moveCursorUp();
     }
 
-    cout << ESC << "2K";
+    clearFromCursorToEndOfLine();
     moveCursorToStartOfCurrLine();
 }
-void clearLines(ostringstream *buf, int amount = 1) {
+void clearLinesFromCursorToEndOfLine(ostringstream *buf, size_t amount = 1) {
     if (amount <= 0) {
         throw logic_error(
             "Cannot clear a non-positive integer amount of lines");
     }
 
-    for (int i = 0, l = amount - 1; i < l; ++i) {
-        *buf << ESC << "2K";
+    for (size_t i = 0, l = amount - 1; i < l; ++i) {
+        clearFromCursorToEndOfLine(buf);
         moveCursorUp(buf);
     }
 
-    *buf << ESC << "2K";
+    clearFromCursorToEndOfLine(buf);
+    moveCursorToStartOfCurrLine(buf);
+}
+void clearLinesFromCursorToStartOfLine(size_t amount = 1) {
+    if (amount <= 0) {
+        throw logic_error(
+            "Cannot clear a non-positive integer amount of lines");
+    }
+
+    for (size_t i = 0, l = amount - 1; i < l; ++i) {
+        clearFromCursorToStartOfLine();
+        moveCursorUp();
+    }
+
+    clearFromCursorToStartOfLine();
+    moveCursorToStartOfCurrLine();
+}
+void clearLinesFromCursorToStartOfLine(ostringstream *buf, size_t amount = 1) {
+    if (amount <= 0) {
+        throw logic_error(
+            "Cannot clear a non-positive integer amount of lines");
+    }
+
+    for (size_t i = 0, l = amount - 1; i < l; ++i) {
+        clearFromCursorToStartOfLine(buf);
+        moveCursorUp(buf);
+    }
+
+    clearFromCursorToStartOfLine(buf);
+    moveCursorToStartOfCurrLine(buf);
+}
+void clearLines(size_t amount = 1) {
+    if (amount <= 0) {
+        throw logic_error(
+            "Cannot clear a non-positive integer amount of lines");
+    }
+
+    for (size_t i = 0, l = amount - 1; i < l; ++i) {
+        clearLine();
+        moveCursorUp();
+    }
+
+    clearLine();
+    moveCursorToStartOfCurrLine();
+}
+void clearLines(ostringstream *buf, size_t amount = 1) {
+    if (amount <= 0) {
+        throw logic_error(
+            "Cannot clear a non-positive integer amount of lines");
+    }
+
+    for (size_t i = 0, l = amount - 1; i < l; ++i) {
+        clearLine(buf);
+        moveCursorUp(buf);
+    }
+
+    clearLine(buf);
     moveCursorToStartOfCurrLine(buf);
 }
 void clearFromCursorToEndOfScreen() { cout << ESC << "J"; }

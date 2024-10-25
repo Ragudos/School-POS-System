@@ -11,6 +11,7 @@
 #include <vector>
 
 #include "../keyboard.hpp"
+#include "../observer.hpp"
 #include "../screen.hpp"
 #include "../utils.hpp"
 
@@ -26,14 +27,8 @@ enum NodeTypes {
     CONTAINER,
     /**
      *
-     * Used to format its children (color, bold, etc.)
-     */
-    ACCESSORY,
-    /**
-     *
-     * An interactable node must have a corresponding key code
-     * AND cannot have children. It can only have select
-     * children specified by the node itself.
+     * An interactable node must have a corresponding key code.
+     * It can only have select children specified by the node itself.
      */
     INTERACTABLE,
     /**
@@ -114,6 +109,13 @@ class Node : public enable_shared_from_this<Node> {
     }
 
     virtual void adjustDimensionsOnRemoveChild(size_t idx, NodePtr child) {
+        if (children.empty()) {
+            setHeight(0);
+            setWidth(0);
+
+            return;
+        }
+
         size_t heightOfRemovedChild = child->getHeight();
         size_t largestWidth = 0;
 
@@ -168,14 +170,27 @@ class Node : public enable_shared_from_this<Node> {
     }
 
     virtual void removeChildAt(size_t idx) {
+        if (children.empty()) {
+            return;
+        }
+
         if (idx < children.size()) {
             NodePtr removedChild = children.at(idx);
 
             children.erase(children.begin() + idx);
 
+            // TODO: ALso adjust the dimensions of
+            // parents recursively
             adjustDimensionsOnRemoveChild(idx, removedChild);
             onChildRemoved(idx);
         }
+    }
+
+    virtual void emptyChildren() {
+        children.clear();
+
+        setWidth(0);
+        setHeight(0);
     }
 
     virtual size_t getWidth() const { return width; }
@@ -229,19 +244,42 @@ class GridNode : public ContainerNode {
     size_t childWidth;
 
    public:
-    GridNode() : childWidth(0) {}
-    GridNode(size_t width) : childWidth(width) { setWidth(width); }
+    GridNode() : childWidth(0) { setWidth(Screen::getInstance().getWidth()); }
+    GridNode(size_t width) : childWidth(0) { setWidth(width); }
     GridNode(size_t width, size_t childWidth) : childWidth(childWidth) {
         setWidth(width);
     }
 
+   public:
+    virtual void emptyChildren() {
+        children.clear();
+
+        setHeight(0);
+    }
+
+    size_t getColGap() const { return colGap; }
+    size_t getRowGap() const { return rowGap; }
+
    protected:
     void adjustDimensionsOnBeforeAppendChild(NodePtr child) override {
-        child->setWidth(childWidth);
+        if (childWidth != 0) {
+            child->setWidth(childWidth);
+        }
 
         if (children.empty()) {
             child->setRow(getRow());
             child->setCol(getCol());
+
+            if (childWidth == 0) {
+                shared_ptr<GridNode> prnt =
+                    dynamic_pointer_cast<GridNode>(getParent());
+
+                if (prnt) {
+                    child->setWidth(getWidth());
+                }
+            }
+
+            setHeight(child->getHeight());
 
             return;
         }
@@ -251,17 +289,38 @@ class GridNode : public ContainerNode {
             latestChild->getCol() + latestChild->getWidth() + colGap;
         size_t childRow = latestChild->getRow();
 
+        if (childWidth == 0 && childCol < getWidth()) {
+            child->setWidth(getWidth() - childCol);
+        }
+
         // If overflow
-        if (childCol + childWidth > getWidth()) {
+        if (childCol + child->getWidth() > getWidth()) {
             childCol = getCol();
             childRow =
                 latestChild->getRow() + latestChild->getHeight() + rowGap;
+
+            setHeight(childRow + child->getHeight());
+        } else {
+            size_t tallestHeight =
+                latestChild->getRow() + latestChild->getHeight();
+
+            for (size_t i = 0, l = children.size() - 1; i < l; ++i) {
+                NodePtr child = children.at(i);
+                size_t childHeight = child->getRow() + child->getHeight();
+
+                if (childHeight > tallestHeight) {
+                    tallestHeight = childHeight;
+                }
+            }
+
+            size_t childHeight = childRow + child->getHeight();
+
+            setHeight(tallestHeight > childHeight ? tallestHeight
+                                                  : childHeight);
         }
 
         child->setCol(childCol);
         child->setRow(childRow);
-
-        setHeight(childRow + child->getHeight());
     }
 
     void adjustDimensionsOnRemoveChild(size_t idx, NodePtr child) override {
@@ -332,6 +391,17 @@ class TextNode : public Node {
         if (w < textSize) {
             width = w;
             height = ceil(textSize / w);
+
+            if (height == 0) {
+                height = 1;
+            }
+
+            saveCursorPosition();
+
+            moveCursorTo(25, 25);
+            cout << height;
+
+            restoreSavedCursorPosition();
         } else {
             width = w;
         }
@@ -393,15 +463,21 @@ class TextNode : public Node {
         size_t currWidth = getWidth();
         size_t currHeight = getHeight();
 
+        saveCursorPosition();
+
+        moveCursorTo(20, 20);
+
+        cout << currWidth << " " << currHeight;
+
+        restoreSavedCursorPosition();
+
         // We need to wrap this text.
         if (len > currWidth) {
             size_t currLine = 0;
 
-            while (currLine < currHeight) {
+            while (currLine <= currHeight) {
                 *buf << text.substr(currLine * currWidth, currWidth);
-                moveCursorTo(buf, getCol());
-                moveCursorDown(buf);
-                ++currLine;
+                moveCursorTo(buf, getCol(), getRow() + (++currLine));
             }
         } else {
             *buf << text;
@@ -572,16 +648,21 @@ class SelectOptionNode : public TextNode {
 };
 
 class SelectNode : public InteractableNode {
+   public:
+    Observer<string> observer;
+
    private:
     size_t activeSelectOptionIdx = 0;
     const tuple<int, int> keyCodes = {KEY_DOWN, KEY_UP};
 
    public:
-    SelectNode() {}
+    SelectNode() = default;
+    ~SelectNode() { observer.clear(); }
 
    private:
     void selectNext() {
         activeSelectOptionIdx = (activeSelectOptionIdx + 1) % children.size();
+        observer.setState(getValueOfSelectedOption().value());
     }
     void selectPrevious() {
         if (activeSelectOptionIdx == 0) {
@@ -589,6 +670,7 @@ class SelectNode : public InteractableNode {
         } else {
             activeSelectOptionIdx -= 1;
         }
+        observer.setState(getValueOfSelectedOption().value());
     }
 
    public:
@@ -630,8 +712,10 @@ class SelectNode : public InteractableNode {
 
         if (activeSelectOptionIdx >= childSize) {
             activeSelectOptionIdx = childSize - 1;
+            observer.setState(getValueOfSelectedOption().value());
         } else if (idx < activeSelectOptionIdx) {
             activeSelectOptionIdx -= 1;
+            observer.setState(getValueOfSelectedOption().value());
         }
     }
 
@@ -651,6 +735,10 @@ class SelectNode : public InteractableNode {
     }
 
     bool onKeyPressed(int keyCode) override {
+        if (children.empty()) {
+            return false;
+        }
+
         if (keyCode == get<0>(keyCodes)) {
             selectNext();
 

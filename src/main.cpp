@@ -74,14 +74,19 @@ int main() {
     disableTextWrapping();
     hideCursor();
 
+    renderer.initializeComponents();
     renderer.rootNode->render(&renderer.buf);
     renderer.render();
 
     LoopLambda loop(10, programEntryPoint);
 
-    loop.start();
-    showCursor();
+    try {
+        loop.start();
+    } catch (const runtime_error& err) {
+        cout << err.what();
+    }
 
+    showCursor();
     exitAlternativeScreen();
 
     return 0;
