@@ -42,6 +42,33 @@ void clearTerminal() {
     system("clear");
 #endif
 }
+
+string kebabToPascal(const string &kebabCaseStr, bool addSpace = true) {
+    stringstream res;
+    bool uppercaseNext = true;
+    bool isBeginning = true;
+
+    for (char ch : kebabCaseStr) {
+        if (ch == '-') {
+            uppercaseNext = true;
+        } else if (uppercaseNext) {
+            if (addSpace && !isBeginning) {
+                res << " ";
+            }
+
+            res << static_cast<char>(toupper(ch));
+            uppercaseNext = false;
+        } else {
+            res << ch;
+        }
+
+        if (isBeginning) {
+            isBeginning = false;
+        }
+    }
+
+    return res.str();
+}
 }  // namespace miscellaneous
 
 namespace terminal {
@@ -198,6 +225,45 @@ tuple<int, int> getCursorPosition() {
     } else {
         throw logic_error("Failed to get cursor position");
     }
+}
+
+void textReset() { cout << ESC << "0m"; }
+void textReset(ostringstream *buf) { *buf << ESC << "0m"; }
+void textBold() { cout << ESC << "1m"; }
+void textBold(ostringstream *buf) { *buf << ESC << "1m"; }
+void textRemoveBold() { cout << ESC << "21m"; }
+void textRemoveBold(ostringstream *buf) { *buf << ESC << "21m"; }
+void textDim() { cout << ESC << "2m"; }
+void textDim(ostringstream *buf) { *buf << ESC << "2m"; }
+void textNormal() { cout << ESC << "22m"; }
+void textNormal(ostringstream *buf) { *buf << ESC << "22m"; }
+void textStrikethrough() { cout << ESC << "9m"; }
+void textStrikethrough(ostringstream *buf) { *buf << ESC << "9m"; }
+void textRemoveStrikethrough() { cout << ESC << "29m"; }
+void textRemoveStrikethrough(ostringstream *buf) { *buf << ESC << "29m"; }
+void textItalic() { cout << ESC << "3m"; }
+void textItalic(ostringstream *buf) { *buf << ESC << "3m"; }
+void textRemoveItalic() { cout << ESC << "23m"; }
+void textRemoveItalic(ostringstream *buf) { *buf << ESC << "23m"; }
+void textUnderline() { cout << ESC << "4m"; }
+void textUnderline(ostringstream *buf) { *buf << ESC << "4m"; }
+void textRemoveUnderline() { cout << ESC << "24m"; }
+void textRemoveUnderline(ostringstream *buf) { *buf << ESC << "24m"; }
+void textBackground(int r = 0, int g = 0, int b = 0) {
+    cout << ESC << "48" << SEP << "2" << SEP << r << SEP << g << SEP << b
+         << "m";
+}
+void textBackground(ostringstream *buf, int r = 0, int g = 0, int b = 0) {
+    *buf << ESC << "48" << SEP << "2" << SEP << r << SEP << g << SEP << b
+         << "m";
+}
+void textForeground(int r = 255, int g = 255, int b = 255) {
+    cout << ESC << "38" << SEP << "2" << SEP << r << SEP << g << SEP << b
+         << "m";
+}
+void textForeground(ostringstream *buf, int r = 255, int g = 255, int b = 255) {
+    *buf << ESC << "38" << SEP << "2" << SEP << r << SEP << g << SEP << b
+         << "m";
 }
 }  // namespace terminal
 

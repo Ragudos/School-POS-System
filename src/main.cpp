@@ -12,14 +12,10 @@ void programEntryPoint(LoopLambda* loop) {
 
     switch (pressedKeyCode) {
         case KEY_UP:
-            if (renderer.currentState == SHOP) {
-                renderer.prevMenu();
-            }
+            renderer.onKeyPressed(KEY_UP);
             break;
         case KEY_DOWN:
-            if (renderer.currentState == SHOP) {
-                renderer.nextMenu();
-            }
+            renderer.onKeyPressed(KEY_DOWN);
             break;
         case KEY_LEFT:
             break;
@@ -31,16 +27,9 @@ void programEntryPoint(LoopLambda* loop) {
         case KEY_s:
         case KEY_C:
         case KEY_c:
-            // TODO: Check if we can go to checkout
-            // (condition is that there should be items
-            // in the cart).
-            renderer.changeNavTab(pressedKeyCode);
             break;
         case KEY_R:
         case KEY_r:
-            if (renderer.currentState == SHOP) {
-                renderer.resetMenuChoices();
-            }
             break;
         case KEY_Q:
         case KEY_q:
@@ -48,20 +37,16 @@ void programEntryPoint(LoopLambda* loop) {
             loop->stop();
             break;
         case KEY_PLUS:
-            if (renderer.currentState == SHOP) {
-                renderer.increment();
-            }
             break;
         case KEY_HYPHEN_MINUS:
-            if (renderer.currentState == SHOP) {
-                renderer.decrement();
-            }
             break;
         case KEY_ESC:
             break;
         case KEY_BACKSPACE:
             break;
     }
+
+    renderer.render();
 
     /**
      * Sample to get input from user
@@ -91,6 +76,7 @@ int main() {
     disableTextWrapping();
     hideCursor();
 
+    renderer.rootNode->render(&renderer.buf);
     renderer.render();
 
     LoopLambda loop(10, programEntryPoint);

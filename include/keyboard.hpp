@@ -1,5 +1,5 @@
-#ifndef KEYBOARD
-#define KEYBOARD
+#ifndef KEYBOARD_MODULE
+#define KEYBOARD_MODULE
 
 // ASCII Key Code Definitions
 #define KEY_UP 72

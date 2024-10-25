@@ -1,3 +1,6 @@
+#ifndef LOOPLAMBDA_MODULE
+#define LOOPLAMBDA_MODULE
+
 #include <functional>
 
 #include "./utils.hpp"
@@ -32,3 +35,5 @@ class LoopLambda {
 
     void stop() { shouldLoop = false; }
 };
+
+#endif
