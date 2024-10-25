@@ -45,6 +45,11 @@
 using namespace std;
 
 class Keyboard {
+   private:
+    Keyboard() {}
+    Keyboard(const Keyboard&) = delete;
+    Keyboard& operator=(const Keyboard&) = delete;
+
    public:
 #ifdef LINUX_PLATFORM
     static int getPressedKeyCode() {

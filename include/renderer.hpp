@@ -19,6 +19,7 @@ class Renderer {
    public:
     RendererState viewState;
     shared_ptr<ContainerNode> rootNode;
+    shared_ptr<GridNode> bodyMenu;
     shared_ptr<SelectNode> menuSelectNode;
     shared_ptr<ContainerNode> navigationContainer;
     ostringstream buf;
@@ -26,6 +27,7 @@ class Renderer {
    private:
     Renderer()
         : rootNode(make_shared<ContainerNode>()),
+          bodyMenu(make_shared<GridNode>()),
           menuSelectNode(make_shared<SelectNode>()),
           navigationContainer(make_shared<ContainerNode>()) {
         auto title = make_shared<TextNode>(TITLE);
@@ -33,11 +35,13 @@ class Renderer {
         title->setColor(255, 255, 0);
         title->setBold();
 
-        auto linebreak = make_shared<LineBreakNode>(2);
+        auto titleLineBreak = make_shared<LineBreakNode>(2);
 
         rootNode->appendChild(title);
-        rootNode->appendChild(linebreak);
-        rootNode->appendChild(menuSelectNode);
+        rootNode->appendChild(titleLineBreak);
+        rootNode->appendChild(bodyMenu);
+
+        bodyMenu->appendChild(menuSelectNode);
 
         for (int i = 0; i < 6; ++i) {
             auto menuSelectOption = make_shared<SelectOptionNode>(menuItems[i]);

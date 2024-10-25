@@ -12,10 +12,8 @@ void programEntryPoint(LoopLambda* loop) {
 
     switch (pressedKeyCode) {
         case KEY_UP:
-            renderer.onKeyPressed(KEY_UP);
-            break;
         case KEY_DOWN:
-            renderer.onKeyPressed(KEY_DOWN);
+            renderer.onKeyPressed(pressedKeyCode);
             break;
         case KEY_LEFT:
             break;

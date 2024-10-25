@@ -1,6 +1,8 @@
 #ifndef NODE_MODULE
 #define NODE_MODULE
 
+#include <math.h>
+
 #include <iostream>
 #include <memory>
 #include <optional>
@@ -9,6 +11,7 @@
 #include <vector>
 
 #include "../keyboard.hpp"
+#include "../screen.hpp"
 #include "../utils.hpp"
 
 using namespace std;
@@ -40,6 +43,19 @@ enum NodeTypes {
     LEAF
 };
 
+enum NodeRenderStyle {
+    /**
+     *
+     * Renders in the next line of previous node.
+     */
+    BLOCK,
+    /**
+     *
+     * Renders in the same line as the previous node.
+     */
+    INLINE
+};
+
 enum TextNodeFormats { BOLD, ITALIC, UNDERLINE, STRIKETHROUGH, DIM };
 
 /**
@@ -53,51 +69,97 @@ class Node : public enable_shared_from_this<Node> {
 
    protected:
     vector<NodePtr> children;
+    size_t width = 0;
+    size_t height = 0;
 
    private:
     NodePtr parent = nullptr;
-    size_t width = 0;
-    size_t height = 0;
     size_t row = 0;
     size_t col = 0;
+
+   protected:
+    virtual void adjustDimensionsOnBeforeAppendChild(NodePtr child) {
+        // Default behavior:
+
+        // Adjusts width and height based on child with largest width
+        // and latest child's height (to be inserted).
+        // Basically depends on child to define its dimensions
+        // unlike a grid container.
+        size_t childRow = getRow();
+        size_t childCol = getCol();
+
+        if (!children.empty()) {
+            NodePtr latestNode = children.at(children.size() - 1);
+
+            switch (child->nodeRenderStyle()) {
+                case NodeRenderStyle::BLOCK: {
+                    childRow = latestNode->getRow() + latestNode->getHeight();
+                }; break;
+                case NodeRenderStyle::INLINE: {
+                    childCol = latestNode->getCol() + latestNode->getWidth();
+                }; break;
+            }
+        }
+
+        size_t childCurrWidth = child->getWidth();
+
+        if (getWidth() < childCol + childCurrWidth) {
+            setWidth(childCol + childCurrWidth);
+        }
+
+        child->setRow(childRow);
+        child->setCol(childCol);
+
+        setHeight(getHeight() + child->getHeight());
+    }
+
+    virtual void adjustDimensionsOnRemoveChild(size_t idx, NodePtr child) {
+        size_t heightOfRemovedChild = child->getHeight();
+        size_t largestWidth = 0;
+
+        for (size_t i = 0, l = children.size(); i < l; ++i) {
+            NodePtr node = children.at(i);
+            size_t nodeWidth = node->getCol() + node->getWidth();
+
+            if (largestWidth < nodeWidth) {
+                largestWidth = nodeWidth;
+            }
+        }
+
+        for (size_t i = idx, l = children.size(); i < l; ++i) {
+            NodePtr node = children.at(i);
+            node->setRow(node->getRow() - heightOfRemovedChild);
+        }
+
+        NodePtr lastChild = children.at(children.size() - 1);
+
+        setWidth(largestWidth);
+        setHeight(lastChild->getRow() + lastChild->getHeight());
+    }
 
    public:
     /** Render to a passed buffer */
     virtual void render(ostringstream *buf) const = 0;
-    virtual bool canHaveChildren() const { return true; }
     virtual NodeTypes nodeType() const = 0;
+
+    virtual bool canHaveChildren() const { return true; }
+    virtual NodeRenderStyle nodeRenderStyle() const {
+        return NodeRenderStyle::BLOCK;
+    }
+
     virtual void onChildRemoved(optional<size_t> idx){};
     virtual void onChildAppended(){};
+
     virtual void setAsParentOfChild(NodePtr child) {
         child->parent = shared_from_this();
     }
     virtual void assertChildIsValid(NodePtr child) const {};
+
     virtual void appendChild(NodePtr child) {
         if (canHaveChildren()) {
             assertChildIsValid(child);
             setAsParentOfChild(child);
-
-            // By default, all nodes are block-style (takes one line)
-
-            int childRow = getRow();
-            int childCol = getCol();
-
-            if (!children.empty()) {
-                NodePtr latestNode = children.at(children.size() - 1);
-                childRow = latestNode->getRow() + latestNode->getHeight();
-            }
-
-            int childCurrWidth = child->getWidth();
-
-            if (getWidth() < childCol + childCurrWidth) {
-                setWidth(childCol + childCurrWidth);
-            }
-
-            child->setRow(childRow);
-            child->setCol(childCol);
-
-            setHeight(getHeight() + child->getHeight());
-
+            adjustDimensionsOnBeforeAppendChild(child);
             children.push_back(move(child));
             onChildAppended();
         } else {
@@ -107,30 +169,11 @@ class Node : public enable_shared_from_this<Node> {
 
     virtual void removeChildAt(size_t idx) {
         if (idx < children.size()) {
-            int heightOfRemovedChild = children.at(idx)->getHeight();
+            NodePtr removedChild = children.at(idx);
+
             children.erase(children.begin() + idx);
 
-            int largestWidth = -1;
-
-            for (size_t i = 0, l = children.size(); i < l; ++i) {
-                NodePtr node = children.at(i);
-                int nodeWidth = node->getCol() + node->getWidth();
-
-                if (largestWidth < nodeWidth) {
-                    largestWidth = nodeWidth;
-                }
-            }
-
-            for (size_t i = idx, l = children.size(); i < l; ++i) {
-                NodePtr node = children.at(i);
-                node->setRow(node->getRow() - heightOfRemovedChild);
-            }
-
-            NodePtr lastChild = children.at(children.size() - 1);
-
-            setWidth(largestWidth);
-            setHeight(lastChild->getRow() + lastChild->getHeight());
-
+            adjustDimensionsOnRemoveChild(idx, removedChild);
             onChildRemoved(idx);
         }
     }
@@ -178,6 +221,55 @@ class ContainerNode : public Node {
     NodeTypes nodeType() const override { return NodeTypes::CONTAINER; }
 };
 
+class GridNode : public ContainerNode {
+   private:
+    size_t colGap = 2;
+    size_t rowGap = 1;
+
+    size_t childWidth;
+
+   public:
+    GridNode() : childWidth(0) {}
+    GridNode(size_t width) : childWidth(width) { setWidth(width); }
+    GridNode(size_t width, size_t childWidth) : childWidth(childWidth) {
+        setWidth(width);
+    }
+
+   protected:
+    void adjustDimensionsOnBeforeAppendChild(NodePtr child) override {
+        child->setWidth(childWidth);
+
+        if (children.empty()) {
+            child->setRow(getRow());
+            child->setCol(getCol());
+
+            return;
+        }
+
+        NodePtr latestChild = children.at(children.size() - 1);
+        size_t childCol =
+            latestChild->getCol() + latestChild->getWidth() + colGap;
+        size_t childRow = latestChild->getRow();
+
+        // If overflow
+        if (childCol + childWidth > getWidth()) {
+            childCol = getCol();
+            childRow =
+                latestChild->getRow() + latestChild->getHeight() + rowGap;
+        }
+
+        child->setCol(childCol);
+        child->setRow(childRow);
+
+        setHeight(childRow + child->getHeight());
+    }
+
+    void adjustDimensionsOnRemoveChild(size_t idx, NodePtr child) override {
+        // TODO:
+        throw logic_error("unimplemented");
+    }
+};
+
 class TextNode : public Node {
    private:
     string text;
@@ -202,19 +294,18 @@ class TextNode : public Node {
         setHeight(1);
     }
     TextNode(string text, size_t row, size_t col, size_t width) : text(text) {
-        if (width < text.size()) {
-            throw logic_error("Invalid width");
-        }
-
         setRow(row);
         setCol(col);
         setWidth(width);
-        setHeight(1);
     }
     TextNode(string text, size_t row, size_t col, size_t width, size_t height)
         : text(text) {
-        if (width < text.size()) {
-            throw logic_error("Invalid width or height");
+        size_t textSize = text.size();
+
+        if (width < textSize && ceil(textSize / width) < height) {
+            throw logic_error(
+                "The provided height is not enough to accommodate for the "
+                "wrapping of TextNode.");
         }
 
         setRow(row);
@@ -231,6 +322,39 @@ class TextNode : public Node {
     }
 
    public:
+    virtual void setWidth(size_t w) override {
+        if (w == 0) {
+            throw logic_error("Width must be > 0 for TextNode.");
+        }
+
+        size_t textSize = text.size();
+
+        if (w < textSize) {
+            width = w;
+            height = ceil(textSize / w);
+        } else {
+            width = w;
+        }
+    }
+
+    virtual void setHeight(size_t h) override {
+        if (h == 0) {
+            throw logic_error("Height must be > 0 for TextNode.");
+        }
+
+        size_t textSize = text.size();
+
+        if (width < textSize) {
+            if (h < ceil(textSize / width)) {
+                throw logic_error(
+                    "Provided height is insufficient for TextNode to display "
+                    "all its text contents by wrapping.");
+            }
+        }
+
+        height = h;
+    }
+
     void render(ostringstream *buf) const override {
         moveCursorTo(buf, getCol(), getRow());
 
@@ -265,21 +389,33 @@ class TextNode : public Node {
             }
         }
 
-        *buf << text;
-
         size_t len = text.size();
         size_t currWidth = getWidth();
         size_t currHeight = getHeight();
 
-        if (len < currWidth) {
-            *buf << string(currWidth - len, ' ');
-        }
+        // We need to wrap this text.
+        if (len > currWidth) {
+            size_t currLine = 0;
 
-        size_t currLines = 1;
+            while (currLine < currHeight) {
+                *buf << text.substr(currLine * currWidth, currWidth);
+                moveCursorTo(buf, getCol());
+                moveCursorDown(buf);
+                ++currLine;
+            }
+        } else {
+            *buf << text;
 
-        while (currLines < currHeight) {
-            *buf << endl << string(len, ' ');
-            ++currLines;
+            if (len < currWidth) {
+                *buf << string(currWidth - len, ' ');
+            }
+
+            size_t currLine = 1;
+
+            while (currLine < currHeight) {
+                *buf << endl << string(len, ' ');
+                ++currLine;
+            }
         }
 
         textReset(buf);
@@ -287,6 +423,9 @@ class TextNode : public Node {
 
     bool canHaveChildren() const override { return false; }
     NodeTypes nodeType() const override { return NodeTypes::LEAF; }
+    virtual NodeRenderStyle nodeRenderStyle() const override {
+        return NodeRenderStyle::INLINE;
+    }
 
     void setRedColor(int r) {
         assertColorValueIsValid(r);
@@ -425,6 +564,10 @@ class SelectOptionNode : public TextNode {
     SelectOptionNode(string value)
         : TextNode(kebabToPascal(value)), value(value) {}
 
+    NodeRenderStyle nodeRenderStyle() const override {
+        return NodeRenderStyle::BLOCK;
+    }
+
     string getValue() const { return value; }
 };
 
@@ -517,7 +660,20 @@ class SelectNode : public InteractableNode {
 
             return true;
         }
+
+        return false;
     }
+};
+
+/**
+ *
+ * More like a text that listens for keyPress
+ * since implementing a cursor click listener
+ * would require a library to lessen complexity.
+ */
+class ButtonNode : public InteractableNode {
+   public:
+    ButtonNode() {}
 };
 
 #endif
