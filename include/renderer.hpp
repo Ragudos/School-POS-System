@@ -20,12 +20,14 @@ class Renderer {
     RendererState viewState;
     shared_ptr<ContainerNode> rootNode;
     shared_ptr<SelectNode> menuSelectNode;
+    shared_ptr<ContainerNode> navigationContainer;
     ostringstream buf;
 
    private:
     Renderer()
         : rootNode(make_shared<ContainerNode>()),
-          menuSelectNode(make_shared<SelectNode>()) {
+          menuSelectNode(make_shared<SelectNode>()),
+          navigationContainer(make_shared<ContainerNode>()) {
         auto title = make_shared<TextNode>(TITLE);
 
         title->setColor(255, 255, 0);

@@ -220,7 +220,7 @@ tuple<int, int> getCursorPosition() {
 
     int row = 0, col = 0;
 
-    if (sscanf_s(res.c_str(), "\033[%d;%d", &row, &col) == 2) {
+    if (sscanf(res.c_str(), "\033[%d;%d", &row, &col) == 2) {
         return {row, col};
     } else {
         throw logic_error("Failed to get cursor position");
