@@ -390,18 +390,11 @@ class TextNode : public Node {
 
         if (w < textSize) {
             width = w;
-            height = ceil(textSize / w);
+            height = ceil(float(textSize) / float(w));
 
             if (height == 0) {
                 height = 1;
             }
-
-            saveCursorPosition();
-
-            moveCursorTo(25, 25);
-            cout << height;
-
-            restoreSavedCursorPosition();
         } else {
             width = w;
         }
@@ -476,7 +469,14 @@ class TextNode : public Node {
             size_t currLine = 0;
 
             while (currLine <= currHeight) {
-                *buf << text.substr(currLine * currWidth, currWidth);
+                size_t start = currLine * currWidth;
+
+                if (start >= len) {
+                    break;
+                }
+
+                *buf << text.substr(start, len - start);
+
                 moveCursorTo(buf, getCol(), getRow() + (++currLine));
             }
         } else {
