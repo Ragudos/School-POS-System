@@ -238,8 +238,8 @@ class ContainerNode : public Node {
 
 class GridNode : public ContainerNode {
    private:
-    size_t colGap = 2;
-    size_t rowGap = 1;
+    size_t colGap = 4;
+    size_t rowGap = 2;
 
     size_t childWidth;
 
@@ -258,7 +258,23 @@ class GridNode : public ContainerNode {
     }
 
     size_t getColGap() const { return colGap; }
+    void setColGap(size_t c) {
+        if (c <= 0) {
+            throw logic_error(
+                "Column gap for GridNode must be a positive integer.");
+        }
+
+        colGap = c;
+    }
     size_t getRowGap() const { return rowGap; }
+    void setRowGap(size_t r) {
+        if (r <= 0) {
+            throw logic_error(
+                "Row gap for GridNode must be a positive integer.");
+        }
+
+        rowGap = r;
+    }
 
    protected:
     void adjustDimensionsOnBeforeAppendChild(NodePtr child) override {

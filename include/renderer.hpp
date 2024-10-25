@@ -72,7 +72,7 @@ class Renderer {
         title->setColor(255, 255, 0);
         title->setBold();
 
-        auto titleLineBreak = make_shared<LineBreakNode>(2);
+        auto titleLineBreak = make_shared<LineBreakNode>(1);
 
         rootNode->appendChild(title);
         rootNode->appendChild(titleLineBreak);
@@ -87,6 +87,8 @@ class Renderer {
                 make_shared<SelectOptionNode>(menuItems.at(i).id);
             menuSelectNode->appendChild(menuSelectOption);
         }
+
+        menuSelectedItemInfo->setRowGap(1);
 
         body->appendChild(menuSelectedItemInfo);
         onMenuSelectUpdate(menuSelectNode->getValueOfSelectedOption().value());
@@ -153,15 +155,6 @@ void onMenuSelectUpdate(const string& choiceId) {
     if (!renderer.menuSelectedItemInfo->getChildren().empty()) {
         size_t menuSelectedItemInfoHeight =
             renderer.menuSelectedItemInfo->getHeight();
-
-        saveCursorPosition();
-
-        moveCursorTo(22, 22);
-
-        cout << menuSelectedItemInfoHeight;
-
-        restoreSavedCursorPosition();
-
         moveCursorTo(&renderer.buf, renderer.menuSelectedItemInfo->getCol(),
                      renderer.menuSelectedItemInfo->getRow() +
                          menuSelectedItemInfoHeight);
@@ -172,8 +165,12 @@ void onMenuSelectUpdate(const string& choiceId) {
     renderer.menuSelectedItemInfo->emptyChildren();
 
     auto desc = make_shared<TextNode>(item->description);
+    // TODO: Convert price to a string with precision of 2 decimal places and
+    // separated by commas (i.e. 1,234.00).
+    auto price = make_shared<TextNode>("Php " + to_string(item->price));
 
     renderer.menuSelectedItemInfo->appendChild(desc);
+    renderer.menuSelectedItemInfo->appendChild(price);
     renderer.menuSelectedItemInfo->render(&renderer.buf);
     renderer.render();
 }
