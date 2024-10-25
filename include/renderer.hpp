@@ -67,8 +67,9 @@ class Renderer {
             if (node->nodeType() == NodeTypes::INTERACTABLE) {
                 shared_ptr<InteractableNode> castNode =
                     static_pointer_cast<InteractableNode>(node);
-                castNode->onKeyPressed(keyCode);
-                castNode->render(&buf);
+                if (castNode->onKeyPressed(keyCode)) {
+                    castNode->render(&buf);
+                }
             }
 
             onKeyPressed(keyCode, node);
@@ -88,8 +89,9 @@ class Renderer {
             if (node->nodeType() == NodeTypes::INTERACTABLE) {
                 shared_ptr<InteractableNode> castNode =
                     static_pointer_cast<InteractableNode>(node);
-                castNode->onKeyPressed(keyCode);
-                castNode->render(&buf);
+                if (castNode->onKeyPressed(keyCode)) {
+                    castNode->render(&buf);
+                }
             }
 
             onKeyPressed(keyCode, node);

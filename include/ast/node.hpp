@@ -160,7 +160,7 @@ class InteractableNode : public Node {
     InteractableNode() {}
 
    public:
-    virtual void onKeyPressed(int keyCode) {}
+    virtual bool onKeyPressed(int keyCode) { return false; }
     NodeTypes nodeType() const override { return NodeTypes::INTERACTABLE; }
 };
 
@@ -507,11 +507,15 @@ class SelectNode : public InteractableNode {
         return nullopt;
     }
 
-    void onKeyPressed(int keyCode) override {
+    bool onKeyPressed(int keyCode) override {
         if (keyCode == get<0>(keyCodes)) {
             selectNext();
+
+            return true;
         } else if (keyCode == get<1>(keyCodes)) {
             selectPrevious();
+
+            return true;
         }
     }
 };
