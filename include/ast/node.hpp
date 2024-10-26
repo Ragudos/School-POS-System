@@ -672,7 +672,6 @@ class SelectNode : public InteractableNode {
     const tuple<int, int> keyCodes = {KEY_DOWN, KEY_UP};
 
    public:
-    SelectNode() = default;
     ~SelectNode() { observer.clear(); }
 
    private:

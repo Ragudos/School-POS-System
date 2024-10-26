@@ -1,39 +1,30 @@
-#ifndef LOOPLAMBDA_MODULE
-#define LOOPLAMBDA_MODULE
+#pragma once
 
+#if defined(LINUX_PLATFORM) || defined(MAC_PLATFORM)
+#include <unistd.h>
+
+#elif defined(WINDOWS_PLATFORM)
+#include <windows.h>
+
+#else
+#error "Unsupported Platform!"
+
+#endif
+
+#include <cstdint>
 #include <functional>
 
-#include "./utils.hpp"
-
 using namespace std;
-using namespace miscellaneous;
 
 class LoopLambda {
    private:
-    int waitTimeInMilliseconds;
     function<void(LoopLambda*)> lambda;
+    const unsigned int waitTimeInMs;
     bool shouldLoop;
 
    public:
-    LoopLambda(int waitTimeInMilliseconds, function<void(LoopLambda*)> lambda)
-        : waitTimeInMilliseconds(waitTimeInMilliseconds),
-          lambda(lambda),
-          shouldLoop(false){};
+    LoopLambda(const unsigned int waitTimeInMs, function<void(LoopLambda*)> lambda);
 
-    void start() {
-        if (shouldLoop) {
-            return;
-        }
-
-        shouldLoop = true;
-
-        while (shouldLoop) {
-            lambda(this);
-            wait(waitTimeInMilliseconds);
-        }
-    }
-
-    void stop() { shouldLoop = false; }
+    void start();
+    void stop() noexcept;
 };
-
-#endif

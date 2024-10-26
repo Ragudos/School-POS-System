@@ -1,20 +1,39 @@
+#include <conio.h>
+
+#include <iostream>
 #include <keyboard.hpp>
 #include <looplambda.hpp>
-#include <renderer.hpp>
 #include <utils.hpp>
 
+using namespace std;
 using namespace miscellaneous;
 using namespace terminal;
+using namespace keyboard;
+
+void programEntryPoint(LoopLambda*);
+
+int main() {
+    enterAltScreen();
+    hideCursor();
+
+    LoopLambda loop(50, programEntryPoint);
+
+    loop.start();
+    showCursor();
+    exitAltScreen();
+
+    return 0;
+};
 
 void programEntryPoint(LoopLambda* loop) {
     try {
-        Renderer& renderer = Renderer::getInstance();
-        int pressedKeyCode = Keyboard::getPressedKeyCode();
+        int pressedKeyCode = getPressedKeyCode();
 
         switch (pressedKeyCode) {
             case KEY_UP:
+                break;
             case KEY_DOWN:
-                renderer.onKeyPressed(pressedKeyCode);
+                // renderer.onKeyPressed(pressedKeyCode);
                 break;
             case KEY_LEFT:
                 break;
@@ -45,7 +64,9 @@ void programEntryPoint(LoopLambda* loop) {
                 break;
         }
 
-        renderer.render();
+        cout << pressedKeyCode << " ";
+
+        // renderer.render();
     } catch (const exception& err) {
         clearScreen();
         textForeground(255, 0, 0);
@@ -55,7 +76,7 @@ void programEntryPoint(LoopLambda* loop) {
         cout << "Press q to exit...";
 
         while (true) {
-            int pressedKeyCode = Keyboard::getPressedKeyCode();
+            int pressedKeyCode = getPressedKeyCode();
 
             if (pressedKeyCode == KEY_Q || pressedKeyCode == KEY_q) {
                 break;
@@ -64,44 +85,4 @@ void programEntryPoint(LoopLambda* loop) {
 
         loop->stop();
     }
-
-    /**
-     * Sample to get input from user
-     *
-     * renderer.moveCursorTo(renderer.DYNAMIC_STARTING_ROW, 1);
-        renderer.buf << "Enter your name: ";
-
-        renderer.render();
-
-        renderer.moveCursorTo(renderer.DYNAMIC_STARTING_ROW, 18, false);
-
-        string in;
-        cin >> in;
-
-        renderer.moveCursorTo(renderer.DYNAMIC_STARTING_ROW, 1, false);
-        cout << "\033[K";
-
-        cout << "Hello, " << in;
-    */
-}
-
-int main() {
-    enterAlternativeScreen();
-
-    Renderer& renderer = Renderer::getInstance();
-
-    disableTextWrapping();
-    hideCursor();
-
-    renderer.initializeComponents();
-    renderer.rootNode->render(&renderer.buf);
-    renderer.render();
-
-    LoopLambda loop(10, programEntryPoint);
-
-    loop.start();
-    showCursor();
-    exitAlternativeScreen();
-
-    return 0;
 }
