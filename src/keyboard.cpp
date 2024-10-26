@@ -28,7 +28,9 @@ unsigned int keyboard::getPressedKeyCode() {
             case KEY_A:
                 return KEY_UP;
             case KEY_B:
-                return KEY_DOWN : case KEY_C : return KEY_RIGHT;
+                return KEY_DOWN;
+            case KEY_C:
+                return KEY_RIGHT;
             case KEY_D:
                 return KEY_LEFT;
             default:
