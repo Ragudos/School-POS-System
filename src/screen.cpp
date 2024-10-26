@@ -72,7 +72,7 @@ void Screen::setHeight(unsigned int h) {
 #if defined(LINUX_PLATFORM) || defined(MAC_PLATFORM)
 void Screen::updateScreenDimensions() {
     struct winsize w;
-    ioctl(STDOUT_FILENO, TIOCGWINS, &w);
+    ioctl(STDOUT_FILENO, TIOCGWINSZ, &w);
 
     setWidth(w.ws_col);
     setHeight(w.ws_row);
