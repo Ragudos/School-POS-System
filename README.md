@@ -52,12 +52,12 @@ mkdir build && cd build
 
 Run cmake:
 ```bash
-cmake .. -G "Unix Makefiles"
+cmake ..
 ```
 
 Run cmake to build:
 ```bash
-cmake --build .
+cmake --build . -DENVIRONMENT=production
 ```
 
 This will create a `bin` folder/directory under the `build` folder/directory. To run the project, run:

@@ -3,7 +3,9 @@
 #include <iostream>
 #include <keyboard.hpp>
 #include <looplambda.hpp>
+#include <renderer.hpp>
 #include <utils.hpp>
+
 
 using namespace std;
 using namespace miscellaneous;
@@ -15,6 +17,8 @@ void programEntryPoint(LoopLambda*);
 int main() {
     enterAltScreen();
     hideCursor();
+
+    Renderer& renderer = Renderer::getInstance();
 
     LoopLambda loop(50, programEntryPoint);
 

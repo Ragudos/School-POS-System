@@ -1,3 +1,5 @@
+#define _CRT_SECURE_NO_WARNINGS
+
 #if defined(LINUX_PLATFORM) || defined(MAC_PLATFORM)
 #include <unistd.h>
 
@@ -13,12 +15,26 @@
 #include <cstdint>
 #include <cstdlib>
 #include <iostream>
+#include <keyboard.hpp>
 #include <sstream>
 #include <tuple>
 #include <utils.hpp>
 
 using namespace std;
 using namespace terminal;
+using namespace keyboard;
+
+void error_handling::assert(bool statement) {
+    if (!statement) {
+        throw logic_error("assertion failed!");
+    }
+}
+
+void error_handling::assert(bool statement, string message) {
+    if (!statement) {
+        throw logic_error(message);
+    }
+}
 
 #if defined(LINUX_PLATFORM) || defined(MAC_PLATFORM)
 void miscellaneous::wait(unsigned int durationInMs) {
@@ -182,11 +198,10 @@ void terminal::clearFromCursorToStartOfLine(ostringstream *buf) noexcept {
 }
 void terminal::clearLine() noexcept { cout << ESC << "2K"; }
 void terminal::clearLine(ostringstream *buf) noexcept { *buf << ESC << "2K"; }
-void terminal::clearLinesFromCursorToEndOfLine(
-    const unsigned int amount = 1) noexcept {
-    if (amount == 0) {
-        return;
-    }
+void terminal::clearLinesFromCursorToEndOfLine(const unsigned int amount = 1) {
+    error_handling::assert(amount > 0,
+                           "terminal::clearLinesFromCursorToEndOfLine() "
+                           "received a non-positive integer amount");
 
     for (unsigned int i = 0, l = amount - 1; i < l; ++i) {
         clearFromCursorToEndOfLine();
@@ -196,11 +211,11 @@ void terminal::clearLinesFromCursorToEndOfLine(
     clearFromCursorToEndOfLine();
     moveCursorToStartOfCurrLine();
 }
-void terminal::clearLinesFromCursorToEndOfLine(
-    ostringstream *buf, const unsigned int amount = 1) noexcept {
-    if (amount == 0) {
-        return;
-    }
+void terminal::clearLinesFromCursorToEndOfLine(ostringstream *buf,
+                                               const unsigned int amount = 1) {
+    error_handling::assert(amount > 0,
+                           "terminal::clearLinesFromCursorToEndOfLine() "
+                           "received a non-positive integer amount");
 
     for (size_t i = 0, l = amount - 1; i < l; ++i) {
         clearFromCursorToEndOfLine(buf);
@@ -211,10 +226,10 @@ void terminal::clearLinesFromCursorToEndOfLine(
     moveCursorToStartOfCurrLine(buf);
 }
 void terminal::clearLinesFromCursorToStartOfLine(
-    const unsigned int amount = 1) noexcept {
-    if (amount == 0) {
-        return;
-    }
+    const unsigned int amount = 1) {
+    error_handling::assert(amount > 0,
+                           "terminal::clearLinesFromCursorToStartOfLine() "
+                           "received a non-positive integer amount");
 
     for (unsigned int i = 0, l = amount - 1; i < l; ++i) {
         clearFromCursorToStartOfLine();
@@ -225,10 +240,10 @@ void terminal::clearLinesFromCursorToStartOfLine(
     moveCursorToStartOfCurrLine();
 }
 void terminal::clearLinesFromCursorToStartOfLine(
-    ostringstream *buf, const unsigned int amount = 1) noexcept {
-    if (amount == 0) {
-        return;
-    }
+    ostringstream *buf, const unsigned int amount = 1) {
+    error_handling::assert(amount > 0,
+                           "terminal::clearLinesFromCursorToStartOfLine() "
+                           "received a non-positive integer amount");
 
     for (unsigned int i = 0, l = amount - 1; i < l; ++i) {
         clearFromCursorToStartOfLine(buf);
@@ -238,10 +253,10 @@ void terminal::clearLinesFromCursorToStartOfLine(
     clearFromCursorToStartOfLine(buf);
     moveCursorToStartOfCurrLine(buf);
 }
-void terminal::clearLines(const unsigned int amount = 1) noexcept {
-    if (amount == 0) {
-        return;
-    }
+void terminal::clearLines(const unsigned int amount = 1) {
+    error_handling::assert(
+        amount > 0,
+        "terminal::clearLines() received a non-positive integer amount");
 
     for (unsigned int i = 0, l = amount - 1; i < l; ++i) {
         clearLine();
@@ -251,11 +266,10 @@ void terminal::clearLines(const unsigned int amount = 1) noexcept {
     clearLine();
     moveCursorToStartOfCurrLine();
 }
-void terminal::clearLines(ostringstream *buf,
-                          const unsigned int amount = 1) noexcept {
-    if (amount == 0) {
-        return;
-    }
+void terminal::clearLines(ostringstream *buf, const unsigned int amount = 1) {
+    error_handling::assert(
+        amount > 0,
+        "terminal::clearLines() received a non-positive integer amount");
 
     for (unsigned int i = 0, l = amount - 1; i < l; ++i) {
         clearLine(buf);
@@ -288,17 +302,16 @@ tuple<unsigned int, unsigned int> terminal::getCursorPosition() {
     cout << ESC << "6n";
 
     string res;
-    /** int ch = Keyboard::getPressedKeyCode();
+    unsigned int ch = getPressedKeyCode();
 
     while (ch) {
-        char castCh = ch;
-        if (castCh == 'R') {
+        if (ch == KEY_R) {
             break;
         }
 
-        res += castCh;
-        // ch = Keyboard::getPressedKeyCode();
-    }*/
+        res += static_cast<char>(ch);
+        ch = getPressedKeyCode();
+    }
 
     unsigned int row = 0, col = 0;
 

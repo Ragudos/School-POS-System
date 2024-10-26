@@ -18,6 +18,19 @@
 
 using namespace std;
 
+namespace error_handling {
+/**
+ *
+ * Throws `logic_error` if `bool` is false
+ */
+void assert(bool);
+/**
+ *
+ * Throws `logic_error` if `bool` is false
+ */
+void assert(bool, string);
+}  // namespace error_handling
+
 namespace miscellaneous {
     void wait(unsigned int);
 }  // namespace miscellaneous
@@ -63,12 +76,12 @@ void clearFromCursorToStartOfLine() noexcept;
 void clearFromCursorToStartOfLine(ostringstream *) noexcept;
 void clearLine() noexcept;
 void clearLine(ostringstream *) noexcept;
-void clearLinesFromCursorToEndOfLine(const unsigned int) noexcept;
-void clearLinesFromCursorToEndOfLine(ostringstream *, unsigned int) noexcept;
-void clearLinesFromCursorToStartOfLine(const unsigned int) noexcept;
-void clearLinesFromCursorToStartOfLine(ostringstream *, unsigned int) noexcept;
-void clearLines(const unsigned int) noexcept;
-void clearLines(ostringstream *, unsigned int) noexcept;
+void clearLinesFromCursorToEndOfLine(const unsigned int);
+void clearLinesFromCursorToEndOfLine(ostringstream *, unsigned int);
+void clearLinesFromCursorToStartOfLine(const unsigned int);
+void clearLinesFromCursorToStartOfLine(ostringstream *, unsigned int);
+void clearLines(const unsigned int);
+void clearLines(ostringstream *, unsigned int);
 void clearFromCursorToEndOfScreen() noexcept;
 void clearFromCursorToEndOfScreen(ostringstream *) noexcept;
 void clearFromCursorToStartOfScreen() noexcept;
