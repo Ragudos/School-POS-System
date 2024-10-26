@@ -46,4 +46,4 @@ jobs:
         if: matrix.os == 'windows-latest'
         run: |
           cd build
-          .\bin\main_test.exe
+          .\bin\Release\main_test.exe
