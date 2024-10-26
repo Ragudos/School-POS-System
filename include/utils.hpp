@@ -18,19 +18,6 @@
 
 using namespace std;
 
-namespace error_handling {
-/**
- *
- * Throws `logic_error` if `bool` is false
- */
-void assert(bool);
-/**
- *
- * Throws `logic_error` if `bool` is false
- */
-void assert(bool, string);
-}  // namespace error_handling
-
 namespace miscellaneous {
     void wait(unsigned int);
 }  // namespace miscellaneous

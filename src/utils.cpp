@@ -11,6 +11,7 @@
 
 #endif
 
+#include <cassert>
 #include <constants/utils.hpp>
 #include <cstdint>
 #include <cstdlib>
@@ -23,18 +24,6 @@
 using namespace std;
 using namespace terminal;
 using namespace keyboard;
-
-void error_handling::assert(bool statement) {
-    if (!statement) {
-        throw logic_error("assertion failed!");
-    }
-}
-
-void error_handling::assert(bool statement, string message) {
-    if (!statement) {
-        throw logic_error(message);
-    }
-}
 
 #if defined(LINUX_PLATFORM) || defined(MAC_PLATFORM)
 void miscellaneous::wait(unsigned int durationInMs) {
@@ -199,8 +188,8 @@ void terminal::clearFromCursorToStartOfLine(ostringstream *buf) noexcept {
 void terminal::clearLine() noexcept { cout << ESC << "2K"; }
 void terminal::clearLine(ostringstream *buf) noexcept { *buf << ESC << "2K"; }
 void terminal::clearLinesFromCursorToEndOfLine(const unsigned int amount = 1) {
-    error_handling::assert(amount > 0,
-                           "terminal::clearLinesFromCursorToEndOfLine() "
+    assert(amount > 0 ||
+                           !"terminal::clearLinesFromCursorToEndOfLine() "
                            "received a non-positive integer amount");
 
     for (unsigned int i = 0, l = amount - 1; i < l; ++i) {
@@ -213,9 +202,9 @@ void terminal::clearLinesFromCursorToEndOfLine(const unsigned int amount = 1) {
 }
 void terminal::clearLinesFromCursorToEndOfLine(ostringstream *buf,
                                                const unsigned int amount = 1) {
-    error_handling::assert(amount > 0,
-                           "terminal::clearLinesFromCursorToEndOfLine() "
-                           "received a non-positive integer amount");
+    assert(amount > 0 ||
+           !"terminal::clearLinesFromCursorToEndOfLine() "
+           "received a non-positive integer amount");
 
     for (size_t i = 0, l = amount - 1; i < l; ++i) {
         clearFromCursorToEndOfLine(buf);
@@ -227,8 +216,8 @@ void terminal::clearLinesFromCursorToEndOfLine(ostringstream *buf,
 }
 void terminal::clearLinesFromCursorToStartOfLine(
     const unsigned int amount = 1) {
-    error_handling::assert(amount > 0,
-                           "terminal::clearLinesFromCursorToStartOfLine() "
+    assert(amount > 0 ||
+                           !"terminal::clearLinesFromCursorToStartOfLine() "
                            "received a non-positive integer amount");
 
     for (unsigned int i = 0, l = amount - 1; i < l; ++i) {
@@ -241,8 +230,8 @@ void terminal::clearLinesFromCursorToStartOfLine(
 }
 void terminal::clearLinesFromCursorToStartOfLine(
     ostringstream *buf, const unsigned int amount = 1) {
-    error_handling::assert(amount > 0,
-                           "terminal::clearLinesFromCursorToStartOfLine() "
+    assert(amount > 0 ||
+                           !"terminal::clearLinesFromCursorToStartOfLine() "
                            "received a non-positive integer amount");
 
     for (unsigned int i = 0, l = amount - 1; i < l; ++i) {
@@ -254,9 +243,8 @@ void terminal::clearLinesFromCursorToStartOfLine(
     moveCursorToStartOfCurrLine(buf);
 }
 void terminal::clearLines(const unsigned int amount = 1) {
-    error_handling::assert(
-        amount > 0,
-        "terminal::clearLines() received a non-positive integer amount");
+    assert(amount > 0 ||
+           !"terminal::clearLines() received a non-positive integer amount");
 
     for (unsigned int i = 0, l = amount - 1; i < l; ++i) {
         clearLine();
@@ -267,9 +255,8 @@ void terminal::clearLines(const unsigned int amount = 1) {
     moveCursorToStartOfCurrLine();
 }
 void terminal::clearLines(ostringstream *buf, const unsigned int amount = 1) {
-    error_handling::assert(
-        amount > 0,
-        "terminal::clearLines() received a non-positive integer amount");
+    assert(amount > 0 ||
+           !"terminal::clearLines() received a non-positive integer amount");
 
     for (unsigned int i = 0, l = amount - 1; i < l; ++i) {
         clearLine(buf);

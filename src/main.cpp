@@ -1,9 +1,8 @@
-#include <conio.h>
-
 #include <iostream>
 #include <keyboard.hpp>
 #include <looplambda.hpp>
 #include <renderer.hpp>
+#include <screen.hpp>
 #include <utils.hpp>
 
 
@@ -13,23 +12,40 @@ using namespace terminal;
 using namespace keyboard;
 
 void programEntryPoint(LoopLambda*);
+void onScreenSizeChange();
 
 int main() {
+    initializeRenderer();
+    initializeScreen();
+
+    Screen& screen = getScreen();
+
     enterAltScreen();
     hideCursor();
 
-    Renderer& renderer = Renderer::getInstance();
+    screen.subscribe(onScreenSizeChange);
 
     LoopLambda loop(50, programEntryPoint);
 
     loop.start();
+    screen.unsubscribe(onScreenSizeChange);
     showCursor();
     exitAltScreen();
 
     return 0;
 };
 
+void onScreenSizeChange() {
+    cout << "Width: " << getScreen().getWidth()
+         << ", Height: " << getScreen().getHeight() << "; ";
+}
+
 void programEntryPoint(LoopLambda* loop) {
+    Screen& screen = getScreen();
+    Renderer& renderer = getRenderer();
+
+    screen.updateScreenDimensions();
+
     try {
         int pressedKeyCode = getPressedKeyCode();
 
@@ -67,8 +83,6 @@ void programEntryPoint(LoopLambda* loop) {
             case KEY_BACKSPACE:
                 break;
         }
-
-        cout << pressedKeyCode << " ";
 
         // renderer.render();
     } catch (const exception& err) {

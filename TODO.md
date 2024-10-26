@@ -3,6 +3,8 @@
     [x] Interactable menu
     [] Gathering of input from user (An input component; this is why we need an organized way to structure parts of the frontend).
 
+
+
 ## BACKEND
     [] A way to store information in CSV files
     [] A way to gather information from CSV files

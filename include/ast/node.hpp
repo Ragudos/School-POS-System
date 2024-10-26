@@ -124,9 +124,24 @@ class ContainerNode : public Node {
         NodeTypes nodeType() const noexcept override;
 };
 
-class LeafNode : public Node {
-    public:
-        virtual void render(ostringstream*) const override;
+class GridNode : public ContainerNode {
+   private:
+    unsigned int colGap;
+    unsigned int rowGap;
 
-        NodeTypes nodeType() const noexcept override;
+    unsigned int childWidth;
+
+   public:
+    GridNode();
+    GridNode(unsigned int);
+    GridNode(unsigned int, unsigned int);
+    GridNode(unsigned int, unsigned int, unsigned int);
+    GridNode(unsigned int, unsigned int, unsigned int, unsigned int);
 };
+
+class LeafNode : public Node {
+   public:
+    NodeTypes nodeType() const noexcept override;
+};
+
+class TextNode : public LeafNode {};

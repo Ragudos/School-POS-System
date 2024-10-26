@@ -1,32 +1,55 @@
 #include <ast/node.hpp>
+#include <cassert>
 #include <cmath>
 #include <memory>
 #include <optional>
 #include <utils.hpp>
 
 using namespace std;
-using namespace error_handling;
 
 Node::Node() : posX(0), posY(0), width(0), height(0){};
+
 Node::Node(unsigned int col) : posX(col), posY(0), width(0), height(0){};
+
 Node::Node(unsigned int col, unsigned int row)
     : posX(col), posY(row), width(0), height(0) {}
-NodeRenderStyle Node::nodeRenderStyle() const { return NodeRenderStyle::BLOCK; }
+
+Node::~Node() = default;
+
+NodeRenderStyle Node::nodeRenderStyle() const noexcept {
+    return NodeRenderStyle::BLOCK;
+}
+
 bool Node::canHaveChildren() const noexcept { return true; }
+
 unsigned int Node::getWidth() const noexcept { return width; }
+
 void Node::setWidth(unsigned int w) { width = w; }
+
 unsigned int Node::getHeight() const noexcept { return height; }
+
 void Node::setHeight(unsigned int h) { height = h; }
+
 unsigned int Node::getPosX() const noexcept { return posX; }
+
 void Node::setPosX(unsigned int col) { posX = col; }
+
 unsigned int Node::getPosY() const noexcept { return posY; }
+
 void Node::setPosY(unsigned int row) { posY = row; }
+
 Node::NodePtr Node::getParent() const noexcept { return parent; }
-const vector<Node::NodePtr>& Node::getChildren() const { return children; }
+
+const vector<Node::NodePtr>& Node::getChildren() const noexcept {
+    return children;
+}
+
 void Node::assertChildIsValid(NodePtr) const {}
+
 void Node::setAsParentOfChild(NodePtr child) {
     child->parent = shared_from_this();
 }
+
 void Node::onChildRemoved(size_t idx, NodePtr child) {
     if (children.empty()) {
         setWidth(0);
@@ -55,9 +78,10 @@ void Node::onChildRemoved(size_t idx, NodePtr child) {
     setWidth(largestWidth);
     setHeight(getHeight() - heightOfRemovedChild);
 }
+
 void Node::onChildAppended() {
-    assert(!children.empty(),
-           "Node::onChildAppended() called when children is empty().");
+    assert(!children.empty() ||
+           !"Node::onChildAppended() called when children is empty().");
 
     unsigned int posX = getPosX();
     unsigned int posY = getPosY();
@@ -95,8 +119,9 @@ void Node::onChildAppended() {
         setHeight(getHeight() + appendedChild->getHeight());
     }
 }
+
 void Node::appendChild(NodePtr child) {
-    assert(canHaveChildren(), "Node cannot have children");
+    assert(canHaveChildren() || !"Node cannot have children");
     assertChildIsValid(child);
 
     setAsParentOfChild(child);
@@ -105,11 +130,13 @@ void Node::appendChild(NodePtr child) {
 
     onChildAppended();
 }
+
 void Node::removeChildAt(size_t idx) {
-    assert(!children.empty(), "Called Node::removeChildAt() with no children.");
+    assert(!children.empty() ||
+           !"Called Node::removeChildAt() with no children.");
     assert(
-        idx < children.size(),
-        "Passed in a size_t idx > children.size() at Node::removeChildAt().");
+        idx < children.size() ||
+        !"Passed in a size_t idx > children.size() at Node::removeChildAt().");
 
     NodePtr removedChild = children.at(idx);
 
@@ -117,9 +144,10 @@ void Node::removeChildAt(size_t idx) {
 
     onChildRemoved(idx, removedChild);
 }
+
 void Node::removeAllChildren() noexcept {
-    assert(canHaveChildren(),
-           "Called Node::removeAllChildren() on a node that cannot have "
+    assert(canHaveChildren() ||
+           !"Called Node::removeAllChildren() on a node that cannot have "
            "children.");
 
     children.clear();
@@ -133,6 +161,7 @@ void InteractableNode::render(ostringstream* buf) const {
         node->render(buf);
     }
 }
+
 NodeTypes InteractableNode::nodeType() const noexcept {
     return NodeTypes::INTERACTABLE;
 }
@@ -142,9 +171,11 @@ void ContainerNode::render(ostringstream* buf) const {
         node->render(buf);
     }
 }
+
 NodeTypes ContainerNode::nodeType() const noexcept {
     return NodeTypes::CONTAINER;
 }
 
-void LeafNode::render(ostringstream*) const {}
+GridNode::GridNode() : colGap(4), rowGap(2) {}
+
 NodeTypes LeafNode::nodeType() const noexcept { return NodeTypes::LEAF; }
