@@ -63,7 +63,7 @@ static unsigned int getPressedKeyCodeRaw() {
 
     ch = getchar();
 
-    tcsetattr(STDIN_FILENO, TCSANOW, &olt);
+    tcsetattr(STDIN_FILENO, TCSANOW, &oldt);
 
     return ch;
 }
