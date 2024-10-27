@@ -23,7 +23,8 @@ namespace miscellaneous {
 }  // namespace miscellaneous
 
 namespace string_utils {
-    string kebabToPascal(const string&, const bool) noexcept;
+string kebabToPascal(const string &) noexcept;
+string kebabToPascal(const string &, const bool) noexcept;
 }
 
 namespace terminal {

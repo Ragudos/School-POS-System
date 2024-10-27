@@ -24,6 +24,7 @@
 using namespace std;
 using namespace terminal;
 using namespace keyboard;
+using namespace string_utils;
 
 #if defined(LINUX_PLATFORM) || defined(MAC_PLATFORM)
 void miscellaneous::wait(unsigned int durationInMs) {
@@ -37,8 +38,12 @@ void miscellaneous::wait(unsigned int durationInMs) { Sleep(durationInMs); }
 
 #endif
 
+string string_utils::kebabToPascal(const string &str) noexcept {
+    return kebabToPascal(str, true);
+}
+
 string string_utils::kebabToPascal(const string &str,
-                                   const bool addSpace = true) noexcept {
+                                   const bool addSpace) noexcept {
     stringstream res;
 
     for (size_t i = 0, l = str.size(); i < l; ++i) {

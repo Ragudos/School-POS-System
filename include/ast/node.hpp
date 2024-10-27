@@ -16,14 +16,17 @@
 #include <optional>
 #include <set>
 #include <sstream>
+#include <string>
+#include <tuple>
 #include <vector>
-
 
 using namespace std;
 
 enum NodeTypes { CONTAINER, INTERACTABLE, LEAF };
 
 enum NodeRenderStyle { BLOCK, INLINE };
+
+enum TextNodeFormats { BOLD, ITALIC, UNDERLINE, STRIKETHROUGH, DIM };
 
 class Node : public enable_shared_from_this<Node> {
    public:
@@ -105,18 +108,6 @@ class Node : public enable_shared_from_this<Node> {
     virtual void removeAllChildren() noexcept;
 };
 
-class InteractableNode : public Node {
-   public:
-    virtual void render(ostringstream*) const override;
-    /**
-     *
-     * Returns false if `keyCode` is not this node's trigger
-     */
-    virtual bool onKeyPressed(unsigned int) = 0;
-
-    NodeTypes nodeType() const noexcept override;
-};
-
 class ContainerNode : public Node {
     public:
         virtual void render(ostringstream*) const override;
@@ -137,11 +128,143 @@ class GridNode : public ContainerNode {
     GridNode(unsigned int, unsigned int);
     GridNode(unsigned int, unsigned int, unsigned int);
     GridNode(unsigned int, unsigned int, unsigned int, unsigned int);
+
+   public:
+    virtual void removeAllChildren() noexcept override;
+    virtual void onChildAppended() override;
+    virtual void onChildRemoved(size_t, NodePtr) override;
+
+    unsigned int getColGap() const noexcept;
+    void setColGap(unsigned int);
+
+    unsigned int getRowGap() const noexcept;
+    void setRowGap(unsigned int);
 };
 
 class LeafNode : public Node {
    public:
+    bool canHaveChildren() const noexcept override;
     NodeTypes nodeType() const noexcept override;
 };
 
-class TextNode : public LeafNode {};
+class TextNode : public LeafNode {
+   private:
+    string text;
+    set<TextNodeFormats> formats;
+    optional<tuple<uint8_t, uint8_t, uint8_t>> color;
+    optional<tuple<uint8_t, uint8_t, uint8_t>> backgroundColor;
+
+   public:
+    TextNode(string);
+    TextNode(string, unsigned int);
+    TextNode(string, unsigned int, unsigned int);
+    TextNode(string, unsigned int, unsigned int, unsigned int);
+    TextNode(string, unsigned int, unsigned int, unsigned int, unsigned int);
+
+   public:
+    virtual NodeRenderStyle nodeRenderStyle() const noexcept override;
+
+   public:
+    virtual void render(ostringstream *) const override;
+
+   public:
+    virtual void setWidth(unsigned int w) override;
+    virtual void setHeight(unsigned int h) override;
+
+    void setRedColor(uint8_t);
+    void setGreenColor(uint8_t);
+    void setBlueColor(uint8_t);
+    void setColor(uint8_t, uint8_t, uint8_t);
+    void resetColor() noexcept;
+
+    void setRedBackgroundColor(uint8_t);
+    void setGreenBackgroundColor(uint8_t);
+    void setBlueBackgroundColor(uint8_t);
+    void setBackgroundColor(uint8_t, uint8_t, uint8_t);
+    void resetBackgroundColor() noexcept;
+
+    void setBold();
+    void removeBold();
+
+    void setItalic();
+    void removeItalic();
+
+    void setStrikethrough();
+    void removeStrikethrough();
+
+    void setDim();
+    void removeDim();
+
+    void setUnderline();
+    void removeUnderline();
+
+    void resetFormatting();
+};
+
+class LineBreakNode : public LeafNode {
+   public:
+    LineBreakNode();
+    LineBreakNode(unsigned int);
+    LineBreakNode(unsigned int, unsigned int);
+    LineBreakNode(unsigned int, unsigned int, unsigned int);
+
+   public:
+    virtual void render(ostringstream *) const override;
+};
+
+class SelectOptionNode : public TextNode {
+   private:
+    string value;
+
+   public:
+    SelectOptionNode(string);
+    SelectOptionNode(string, unsigned int);
+    SelectOptionNode(string, unsigned int, unsigned int);
+    SelectOptionNode(string, unsigned int, unsigned int, unsigned int);
+    SelectOptionNode(string, unsigned int, unsigned int, unsigned int,
+                     unsigned int);
+
+   public:
+    NodeRenderStyle nodeRenderStyle() const noexcept override;
+
+   public:
+    string getValue() const noexcept;
+};
+
+class InteractableNode : public Node {
+   public:
+    virtual void render(ostringstream *) const override;
+
+   public:
+    /**
+     *
+     * Returns false if `keyCode` is not this node's
+     * trigger.
+     */
+    virtual bool onKeyPressed(unsigned int);
+    NodeTypes nodeType() const noexcept override;
+};
+
+class SelectNode : public InteractableNode {
+   private:
+    size_t activeOptionIdx;
+
+   private:
+    void selectNext();
+    void selectPrevious();
+
+   public:
+    SelectNode();
+
+   public:
+    void render(ostringstream *) const override;
+
+   public:
+    void onChildRemoved(size_t, NodePtr) override;
+
+   public:
+    void assertChildIsValid(NodePtr) const override;
+
+   public:
+    optional<string> getValueOfSelectedOption() const;
+};
