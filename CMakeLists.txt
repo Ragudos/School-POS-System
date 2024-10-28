@@ -56,6 +56,7 @@ set(INCLUDE_DEFINITION_SRCS
     ${SRC_DIR}/looplambda.cpp
     ${SRC_DIR}/screen.cpp
     ${SRC_DIR}/ast/node.cpp
+    ${SRC_DIR}/contrib.cpp
     ${SRC_DIR}/renderer.cpp
 )
 set(TEST_SRCS ${TEST_DIR}/main_test.cpp)

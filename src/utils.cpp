@@ -57,6 +57,10 @@ string string_utils::kebabToPascal(const string &str,
             try {
                 const char &ch2 = str.at(++i);
 
+                if (addSpace) {
+                    res << " ";
+                }
+
                 res << static_cast<char>(toupper(ch2));
             } catch (const out_of_range &) {
             }

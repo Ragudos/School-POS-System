@@ -1,8 +1,8 @@
+#include <ast/node.hpp>
 #include <cassert>
 #include <iostream>
 #include <memory>
 #include <renderer.hpp>
-
 
 using namespace std;
 
@@ -16,7 +16,18 @@ void initializeRenderer() {
     renderer = make_unique<Renderer>();
 }
 
-void Renderer::render() noexcept {
+Renderer::Renderer() {
+    initializeRenderer();
+
+    rootNode = make_shared<ContainerNode>();
+    header = make_shared<ContainerNode>();
+    body = make_shared<ContainerNode>();
+
+    rootNode->appendChild(header);
+    rootNode->appendChild(body);
+}
+
+void Renderer::renderBuffer() noexcept {
     cout << buf.str();
     buf.str("");
     buf.clear();

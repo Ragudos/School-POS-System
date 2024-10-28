@@ -35,7 +35,7 @@ Screen::Screen() { updateScreenDimensions(); }
 Screen::~Screen() { subscribers.clear(); }
 
 void Screen::notify() {
-    for (const auto& subscriber : subscribers) {
+    for (const SubscriberCallback& subscriber : subscribers) {
         subscriber();
     }
 }

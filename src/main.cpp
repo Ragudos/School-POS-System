@@ -28,7 +28,9 @@ int main() {
     LoopLambda loop(50, programEntryPoint);
 
     loop.start();
+
     screen.unsubscribe(onScreenSizeChange);
+
     showCursor();
     exitAltScreen();
 
