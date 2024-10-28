@@ -1,15 +1,4 @@
 #include <ast/node.hpp>
-#include <cassert>
-#include <cmath>
-#include <memory>
-#include <optional>
-#include <screen.hpp>
-#include <string>
-#include <utils.hpp>
-
-using namespace std;
-using namespace terminal;
-using namespace string_utils;
 
 Node::Node() : posX(0), posY(0), width(0), height(0){};
 

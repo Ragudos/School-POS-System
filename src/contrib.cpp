@@ -1,4 +1,5 @@
 #include <contrib.hpp>
+#include <state.hpp>
 
 using namespace std;
 
@@ -41,6 +42,22 @@ double calculateChange(double givenCash, double price) {
 }
 
 double calculateTotalOfChosenMenuItems(const vector<MenuItem>&) {
+    throw logic_error("unimplemented");
+}
+
+void State::appendMenuItem(MenuItem menuItem) {
+    throw logic_error("unimplemented");
+}
+
+void State::removeMenuItemWithId(string itemId) {
+    throw logic_error("unimplemented");
+}
+
+optional<MenuItem*> State::getMenuItemWithId(string itemId) {
+    throw logic_error("unimplemented");
+}
+
+const vector<MenuItem>& State::getMenuItems() const noexcept {
     throw logic_error("unimplemented");
 }
 

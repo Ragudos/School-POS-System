@@ -11,16 +11,21 @@
 
 #endif
 
+#include <cassert>
 #include <cstdint>
 #include <memory>
 #include <optional>
+#include <screen.hpp>
 #include <set>
 #include <sstream>
 #include <string>
 #include <tuple>
+#include <utils.hpp>
 #include <vector>
 
 using namespace std;
+using namespace string_utils;
+using namespace terminal;
 
 enum NodeTypes { CONTAINER, INTERACTABLE, LEAF };
 

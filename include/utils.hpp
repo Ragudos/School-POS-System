@@ -1,5 +1,7 @@
 #pragma once
 
+#define _CRT_SECURE_NO_WARNINGS
+
 #if defined(LINUX_PLATFORM) || defined(MAC_PLATFORM)
 #include <unistd.h>
 
@@ -11,12 +13,18 @@
 
 #endif
 
-#include <cstdlib>
-#include <sstream>
+#include <cassert>
+#include <constants/utils.hpp>
 #include <cstdint>
+#include <cstdlib>
+#include <iostream>
+#include <keyboard.hpp>
+#include <sstream>
 #include <tuple>
 
 using namespace std;
+using namespace terminal;
+using namespace keyboard;
 
 namespace miscellaneous {
     void wait(unsigned int);

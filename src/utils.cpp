@@ -1,30 +1,4 @@
-#define _CRT_SECURE_NO_WARNINGS
-
-#if defined(LINUX_PLATFORM) || defined(MAC_PLATFORM)
-#include <unistd.h>
-
-#elif defined(WINDOWS_PLATFORM)
-#include <windows.h>
-
-#else
-#error "Unsupported Platform!"
-
-#endif
-
-#include <cassert>
-#include <constants/utils.hpp>
-#include <cstdint>
-#include <cstdlib>
-#include <iostream>
-#include <keyboard.hpp>
-#include <sstream>
-#include <tuple>
 #include <utils.hpp>
-
-using namespace std;
-using namespace terminal;
-using namespace keyboard;
-using namespace string_utils;
 
 #if defined(LINUX_PLATFORM) || defined(MAC_PLATFORM)
 void miscellaneous::wait(unsigned int durationInMs) {

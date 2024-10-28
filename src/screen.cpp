@@ -1,21 +1,3 @@
-#if defined(LINUX_PLATFORM) || defined(MAC_PLATFORM)
-#include <sys/ioctl.h>
-#include <unistd.h>
-
-#elif defined(WINDOWS_PLATFORM)
-#include <windows.h>
-
-#else
-#error "Unsupported platform!"
-
-#endif
-
-#include <algorithm>
-#include <cassert>
-#include <csignal>
-#include <cstdint>
-#include <functional>
-#include <iostream>
 #include <memory>
 #include <screen.hpp>
 
@@ -23,7 +5,7 @@ using namespace std;
 
 static unique_ptr<Screen> screen;
 
-Screen& getScreen() { return *screen; }
+Screen& getScreen() noexcept { return *screen; }
 
 void initializeScreen() {
     assert(!screen || !"Screen must only be initialized once.");

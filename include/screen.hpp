@@ -1,6 +1,7 @@
 #pragma once
 
 #if defined(LINUX_PLATFORM) || defined(MAC_PLATFORM)
+#include <sys/ioctl.h>
 #include <unistd.h>
 
 #elif defined(WINDOWS_PLATFORM)
@@ -12,9 +13,11 @@
 #endif
 
 #include <algorithm>
+#include <cassert>
+#include <csignal>
 #include <cstdint>
 #include <functional>
-#include <vector>
+#include <iostream>
 
 using namespace std;
 
@@ -48,5 +51,5 @@ class Screen {
     void setHeight(unsigned int);
 };
 
-Screen& getScreen();
+Screen& getScreen() noexcept;
 void initializeScreen();

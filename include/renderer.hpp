@@ -1,11 +1,16 @@
 #pragma once
 
 #include <ast/node.hpp>
+#include <cassert>
 #include <constants/metadata.hpp>
+#include <contrib.hpp>
+#include <iostream>
 #include <memory>
+#include <screen.hpp>
 #include <sstream>
+#include <utils.hpp>
 
-
+using namespace terminal;
 using namespace std;
 
 enum RendererState { MENU, ORDER_CONFIRMATION, ORDER_RESULTS };
@@ -30,5 +35,5 @@ class Renderer {
     void createView();
 };
 
-Renderer& getRenderer();
+Renderer& getRenderer() noexcept;
 void initializeRenderer();

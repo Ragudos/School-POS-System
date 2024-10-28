@@ -30,9 +30,11 @@
 #endif
 
 #if defined(LINUX_PLATFORM) || defined(MAC_PLATFORM)
+#include <termios.h>
 #include <unistd.h>
 
 #elif defined(WINDOWS_PLATFORM)
+#include <conio.h>
 #include <windows.h>
 
 #else

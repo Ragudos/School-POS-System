@@ -1,18 +1,5 @@
 #include <keyboard.hpp>
 
-#if defined(LINUX_PLATFORM) || defined(MAC_PLATFORM)
-#include <termios.h>
-#include <unistd.h>
-
-#elif defined(WINDOWS_PLATFORM)
-#include <conio.h>
-#include <windows.h>
-
-#else
-#error "Unsupported platform!"
-
-#endif
-
 static unsigned int getPressedKeyCodeRaw();
 
 #if defined(LINUX_PLATFORM) || defined(MAC_PLATFORM)

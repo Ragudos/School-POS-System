@@ -1,19 +1,10 @@
-#include <ast/node.hpp>
-#include <cassert>
-#include <constants/metadata.hpp>
-#include <contrib.hpp>
-#include <iostream>
 #include <memory>
 #include <renderer.hpp>
-#include <screen.hpp>
-#include <utils.hpp>
 
-using namespace std;
-using namespace terminal;
 
 static unique_ptr<Renderer> renderer;
 
-Renderer& getRenderer() { return *renderer; }
+Renderer& getRenderer() noexcept { return *renderer; }
 
 void initializeRenderer() {
     assert(!renderer || !"Renderer must only be initialized once.");
@@ -40,7 +31,19 @@ void Renderer::createView() {
 
     header->appendChild(title);
 
+    switch (viewState) {
+        case RendererState::MENU: {
+        }; break;
+        case RendererState::ORDER_CONFIRMATION: {
+        }; break;
+        case RendererState::ORDER_RESULTS: {
+        }; break;
+    }
+
+    auto br = make_shared<LineBreakNode>(2);
+
     rootNode->appendChild(header);
+    rootNode->appendChild(br);
     rootNode->appendChild(body);
 }
 
