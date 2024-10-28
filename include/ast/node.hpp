@@ -257,8 +257,8 @@ class SelectNode : public InteractableNode {
     size_t activeOptionIdx;
 
    private:
-    void selectNext();
-    void selectPrevious();
+    void selectNext() noexcept;
+    void selectPrevious() noexcept;
 
    public:
     SelectNode();

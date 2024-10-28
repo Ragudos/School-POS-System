@@ -602,6 +602,10 @@ NodeTypes InteractableNode::nodeType() const noexcept {
 
 SelectNode::SelectNode() : activeOptionIdx(0) {}
 
+void SelectNode::selectNext() noexcept {}
+
+void SelectNode::selectPrevious() noexcept {}
+
 void SelectNode::render(ostringstream* buf) const {
     for (size_t i = 0, l = children.size(); i < l; ++i) {
         shared_ptr<SelectOptionNode> node =

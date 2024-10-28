@@ -40,7 +40,10 @@ int main() {
 // For now, we just re-initialize all the nodes based
 // on current view state since I'm too lazy
 // to implement a cascading change of dimensions for all nodes.
-void onScreenSizeChange() { getRenderer().createView(); }
+void onScreenSizeChange() {
+    getRenderer().createView();
+    throw logic_error("WHAT");
+}
 
 void programEntryPoint(LoopLambda* loop) {
     string err;
@@ -89,10 +92,6 @@ void programEntryPoint(LoopLambda* loop) {
 
         renderer.renderBuffer();
     } catch (const exception& e) {
-        err = e.what();
-    } catch (const runtime_error& e) {
-        err = e.what();
-    } catch (const logic_error& e) {
         err = e.what();
     } catch (...) {
         err = "unknown error occured";
