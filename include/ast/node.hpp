@@ -12,6 +12,7 @@
 #endif
 
 #include <cassert>
+#include <cmath>
 #include <cstdint>
 #include <memory>
 #include <optional>
@@ -22,6 +23,7 @@
 #include <tuple>
 #include <utils.hpp>
 #include <vector>
+
 
 using namespace std;
 using namespace string_utils;
