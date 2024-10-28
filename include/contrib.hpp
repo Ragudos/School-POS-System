@@ -1,2 +1,3 @@
-double calculateChange(double givenCash. double price);
-string formatNumber(doublr);
+double calculateChange(double, double);
+
+string formatNumber(double);
