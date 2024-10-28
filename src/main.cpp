@@ -40,10 +40,7 @@ int main() {
 // For now, we just re-initialize all the nodes based
 // on current view state since I'm too lazy
 // to implement a cascading change of dimensions for all nodes.
-void onScreenSizeChange() {
-    getRenderer().createView();
-    throw logic_error("WHAT");
-}
+void onScreenSizeChange() { getRenderer().createView(); }
 
 void programEntryPoint(LoopLambda* loop) {
     string err;

@@ -602,9 +602,29 @@ NodeTypes InteractableNode::nodeType() const noexcept {
 
 SelectNode::SelectNode() : activeOptionIdx(0) {}
 
-void SelectNode::selectNext() noexcept {}
+void SelectNode::selectNext() noexcept {
+    activeOptionIdx = (activeOptionIdx + 1) % children.size();
 
-void SelectNode::selectPrevious() noexcept {}
+    notify();
+}
+
+void SelectNode::selectPrevious() noexcept {
+    if (activeOptionIdx == 0) {
+        activeOptionIdx = children.size() - 1;
+    } else {
+        activeOptionIdx -= 1;
+    }
+
+    notify();
+}
+
+void SelectNode::notify() {
+    optional<string> activeValId = getValueOfSelectedOption();
+
+    for (SelectNode::SubscriberCallback subscriber : subscribers) {
+        subscriber(activeValId);
+    }
+}
 
 void SelectNode::render(ostringstream* buf) const {
     for (size_t i = 0, l = children.size(); i < l; ++i) {
@@ -621,6 +641,19 @@ void SelectNode::render(ostringstream* buf) const {
 
         node->render(buf);
     }
+}
+
+void SelectNode::subscribe(SelectNode::SubscriberCallback cb) {
+    subscribers.push_back(cb);
+}
+
+void SelectNode::unsubscribe(SelectNode::SubscriberCallback cb) {
+    subscribers.erase(
+        remove_if(subscribers.begin(), subscribers.end(),
+                  [&cb](const SelectNode::SubscriberCallback currCb) {
+                      return currCb.target_type() == cb.target_type();
+                  }),
+        subscribers.end());
 }
 
 void SelectNode::onChildRemoved(size_t idx, NodePtr removedChild) {
@@ -667,6 +700,11 @@ void SelectNode::onChildRemoved(size_t idx, NodePtr removedChild) {
 void SelectNode::assertChildIsValid(NodePtr child) const {
     assert(dynamic_pointer_cast<SelectOptionNode>(child) ||
            !"SelectNode only accepts SelectOptionNode as its children");
+}
+
+void SelectNode::resetActiveIdx() noexcept {
+    activeOptionIdx = 0;
+    notify();
 }
 
 optional<string> SelectNode::getValueOfSelectedOption() const {

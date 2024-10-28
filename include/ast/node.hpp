@@ -11,9 +11,11 @@
 
 #endif
 
+#include <algorithm>
 #include <cassert>
 #include <cmath>
 #include <cstdint>
+#include <functional>
 #include <memory>
 #include <optional>
 #include <screen.hpp>
@@ -23,7 +25,6 @@
 #include <tuple>
 #include <utils.hpp>
 #include <vector>
-
 
 using namespace std;
 using namespace string_utils;
@@ -253,24 +254,36 @@ class InteractableNode : public Node {
 };
 
 class SelectNode : public InteractableNode {
+   public:
+    using SubscriberCallback = function<void(optional<string>)>;
+
    private:
     size_t activeOptionIdx;
+
+    vector<SubscriberCallback> subscribers;
 
    private:
     void selectNext() noexcept;
     void selectPrevious() noexcept;
+
+    void notify();
 
    public:
     SelectNode();
 
    public:
     void render(ostringstream *) const override;
+    void subscribe(SubscriberCallback);
+    void unsubscribe(SubscriberCallback);
 
    public:
     void onChildRemoved(size_t, NodePtr) override;
 
    public:
     void assertChildIsValid(NodePtr) const override;
+
+   public:
+    void resetActiveIdx() noexcept;
 
    public:
     optional<string> getValueOfSelectedOption() const;
