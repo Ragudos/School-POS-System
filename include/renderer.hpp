@@ -21,20 +21,13 @@ class Renderer {
     shared_ptr<ContainerNode> body;
 
    public:
-    Renderer();
-
-   public:
     /**
      *
      * Outputs the buffer's contents and
      * reset it.
      */
     void renderBuffer() noexcept;
-
-   public:
-    shared_ptr<ContainerNode> getRootNode();
-    shared_ptr<ContainerNode> getHeaderNode();
-    shared_ptr<ContainerNode> getBodyNode();
+    void createView();
 };
 
 Renderer& getRenderer();

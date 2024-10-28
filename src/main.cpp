@@ -25,7 +25,7 @@ int main() {
 
     screen.subscribe(onScreenSizeChange);
 
-    LoopLambda loop(50, programEntryPoint);
+    LoopLambda loop(100, programEntryPoint);
 
     loop.start();
 
@@ -37,10 +37,10 @@ int main() {
     return 0;
 };
 
-void onScreenSizeChange() {
-    cout << "Width: " << getScreen().getWidth()
-         << ", Height: " << getScreen().getHeight() << "; ";
-}
+// For now, we just re-initialize all the nodes based
+// on current view state since I'm too lazy
+// to implement a cascading change of dimensions for all nodes.
+void onScreenSizeChange() { getRenderer().createView(); }
 
 void programEntryPoint(LoopLambda* loop) {
     Screen& screen = getScreen();
@@ -86,7 +86,7 @@ void programEntryPoint(LoopLambda* loop) {
                 break;
         }
 
-        // renderer.render();
+        renderer.renderBuffer();
     } catch (const exception& err) {
         clearScreen();
         textForeground(255, 0, 0);

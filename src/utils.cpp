@@ -353,23 +353,25 @@ void terminal::textRemoveUnderline(ostringstream *buf) noexcept {
 }
 void terminal::textBackground(const uint8_t r = 0, const uint8_t g = 0,
                               const uint8_t b = 0) noexcept {
-    cout << ESC << "48" << SEP << "2" << SEP << r << SEP << g << SEP << b
-         << "m";
+    cout << ESC << "48" << SEP << "2" << SEP << int(r) << SEP << int(g) << SEP
+         << int(b) << "m";
 }
 void terminal::textBackground(ostringstream *buf, const uint8_t r = 0,
                               const uint8_t g = 0,
                               const uint8_t b = 0) noexcept {
-    *buf << ESC << "48" << SEP << "2" << SEP << r << SEP << g << SEP << b
-         << "m";
+    *buf << ESC << "48" << SEP << "2" << SEP << int(r) << SEP << int(g) << SEP
+         << int(b) << "m";
 }
 void terminal::textForeground(const uint8_t r = 255, const uint8_t g = 255,
                               const uint8_t b = 255) noexcept {
-    cout << ESC << "38" << SEP << "2" << SEP << r << SEP << g << SEP << b
-         << "m";
+    cout << ESC << "38" << SEP << "2" << SEP << int(r) << SEP << int(g) << SEP
+         << int(b) << "m";
 }
+// The buffer needs to recognie uint8_t as int() or else it's essentially a
+// unsigned char and not a number
 void terminal::textForeground(ostringstream *buf, const uint8_t r = 255,
                               const uint8_t g = 255,
                               const uint8_t b = 255) noexcept {
-    *buf << ESC << "38" << SEP << "2" << SEP << r << SEP << g << SEP << b
-         << "m";
+    *buf << ESC << "38" << SEP << "2" << SEP << int(r) << SEP << int(g) << SEP
+         << int(b) << "m";
 }

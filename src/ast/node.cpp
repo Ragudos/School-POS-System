@@ -121,6 +121,8 @@ void Node::onChildAppended() {
 
     if (appendedChild->nodeRenderStyle() == NodeRenderStyle::BLOCK) {
         setHeight(getHeight() + appendedChild->getHeight());
+    } else if (childrenSize == 1) {
+        setHeight(appendedChild->getHeight() + appendedChild->getPosY());
     }
 }
 
@@ -161,7 +163,7 @@ void Node::removeAllChildren() noexcept {
 }
 
 void ContainerNode::render(ostringstream* buf) const {
-    for (NodePtr node : children) {
+    for (auto node : children) {
         node->render(buf);
     }
 }
@@ -351,15 +353,14 @@ void TextNode::render(ostringstream* buf) const {
     moveCursorTo(buf, getPosX(), getPosY());
 
     if (color != nullopt) {
-        tuple<uint8_t, uint8_t, uint8_t> clr = color.value();
-
-        textForeground(buf, get<0>(clr), get<1>(clr), get<2>(clr));
+        textForeground(buf, get<0>(color.value()), get<1>(color.value()),
+                       get<2>(color.value()));
     }
 
     if (backgroundColor != nullopt) {
-        tuple<uint8_t, uint8_t, uint8_t> bgClr = backgroundColor.value();
-
-        textBackground(buf, get<0>(bgClr), get<1>(bgClr), get<2>(bgClr));
+        textBackground(buf, get<0>(backgroundColor.value()),
+                       get<1>(backgroundColor.value()),
+                       get<2>(backgroundColor.value()));
     }
 
     for (const auto& format : formats) {
@@ -408,13 +409,12 @@ void TextNode::render(ostringstream* buf) const {
 
         if (len < currWidth) {
             *buf << string(currWidth - len, ' ');
+        }
 
-            unsigned int currLine = 1;
-
-            while (currLine < currHeight) {
-                *buf << endl << string(len, ' ');
-                ++currLine;
-            }
+        unsigned int currLine = 1;
+        while (currLine < currHeight) {
+            *buf << endl << string(len, ' ');
+            ++currLine;
         }
     }
 }
