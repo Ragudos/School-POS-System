@@ -43,12 +43,13 @@ int main() {
 void onScreenSizeChange() { getRenderer().createView(); }
 
 void programEntryPoint(LoopLambda* loop) {
-    Screen& screen = getScreen();
-    Renderer& renderer = getRenderer();
-
-    screen.updateScreenDimensions();
+    string err;
 
     try {
+        Screen& screen = getScreen();
+        Renderer& renderer = getRenderer();
+
+        screen.updateScreenDimensions();
         int pressedKeyCode = getPressedKeyCode();
 
         switch (pressedKeyCode) {
@@ -87,12 +88,20 @@ void programEntryPoint(LoopLambda* loop) {
         }
 
         renderer.renderBuffer();
-    } catch (const exception& err) {
+    } catch (const exception& e) {
+        err = e.what();
+    } catch (const runtime_error& e) {
+        err = e.what();
+    } catch (const logic_error& e) {
+        err = e.what();
+    }
+
+    if (!err.empty()) {
         clearScreen();
         textForeground(255, 0, 0);
         cout << "ERROR!" << endl;
         textReset();
-        cout << err.what() << endl << endl;
+        cout << err << endl << endl;
         cout << "Press q to exit...";
 
         while (true) {
