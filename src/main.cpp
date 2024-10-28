@@ -94,6 +94,8 @@ void programEntryPoint(LoopLambda* loop) {
         err = e.what();
     } catch (const logic_error& e) {
         err = e.what();
+    } catch (...) {
+        err = "unknown error occured";
     }
 
     if (!err.empty()) {
