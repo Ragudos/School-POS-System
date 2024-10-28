@@ -13,12 +13,18 @@ void initializeRenderer() {
     renderer->createView();
 }
 
+Renderer::Renderer() : viewState(RendererState::MENU) {}
+
 void Renderer::createView() {
     // if exists, remove
     if (rootNode) {
         moveCursorTo(static_cast<unsigned int>(0), rootNode->getHeight());
         clearLinesFromCursorToEndOfLine(rootNode->getHeight());
     }
+
+    rootNode.reset();
+    header.reset();
+    body.reset();
 
     rootNode = make_shared<ContainerNode>();
     header = make_shared<ContainerNode>();
@@ -33,10 +39,13 @@ void Renderer::createView() {
 
     switch (viewState) {
         case RendererState::MENU: {
+            createMenuView();
         }; break;
         case RendererState::ORDER_CONFIRMATION: {
+            createOrderConfirmationView();
         }; break;
         case RendererState::ORDER_RESULTS: {
+            createOrderResultsView();
         }; break;
     }
 
@@ -46,6 +55,25 @@ void Renderer::createView() {
     rootNode->appendChild(br);
     rootNode->appendChild(body);
 }
+
+void Renderer::createMenuView() {
+    State& state = getState();
+
+    shared_ptr<SelectNode> menuSelect = make_shared<SelectNode>();
+
+    for (const auto item : state.getMenuItems()) {
+        shared_ptr<SelectOptionNode> optionNode =
+            make_shared<SelectOptionNode>(item.getId());
+
+        menuSelect->appendChild(optionNode);
+    }
+
+    body->appendChild(menuSelect);
+}
+
+void Renderer::createOrderConfirmationView() {}
+
+void Renderer::createOrderResultsView() {}
 
 void Renderer::renderBuffer() noexcept {
     rootNode->render(&buf);

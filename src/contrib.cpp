@@ -5,7 +5,7 @@ using namespace std;
 
 MenuItem::MenuItem(string id) : id(id) {}
 
-string MenuItem::getId() const noexcept { throw logic_error("unimplemented"); }
+string MenuItem::getId() const noexcept { return id; }
 
 void MenuItem::setDescription(string desc) {
     throw logic_error("unimplemented");
@@ -45,9 +45,7 @@ double calculateTotalOfChosenMenuItems(const vector<MenuItem>&) {
     throw logic_error("unimplemented");
 }
 
-void State::appendMenuItem(MenuItem menuItem) {
-    throw logic_error("unimplemented");
-}
+void State::appendMenuItem(MenuItem menuItem) { menuItems.push_back(menuItem); }
 
 void State::removeMenuItemWithId(string itemId) {
     throw logic_error("unimplemented");
@@ -58,7 +56,7 @@ optional<MenuItem*> State::getMenuItemWithId(string itemId) {
 }
 
 const vector<MenuItem>& State::getMenuItems() const noexcept {
-    throw logic_error("unimplemented");
+    return menuItems;
 }
 
 string formatNumber(double num) { throw logic_error("unimplemented"); }

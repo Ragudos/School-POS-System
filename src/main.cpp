@@ -3,8 +3,8 @@
 #include <looplambda.hpp>
 #include <renderer.hpp>
 #include <screen.hpp>
+#include <state.hpp>
 #include <utils.hpp>
-
 
 using namespace std;
 using namespace miscellaneous;
@@ -15,8 +15,9 @@ void programEntryPoint(LoopLambda*);
 void onScreenSizeChange();
 
 int main() {
-    initializeRenderer();
+    initializeState();
     initializeScreen();
+    initializeRenderer();
 
     Screen& screen = getScreen();
 

@@ -76,10 +76,11 @@ void Node::onChildAppended() {
     assert(!children.empty() ||
            !"Node::onChildAppended() called when children is empty().");
 
-    unsigned int posX = getPosX();
-    unsigned int posY = getPosY();
     size_t childrenSize = children.size();
     NodePtr appendedChild = children.at(childrenSize - 1);
+
+    appendedChild->setPosX(getPosX());
+    appendedChild->setPosY(getPosY());
 
     if (childrenSize > 1) {
         NodePtr prevSibling = children.at(childrenSize - 2);
@@ -88,15 +89,20 @@ void Node::onChildAppended() {
             case NodeRenderStyle::BLOCK: {
                 appendedChild->setPosY(prevSibling->getPosY() +
                                        prevSibling->getHeight());
+                setHeight(getHeight() + appendedChild->getHeight());
             }; break;
             case NodeRenderStyle::INLINE: {
                 appendedChild->setPosX(prevSibling->getPosX() +
                                        prevSibling->getWidth());
+
+                if (getHeight() < appendedChild->getHeight()) {
+                    setHeight(getHeight() +
+                              (appendedChild->getHeight() - getHeight()));
+                }
             }; break;
         }
     } else {
-        appendedChild->setPosX(posX);
-        appendedChild->setPosY(posY);
+        setHeight(appendedChild->getHeight());
     }
 
     unsigned int appendedChildRealWidth =
@@ -108,11 +114,69 @@ void Node::onChildAppended() {
         setWidth(appendedChildRealWidth);
     }
 
-    if (appendedChild->nodeRenderStyle() == NodeRenderStyle::BLOCK) {
-        setHeight(getHeight() + appendedChild->getHeight());
-    } else if (childrenSize == 1) {
-        setHeight(appendedChild->getHeight() + appendedChild->getPosY());
+    /** === Update the parents' and children's dimensions or something */
+    NodePtr prnt = getParent();
+
+    if (prnt) {
+        prnt->updateParentDimensionsOnChildChange(shared_from_this());
     }
+
+    appendedChild->updateChildrenDimensionsOnChange();
+}
+
+void Node::updateChildrenDimensionsOnChange() {
+    /**
+     *
+     * TODO: All these adjustment logic should be done every time that there's
+     * a change in dimensions in any node that's related to the affected
+     * node AND make it responsive if possible.
+     */
+    unsigned int currPosY = getPosY();
+    unsigned int currPosX = getPosX();
+
+    for (auto& c : children) {
+        c->setPosY(currPosY);
+        c->setPosX(currPosX);
+
+        // shit (doesnt take order and relativity into account, but whatever)
+        // and other stuff
+        switch (c->nodeRenderStyle()) {
+            case NodeRenderStyle::BLOCK: {
+                currPosY += c->getHeight();
+            }; break;
+            case NodeRenderStyle::INLINE: {
+                currPosX += c->getWidth();
+            }; break;
+        }
+
+        c->updateChildrenDimensionsOnChange();
+    }
+}
+
+void Node::updateParentDimensionsOnChildChange(NodePtr childCaller) {
+    unsigned int childCallerRealHeight =
+        childCaller->getPosY() + childCaller->getHeight();
+
+    if (getHeight() < childCallerRealHeight) {
+        setHeight(getHeight() + (childCallerRealHeight - getHeight()) -
+                  getPosY());
+    }
+
+    unsigned int childCallerRealWidth =
+        childCaller->getPosX() + childCaller->getWidth();
+
+    if (getWidth() < childCallerRealWidth) {
+        setWidth(getWidth() + (childCallerRealWidth - getWidth()) - getPosX());
+    }
+
+    NodePtr parent = getParent();
+
+    // Base case
+    if (parent == nullptr) {
+        return;
+    }
+
+    parent->updateParentDimensionsOnChildChange(shared_from_this());
 }
 
 void Node::appendChild(NodePtr child) {
@@ -406,6 +470,8 @@ void TextNode::render(ostringstream* buf) const {
             ++currLine;
         }
     }
+
+    textReset(buf);
 }
 
 void TextNode::setWidth(unsigned int w) {
@@ -632,11 +698,11 @@ void SelectNode::render(ostringstream* buf) const {
             static_pointer_cast<SelectOptionNode>(children.at(i));
 
         if (i == activeOptionIdx) {
-            node->setBackgroundColor(255, 255, 255);
             node->setColor(0, 0, 0);
+            node->setBackgroundColor(255, 255, 255);
         } else {
-            node->resetBackgroundColor();
             node->resetColor();
+            node->resetBackgroundColor();
         }
 
         node->render(buf);
@@ -718,4 +784,22 @@ optional<string> SelectNode::getValueOfSelectedOption() const {
         static_pointer_cast<SelectOptionNode>(children.at(activeOptionIdx));
 
     return selectedOptionNode->getValue();
+}
+
+void SelectNode::setActiveChildWithValue(string val) {
+    assert(
+        !children.empty() ||
+        !"SelectNode::setActiveChildWithValue() is called with no children.");
+
+    for (size_t i = 0, l = children.size(); i < l; ++i) {
+        auto child = static_pointer_cast<SelectOptionNode>(children.at(i));
+
+        if (child->getValue() == val) {
+            activeOptionIdx = i;
+            return;
+        }
+    }
+
+    throw runtime_error(
+        "Reached unreachable code at SelectNode::setActiveChildWithValue()");
 }

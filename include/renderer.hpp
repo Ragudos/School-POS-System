@@ -1,5 +1,6 @@
 #pragma once
 
+#include <algorithm>
 #include <ast/node.hpp>
 #include <cassert>
 #include <constants/metadata.hpp>
@@ -8,6 +9,7 @@
 #include <memory>
 #include <screen.hpp>
 #include <sstream>
+#include <state.hpp>
 #include <utils.hpp>
 
 using namespace terminal;
@@ -24,6 +26,14 @@ class Renderer {
     shared_ptr<ContainerNode> rootNode;
     shared_ptr<ContainerNode> header;
     shared_ptr<ContainerNode> body;
+
+   public:
+    Renderer();
+
+   private:
+    void createMenuView();
+    void createOrderConfirmationView();
+    void createOrderResultsView();
 
    public:
     /**

@@ -102,6 +102,8 @@ class Node : public enable_shared_from_this<Node> {
      * unlike a grid container.
      */
     virtual void onChildAppended();
+    virtual void updateParentDimensionsOnChildChange(NodePtr);
+    virtual void updateChildrenDimensionsOnChange();
 
    public:
     /**
@@ -287,4 +289,10 @@ class SelectNode : public InteractableNode {
 
    public:
     optional<string> getValueOfSelectedOption() const;
+    /**
+     *
+     * Set the active idx based on provided value.
+     * Throws an error if not found as child.
+     */
+    void setActiveChildWithValue(string);
 };
