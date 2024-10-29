@@ -21,7 +21,10 @@ void initializeState() {
     MenuItem item9("mocha-frappe", 130);
     MenuItem item10("java-chip", 130);
 
-    item1.setDescription("Amazing");
+    item1.setDescription(
+        "Amazing fdsjif jsdiofj iosdjfiosdjio fjiosdjf iosdjfio jsdiofj iosdjf "
+        "oisdjofijsdofjweklf msklcmvl,xcnmvm,.zxcn.zm,mcl;kajdpasidpqwoidopwe "
+        "jfiopsjf");
     item2.setDescription("Amazing");
     item3.setDescription("Amazing");
     item4.setDescription("Amazing");

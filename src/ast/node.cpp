@@ -491,9 +491,6 @@ void TextNode::render(ostringstream* buf) const {
         size_t currLine = 0;
 
         while (currLine < currHeight) {
-            moveCursorTo(buf, getPosX(),
-                         (getPosY() + static_cast<unsigned int>(currLine++)));
-
             size_t start = currLine * currWidth;
             size_t end = currWidth * (currLine + 1);
 
@@ -505,19 +502,39 @@ void TextNode::render(ostringstream* buf) const {
                 end >= len ? text.substr(start) : text.substr(start, end);
 
             *buf << str;
+
+            moveCursorTo(buf, getPosX());
+            moveCursorDown(buf, 1);
+
+            currLine += 1;
+            start = end;
         }
     } else {
         *buf << text;
 
-        if (len < currWidth) {
-            *buf << string(currWidth - len, ' ');
+        /**
+         *
+         * COMMENTED OUT
+         *
+         * FOR SOME REASON, MY VSCODE'S TERMINAL DOESNT LIKE IT
+         * AND WRAPS THE TEXT TO NEXT LINE, SO OTHER TEXTNODES
+         * DONT GET RENDERED IN SOME WAY.
+         */
+        /*if (len < currWidth) {
+            for (size_t i = 0, l = currWidth - len - 1; i < l; ++i) {
+                *buf << ' ';
+            }
         }
 
         unsigned int currLine = 1;
         while (currLine < currHeight) {
-            *buf << endl << string(len, ' ');
+            *buf << endl;
+            for (size_t i = 0, l = currWidth; i < l; ++i) {
+                *buf << ' ';
+            }
+
             ++currLine;
-        }
+        }*/
     }
 
     textReset(buf);
@@ -716,6 +733,9 @@ NodeTypes InteractableNode::nodeType() const noexcept {
 }
 
 SelectNode::SelectNode() : activeOptionIdx(0) {}
+SelectNode::SelectNode(size_t activeOptionIdx)
+    : activeOptionIdx(activeOptionIdx) {}
+SelectNode::~SelectNode() { subscribers.clear(); }
 
 void SelectNode::selectNext() noexcept {
     activeOptionIdx = (activeOptionIdx + 1) % children.size();
@@ -861,6 +881,16 @@ void SelectNode::setActiveChildWithValue(string val) {
 }
 
 bool SelectNode::onKeyPressed(unsigned int keyCode) {
-    selectNext();
-    return false;
+    switch (keyCode) {
+        case KEY_DOWN: {
+            selectNext();
+        };
+            return true;
+        case KEY_UP: {
+            selectPrevious();
+        };
+            return true;
+        default:
+            return false;
+    }
 }

@@ -5,6 +5,7 @@
 #include <cassert>
 #include <constants/metadata.hpp>
 #include <contrib.hpp>
+#include <cstdint>
 #include <iostream>
 #include <memory>
 #include <screen.hpp>
@@ -14,6 +15,8 @@
 
 using namespace terminal;
 using namespace std;
+
+void onMenuSelectUpdated(optional<string>);
 
 enum RendererState { MENU, ORDER_CONFIRMATION, ORDER_RESULTS };
 
@@ -30,7 +33,7 @@ class Renderer {
     Renderer();
 
    private:
-    void createMenuView();
+    void createMenuView(bool);
     void createOrderConfirmationView();
     void createOrderResultsView();
 
@@ -42,6 +45,12 @@ class Renderer {
      */
     void renderBuffer() noexcept;
     void createView();
+
+   public:
+    void onKeyPressed(unsigned int);
+
+   private:
+    void onKeyPressed(unsigned int, Node::NodePtr);
 };
 
 Renderer& getRenderer() noexcept;

@@ -285,6 +285,8 @@ class SelectNode : public InteractableNode {
 
    public:
     SelectNode();
+    SelectNode(size_t);
+    ~SelectNode();
 
    public:
     void render(ostringstream *) const override;

@@ -16,6 +16,8 @@ void initializeRenderer() {
 Renderer::Renderer() : viewState(RendererState::MENU) {}
 
 void Renderer::createView() {
+    bool isNew = true;
+
     // if exists, remove
     if (rootNode) {
         moveCursorTo(static_cast<unsigned int>(0), rootNode->getHeight());
@@ -24,6 +26,8 @@ void Renderer::createView() {
         rootNode.reset();
         header.reset();
         body.reset();
+
+        isNew = false;
     }
 
     rootNode = make_shared<ContainerNode>();
@@ -40,7 +44,7 @@ void Renderer::createView() {
 
     switch (viewState) {
         case RendererState::MENU: {
-            createMenuView();
+            createMenuView(isNew);
         }; break;
         case RendererState::ORDER_CONFIRMATION: {
             createOrderConfirmationView();
@@ -59,7 +63,7 @@ void Renderer::createView() {
     rootNode->render(&buf);
 }
 
-void Renderer::createMenuView() {
+void Renderer::createMenuView(bool isNew) {
     State& state = getState();
     shared_ptr<GridNode> menuGrid = make_shared<GridNode>();
     shared_ptr<SelectNode> menuSelect = make_shared<SelectNode>();
@@ -73,12 +77,18 @@ void Renderer::createMenuView() {
         menuSelect->appendChild(optionNode);
     }
 
-    state.setSelectedMenuItemId(
-        state.getMenuItems().at(menuSelect->getActiveOptionIdx()).getId());
+    if (!isNew) {
+        menuSelect->setActiveChildWithValue(state.getSelectedMenuItemId());
+    } else {
+        state.setSelectedMenuItemId(
+            state.getMenuItems().at(menuSelect->getActiveOptionIdx()).getId());
+    }
 
     shared_ptr<ContainerNode> activeMenuItemNode = make_shared<ContainerNode>();
     optional<const MenuItem*> maybeItem =
         state.getMenuItemWithId(menuSelect->getValueOfSelectedOption().value());
+
+    menuSelect->subscribe(onMenuSelectUpdated);
 
     assert(
         maybeItem != nullopt ||
@@ -108,13 +118,6 @@ void Renderer::createMenuView() {
      */
     menuGrid->appendChild(menuSelect);
     menuGrid->appendChild(itemDisplay);
-
-    moveCursorTo(10, (15 + (pos++)));
-    cout << "item display (posX, posY): "
-         << "(" << itemDisplay->getPosX() << ", " << itemDisplay->getPosY()
-         << ")";
-    moveCursorTo(10, (15 + (pos++)));
-    cout << "item display width: " << itemDisplay->getWidth();
 
     body->appendChild(menuGrid);
 
@@ -163,4 +166,45 @@ void Renderer::renderBuffer() noexcept {
     cout << buf.str();
     buf.str("");
     buf.clear();
+}
+
+void Renderer::onKeyPressed(unsigned int keyCode) {
+    onKeyPressed(keyCode, rootNode);
+}
+
+void Renderer::onKeyPressed(unsigned int keyCode, Node::NodePtr currNode) {
+    // base case
+    if (!currNode->canHaveChildren()) {
+        return;
+    }
+
+    const vector<Node::NodePtr>& children = currNode->getChildren();
+
+    for (auto& c : children) {
+        if (c->nodeType() == NodeTypes::INTERACTABLE) {
+            static_pointer_cast<InteractableNode>(c)->onKeyPressed(keyCode);
+        }
+
+        onKeyPressed(keyCode, c);
+    }
+}
+
+void onMenuSelectUpdated(optional<string> selectedMenuItemId) {
+    if (!selectedMenuItemId.has_value()) {
+        return;
+    }
+
+    State& state = getState();
+    Renderer& renderer = getRenderer();
+
+    state.setSelectedMenuItemId(selectedMenuItemId.value());
+
+    /**
+     *
+     * TODO:
+     *
+     * Only update the changed components
+     */
+    renderer.createView();
+    renderer.renderBuffer();
 }
