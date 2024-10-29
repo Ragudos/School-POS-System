@@ -87,6 +87,7 @@ void clearScreen(ostringstream *) noexcept;
 void enterAltScreen() noexcept;
 void exitAltScreen() noexcept;
 void disableTextWrapping() noexcept;
+void enableTextWrapping() noexcept;
 tuple<unsigned int, unsigned int> getCursorPosition();
 void textReset() noexcept;
 void textReset(ostringstream *) noexcept;

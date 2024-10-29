@@ -23,8 +23,11 @@ int main() {
 
     enterAltScreen();
     hideCursor();
+    disableTextWrapping();
 
     screen.subscribe(onScreenSizeChange);
+
+    getRenderer().renderBuffer();
 
     LoopLambda loop(100, programEntryPoint);
 
@@ -34,6 +37,7 @@ int main() {
 
     showCursor();
     exitAltScreen();
+    enableTextWrapping();
 
     return 0;
 };

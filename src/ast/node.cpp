@@ -1,4 +1,5 @@
 #include <ast/node.hpp>
+#include <renderer.hpp>
 
 Node::Node() : posX(0), posY(0), width(0), height(0){};
 
@@ -111,7 +112,13 @@ void Node::onChildAppended() {
     // TODO: Have this wrap to next line if this exceeds
     // screen size.
     if (getWidth() < appendedChildRealWidth) {
-        setWidth(appendedChildRealWidth);
+        if (appendedChildRealWidth > getScreen().getWidth()) {
+            appendedChild->setPosX(getPosX());
+            appendedChild->setPosY(getHeight());
+            setHeight(getHeight() + appendedChild->getHeight());
+        } else {
+            setWidth(appendedChildRealWidth);
+        }
     }
 
     /** === Update the parents' and children's dimensions or something */
@@ -168,6 +175,8 @@ void Node::updateParentDimensionsOnChildChange(NodePtr childCaller) {
     if (getWidth() < childCallerRealWidth) {
         setWidth(getWidth() + (childCallerRealWidth - getWidth()) - getPosX());
     }
+
+    updateChildrenDimensionsOnChange();
 
     NodePtr parent = getParent();
 
@@ -441,21 +450,25 @@ void TextNode::render(ostringstream* buf) const {
     unsigned int currHeight = getHeight();
 
     if (len > currWidth) {
-        unsigned int currLine = 0;
+        size_t currLine = 0;
 
-        while (currLine <= currHeight) {
-            unsigned int start = currLine * currWidth;
+        while (currLine < currHeight) {
+            size_t start = currLine * static_cast<unsigned int>(currWidth);
 
             if (start >= len) {
                 break;
             }
 
-            unsigned int end =
-                start == 0 ? currWidth : static_cast<unsigned int>(len) - start;
+            unsigned int end = currWidth * (currLine + 1);
+            string str =
+                end < start ? text.substr(start) : text.substr(start, end);
 
-            *buf << text.substr(static_cast<size_t>(start),
-                                static_cast<size_t>(end));
-            moveCursorTo(buf, getPosX(), getPosY() + (++currLine));
+            *buf << str;
+
+            moveCursorTo(buf, getPosX());
+            moveCursorDown(buf, 1);
+
+            currLine += 1;
         }
     } else {
         *buf << text;

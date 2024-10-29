@@ -18,11 +18,16 @@ uint8_t MenuItem::getQty() const noexcept {
 }
 
 void MenuItem::increaseQty(uint8_t amount) {
-    throw logic_error("unimplemented");
+   qty+=amount;
 }
 
 void MenuItem::decreaseQty(uint8_t amount) {
-    throw logic_error("unimplemented");
+    if(qty==0)
+        return;
+    if(qty<amount)
+        throw logic_error("qty<amount");
+    
+    qty-=amount;
 }
 
 void MenuItem::resetQty() noexcept { throw logic_error("unimplemented"); }
