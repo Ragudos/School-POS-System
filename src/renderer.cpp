@@ -32,6 +32,7 @@ void Renderer::createView() {
 
     auto title = make_shared<TextNode>(TITLE.data());
 
+    title->setWidth(getScreen().getWidth());
     title->setColor(255, 255, 0);
     title->setBold();
 

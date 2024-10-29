@@ -21,13 +21,12 @@ class Renderer {
    private:
     RendererState viewState;
 
-    ostringstream buf;
-
     shared_ptr<ContainerNode> rootNode;
     shared_ptr<ContainerNode> header;
     shared_ptr<ContainerNode> body;
 
    public:
+    ostringstream buf;
     Renderer();
 
    private:

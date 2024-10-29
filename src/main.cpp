@@ -23,6 +23,7 @@ int main() {
 
     enterAltScreen();
     hideCursor();
+    disableTextWrapping();
 
     screen.subscribe(onScreenSizeChange);
 
@@ -34,6 +35,7 @@ int main() {
 
     showCursor();
     exitAltScreen();
+    enableTextWrapping();
 
     return 0;
 };
