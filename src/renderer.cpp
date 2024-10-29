@@ -20,11 +20,11 @@ void Renderer::createView() {
     if (rootNode) {
         moveCursorTo(static_cast<unsigned int>(0), rootNode->getHeight());
         clearLinesFromCursorToEndOfLine(rootNode->getHeight());
-    }
 
-    rootNode.reset();
-    header.reset();
-    body.reset();
+        rootNode.reset();
+        header.reset();
+        body.reset();
+    }
 
     rootNode = make_shared<ContainerNode>();
     header = make_shared<ContainerNode>();
@@ -55,6 +55,8 @@ void Renderer::createView() {
     rootNode->appendChild(header);
     rootNode->appendChild(br);
     rootNode->appendChild(body);
+
+    rootNode->render(&buf);
 }
 
 void Renderer::createMenuView() {
@@ -77,8 +79,6 @@ void Renderer::createOrderConfirmationView() {}
 void Renderer::createOrderResultsView() {}
 
 void Renderer::renderBuffer() noexcept {
-    rootNode->render(&buf);
-
     cout << buf.str();
     buf.str("");
     buf.clear();

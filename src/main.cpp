@@ -27,6 +27,8 @@ int main() {
 
     screen.subscribe(onScreenSizeChange);
 
+    getRenderer().renderBuffer();
+
     LoopLambda loop(100, programEntryPoint);
 
     loop.start();
