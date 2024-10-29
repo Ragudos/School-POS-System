@@ -285,77 +285,115 @@ void GridNode::setRowGap(unsigned int r) {
     rowGap = r;
 }
 
+bool GridNode::isFlexible() const noexcept { return flexible; }
+
+void GridNode::setIsFlexible(bool f) noexcept { flexible = f; }
+
 void GridNode::onChildAppended() {
     assert(!children.empty() ||
            !"GridNode::onChildAppended() called when children is empty().");
 
     size_t childrenSize = children.size();
-
     NodePtr appendedChild = children.at(childrenSize - 1);
 
-    if (childWidth != 0) {
-        appendedChild->setWidth(childWidth);
+    if (!flexible) {
+        appendedChild->setWidth(childWidth == 0 ? getWidth() : childWidth);
     }
 
     if (childrenSize == 1) {
         appendedChild->setPosX(getPosX());
         appendedChild->setPosY(getPosY());
 
-        if (childWidth == 0) {
-            shared_ptr<GridNode> prnt =
-                dynamic_pointer_cast<GridNode>(getParent());
-
-            if (prnt) {
-                appendedChild->setWidth(getWidth());
-            }
+        if (!flexible && dynamic_pointer_cast<GridNode>(getParent())) {
+            appendedChild->setWidth(childWidth == 0 ? getWidth() : childWidth);
         }
 
         setHeight(appendedChild->getHeight());
-
-        return;
-    }
-
-    NodePtr prevSiblingOfAppendedChild = children.at(childrenSize - 2);
-    unsigned int prevSiblingRealWidth = prevSiblingOfAppendedChild->getPosX() +
-                                        prevSiblingOfAppendedChild->getWidth() +
-                                        colGap;
-
-    // have the appended child take the remaining width
-    if (childWidth == 0 && prevSiblingRealWidth < getWidth()) {
-        appendedChild->setWidth(getWidth() - prevSiblingRealWidth);
-    }
-
-    // if overflow
-    if (prevSiblingRealWidth + appendedChild->getWidth() > getWidth()) {
-        appendedChild->setPosX(getPosX());
-        appendedChild->setPosY(prevSiblingOfAppendedChild->getPosY() +
-                               prevSiblingOfAppendedChild->getHeight() +
-                               rowGap);
-
-        setHeight(appendedChild->getPosY() + appendedChild->getHeight());
     } else {
-        unsigned int prevSiblingHeight =
-            prevSiblingOfAppendedChild->getPosY() +
-            prevSiblingOfAppendedChild->getHeight();
-        unsigned int appendedChildHeight =
-            appendedChild->getPosY() + appendedChild->getHeight();
-        unsigned int tallestHeight = prevSiblingHeight > appendedChildHeight
-                                         ? prevSiblingHeight
-                                         : appendedChildHeight;
+        NodePtr prevSiblingOfAppendedChild = children.at(childrenSize - 2);
+        unsigned int prevSiblingRealWidth =
+            prevSiblingOfAppendedChild->getPosX() +
+            prevSiblingOfAppendedChild->getWidth() + colGap;
 
-        for (size_t i = 0, l = childrenSize - 2; i < l; ++i) {
-            NodePtr child = children.at(i);
-            unsigned int childHeight = child->getPosY() + child->getHeight();
-
-            if (childHeight > tallestHeight) {
-                tallestHeight = childHeight;
-            }
+        // have the appended child take the remaining width
+        if (flexible && prevSiblingRealWidth < getWidth()) {
+            // appendedChild->setWidth(getWidth() - prevSiblingRealWidth);
         }
 
-        setHeight(tallestHeight);
+        // if overflow
+        if (prevSiblingRealWidth + appendedChild->getWidth() > getWidth()) {
+            appendedChild->setPosX(getPosX());
+            appendedChild->setPosY(prevSiblingOfAppendedChild->getPosY() +
+                                   prevSiblingOfAppendedChild->getHeight() +
+                                   rowGap);
 
-        appendedChild->setPosX(prevSiblingRealWidth);
-        appendedChild->setPosY(prevSiblingOfAppendedChild->getPosY());
+            setHeight(appendedChild->getPosY() + appendedChild->getHeight());
+        } else {
+            unsigned int prevSiblingHeight =
+                prevSiblingOfAppendedChild->getPosY() +
+                prevSiblingOfAppendedChild->getHeight();
+            unsigned int appendedChildHeight =
+                appendedChild->getPosY() + appendedChild->getHeight();
+            unsigned int tallestHeight = prevSiblingHeight > appendedChildHeight
+                                             ? prevSiblingHeight
+                                             : appendedChildHeight;
+
+            for (size_t i = 0, l = childrenSize - 2; i < l; ++i) {
+                NodePtr child = children.at(i);
+                unsigned int childHeight =
+                    child->getPosY() + child->getHeight();
+
+                if (childHeight > tallestHeight) {
+                    tallestHeight = childHeight;
+                }
+            }
+
+            setHeight(tallestHeight);
+
+            appendedChild->setPosX(prevSiblingRealWidth);
+            appendedChild->setPosY(prevSiblingOfAppendedChild->getPosY());
+        }
+    }
+
+    /** === Update the parents' and children's dimensions or something */
+    NodePtr prnt = getParent();
+
+    if (prnt) {
+        prnt->updateParentDimensionsOnChildChange(shared_from_this());
+    }
+
+    appendedChild->updateChildrenDimensionsOnChange();
+}
+
+void GridNode::updateChildrenDimensionsOnChange() {
+    /**
+     *
+     * TODO: All these adjustment logic should be done every time that there's
+     * a change in dimensions in any node that's related to the affected
+     * node AND make it responsive if possible.
+     */
+    const unsigned int cachedInitialPosX = getPosX();
+    unsigned int currPosY = getPosY();
+    unsigned int currPosX = getPosX();
+
+    for (size_t i = 0, l = children.size(); i < l; ++i) {
+        auto& c = children.at(i);
+
+        c->setPosY(currPosY);
+        c->setPosX(currPosX);
+
+        if (!flexible) {
+            currPosX += childWidth == 0 ? getWidth() : childWidth + colGap;
+        } else if (currPosX < getWidth()) {
+            currPosX += c->getWidth() + colGap;
+        }
+
+        if (currPosX > getWidth()) {
+            currPosX = cachedInitialPosX;
+            currPosY += c->getHeight() + rowGap;
+        }
+
+        c->updateChildrenDimensionsOnChange();
     }
 }
 
@@ -446,29 +484,27 @@ void TextNode::render(ostringstream* buf) const {
     }
 
     size_t len = text.size();
-    unsigned int currWidth = getWidth();
-    unsigned int currHeight = getHeight();
+    size_t currWidth = static_cast<size_t>(getWidth());
+    size_t currHeight = static_cast<size_t>(getHeight());
 
     if (len > currWidth) {
         size_t currLine = 0;
 
         while (currLine < currHeight) {
-            size_t start = currLine * static_cast<unsigned int>(currWidth);
+            moveCursorTo(buf, getPosX(),
+                         (getPosY() + static_cast<unsigned int>(currLine++)));
+
+            size_t start = currLine * currWidth;
+            size_t end = currWidth * (currLine + 1);
 
             if (start >= len) {
                 break;
             }
 
-            unsigned int end = currWidth * (currLine + 1);
             string str =
-                end < start ? text.substr(start) : text.substr(start, end);
+                end >= len ? text.substr(start) : text.substr(start, end);
 
             *buf << str;
-
-            moveCursorTo(buf, getPosX());
-            moveCursorDown(buf, 1);
-
-            currLine += 1;
         }
     } else {
         *buf << text;
@@ -793,10 +829,15 @@ optional<string> SelectNode::getValueOfSelectedOption() const {
 
     assert(activeOptionIdx < children.size() || !"SelectNode::getValueOfSelectedOption() is called when activeOptionIdx is < children.size()");
 
-    shared_ptr<SelectOptionNode> selectedOptionNode =
-        static_pointer_cast<SelectOptionNode>(children.at(activeOptionIdx));
+    const shared_ptr<const SelectOptionNode> selectedOptionNode =
+        static_pointer_cast<const SelectOptionNode>(
+            children.at(activeOptionIdx));
 
     return selectedOptionNode->getValue();
+}
+
+size_t SelectNode::getActiveOptionIdx() const noexcept {
+    return activeOptionIdx;
 }
 
 void SelectNode::setActiveChildWithValue(string val) {
@@ -805,14 +846,21 @@ void SelectNode::setActiveChildWithValue(string val) {
         !"SelectNode::setActiveChildWithValue() is called with no children.");
 
     for (size_t i = 0, l = children.size(); i < l; ++i) {
-        auto child = static_pointer_cast<SelectOptionNode>(children.at(i));
+        const shared_ptr<const SelectOptionNode> child =
+            static_pointer_cast<SelectOptionNode>(children.at(i));
 
         if (child->getValue() == val) {
             activeOptionIdx = i;
+            notify();
             return;
         }
     }
 
     throw runtime_error(
         "Reached unreachable code at SelectNode::setActiveChildWithValue()");
+}
+
+bool SelectNode::onKeyPressed(unsigned int keyCode) {
+    selectNext();
+    return false;
 }

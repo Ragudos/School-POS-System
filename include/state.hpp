@@ -31,7 +31,9 @@ class State {
     void removeMenuItemWithId(string);
 
    public:
-    optional<MenuItem*> getMenuItemWithId(string);
+    optional<const MenuItem*> getMenuItemWithId(const string&);
+    string getSelectedMenuItemId() const noexcept;
+    void setSelectedMenuItemId(string);
     const vector<MenuItem>& getMenuItems() const noexcept;
 };
 

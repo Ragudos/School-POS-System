@@ -13,27 +13,31 @@ using namespace keyboard;
 
 void programEntryPoint(LoopLambda*);
 void onScreenSizeChange();
+void gracefulError(const exception&);
+void gracefulError(const string&);
 
 int main() {
-    initializeState();
-    initializeScreen();
-    initializeRenderer();
-
-    Screen& screen = getScreen();
-
     enterAltScreen();
     hideCursor();
     disableTextWrapping();
 
-    screen.subscribe(onScreenSizeChange);
+    try {
+        initializeState();
+        initializeScreen();
+        initializeRenderer();
 
-    getRenderer().renderBuffer();
+        Screen& screen = getScreen();
 
-    LoopLambda loop(100, programEntryPoint);
+        screen.subscribe(onScreenSizeChange);
+        getRenderer().renderBuffer();
 
-    loop.start();
+        LoopLambda loop(100, programEntryPoint);
 
-    screen.unsubscribe(onScreenSizeChange);
+        loop.start();
+        screen.unsubscribe(onScreenSizeChange);
+    } catch (const exception& e) {
+        gracefulError(e);
+    }
 
     showCursor();
     exitAltScreen();
@@ -100,21 +104,26 @@ void programEntryPoint(LoopLambda* loop) {
     }
 
     if (!err.empty()) {
-        clearScreen();
-        textForeground(255, 0, 0);
-        cout << "ERROR!" << endl;
-        textReset();
-        cout << err << endl << endl;
-        cout << "Press q to exit...";
-
-        while (true) {
-            int pressedKeyCode = getPressedKeyCode();
-
-            if (pressedKeyCode == KEY_Q || pressedKeyCode == KEY_q) {
-                break;
-            }
-        }
-
+        gracefulError(err);
         loop->stop();
+    }
+}
+
+void gracefulError(const exception& e) { gracefulError(e.what()); }
+
+void gracefulError(const string& e) {
+    // clearScreen();
+    textForeground(255, 0, 0);
+    cout << "ERROR!" << endl;
+    textReset();
+    cout << e << endl << endl;
+    cout << "Press q to exit...";
+
+    while (true) {
+        int pressedKeyCode = getPressedKeyCode();
+
+        if (pressedKeyCode == KEY_Q || pressedKeyCode == KEY_q) {
+            break;
+        }
     }
 }
