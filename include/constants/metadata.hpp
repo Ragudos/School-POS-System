@@ -16,4 +16,4 @@
 
 using namespace std;
 
-constexpr string_view TITLE = "Comffee Point-Of-Sale System";
+constexpr string_view TITLE = "Com-ffee Point-Of-Sale System";

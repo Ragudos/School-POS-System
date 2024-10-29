@@ -9,9 +9,7 @@ string MenuItem::getId() const noexcept { return id; }
 
 void MenuItem::setDescription(string desc) { description = desc; }
 
-string MenuItem::getDescription() const noexcept {
-    throw logic_error("unimplemented");
-}
+string MenuItem::getDescription() const noexcept { return description; }
 
 uint8_t MenuItem::getQty() const noexcept {
     throw logic_error("unimplemented");
