@@ -1,0 +1,42 @@
+name: Contribute
+description: If you are my groupmate and want to contribute to the source code, please click here.
+labels:
+  - "contribute"
+body:
+  - type: markdown
+    attributes:
+      value: |
+        This issue will allow me to see who is working on which feature. Please self-assign yourself after submitting this issue.
+        Before doing so, please make sure that:
+
+        - [x] I know what I'm going to do
+        - [x] I have a clear estimated deadline on when I'll finish this.
+        - [x] I will seek help from the group if I encounter difficulties
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Description
+      description: A concise description of what you'll work on.
+      placeholder: Describe what you'll work on; the files you might touch, etc.
+    validations:
+      required: true
+
+  - type: input
+    id: deadline
+    attributes:
+      label: Description
+      description: An estimate of how many days it'll take you to finish this
+      placeholder: Input your estimate of how many days it'll take to finish this
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: terms
+    attributes:
+      label: Code Of Conduct
+      description: By submitting this issue, you agree to follow our [Code of Conduct](https://github.com/Ragudos/School-POS-System/blob/main/CODE_OF_CONDUCT.md)
+      options:
+        - label: I agree to follow this project's Code of Conduct
+          required: true
+
