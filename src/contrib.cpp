@@ -7,9 +7,7 @@ MenuItem::MenuItem(string id) : id(id) {}
 
 string MenuItem::getId() const noexcept { return id; }
 
-void MenuItem::setDescription(string desc) {
-    throw logic_error("unimplemented");
-}
+void MenuItem::setDescription(string desc) { description = desc; }
 
 string MenuItem::getDescription() const noexcept {
     throw logic_error("unimplemented");
