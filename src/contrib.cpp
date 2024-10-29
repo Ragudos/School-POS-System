@@ -11,9 +11,7 @@ void MenuItem::setDescription(string desc) { description = desc; }
 
 string MenuItem::getDescription() const noexcept { return description; }
 
-uint8_t MenuItem::getQty() const noexcept {
-    throw logic_error("unimplemented");
-}
+uint8_t MenuItem::getQty() const noexcept { return qty; }
 
 void MenuItem::increaseQty(uint8_t amount) {
    qty+=amount;
@@ -28,11 +26,9 @@ void MenuItem::decreaseQty(uint8_t amount) {
     qty-=amount;
 }
 
-void MenuItem::resetQty() noexcept { throw logic_error("unimplemented"); }
+void MenuItem::resetQty() noexcept { qty=0; }
 
-double MenuItem::getPrice() const noexcept {
-    throw logic_error("unimplemented");
-}
+double MenuItem::getPrice() const noexcept { return price; }
 
 double MenuItem::calculateSubTotal() const noexcept {
     throw logic_error("unimplemented");
