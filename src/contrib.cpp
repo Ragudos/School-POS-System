@@ -41,11 +41,15 @@ double MenuItem::calculateSubTotal() const noexcept {
 }
 
 double calculateChange(double givenCash, double price) {
-    throw logic_error("unimplemented");
+    return givenCash - price;
 }
 
-double calculateTotalOfChosenMenuItems(const vector<MenuItem>&) {
-    throw logic_error("unimplemented");
+double calculateTotalOfChosenMenuItems(const vector<MenuItem>& items) {
+    double total = 0.0;
+    for (const auto& item : items) {
+        total += item.calculateSubTotal();
+    }
+    return total;
 }
 
 void State::appendMenuItem(MenuItem menuItem) { menuItems.push_back(menuItem); }
