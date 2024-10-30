@@ -60,6 +60,7 @@ void programEntryPoint(LoopLambda* loop) {
         Renderer& renderer = getRenderer();
 
         screen.updateScreenDimensions();
+        // getPressedKeyCode() is a blocking operation on Linux.
         int pressedKeyCode = getPressedKeyCode();
 
         switch (pressedKeyCode) {
@@ -113,7 +114,6 @@ void programEntryPoint(LoopLambda* loop) {
 }
 
 void gracefulError(const exception& e) { gracefulError(e.what()); }
-
 void gracefulError(const string& e) {
     // clearScreen();
     textForeground(255, 0, 0);

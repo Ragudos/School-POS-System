@@ -38,18 +38,42 @@ unsigned int keyboard::getPressedKeyCode() { return getPressedKeyCodeRaw(); }
 
 #if defined(LINUX_PLATFORM) || defined(MAC_PLATFORM)
 static unsigned int getPressedKeyCodeRaw() {
+    // termios structure
+    // contain terminal input output settings that control
+    // the terminal
     struct termios oldt, newt;
 
     int ch;
 
+    // tcgetattr saves the terminal's current settings
+    // STDIN_FILENO means standard input (usually the keyboard)
+    // and stores it in the `oldt` variable.
     tcgetattr(STDIN_FILENO, &oldt);
-    newt = oldt;
 
+    // we say that newt is oldt so we
+    // base ont the terminal's settings
+    // before changes are made
+    // and avoid changing the oldt's values.
+    newt = oldt;
+    // we clear the terminal's ICANON and ECHO flags
+    // using bitwise operations
+    // which means:
+    // ICANON: non-canonical, meaning the each character outputted to the
+    // terminal will be read/processed immediately instead of reading it
+    // line-by-line (need to press Enter).
+    // ECHO: echo or outputs the input character to the terminal, and
+    // clearing this will disable this behavior.
     newt.c_lflag &= ~(ICANON | ECHO);
+
+    // set the applied settings
+    // TCSANOW means it will be applied immediately
     tcsetattr(STDIN_FILENO, TCSANOW, &newt);
 
+    // now, we wait for a key to be pressed (input character)
     ch = getchar();
 
+    // Restore the old settings
+    // TCSANOW means it will be applied immediately
     tcsetattr(STDIN_FILENO, TCSANOW, &oldt);
 
     return ch;
