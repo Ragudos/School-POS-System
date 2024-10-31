@@ -31,7 +31,7 @@ void MenuItem::resetQty() noexcept { qty=0; }
 double MenuItem::getPrice() const noexcept { return price; }
 
 double MenuItem::calculateSubTotal() const noexcept {
-    throw logic_error("unimplemented");
+   return qty*price;
 }
 
 double calculateChange(double givenCash, double price) {
