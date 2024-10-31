@@ -28,7 +28,8 @@ class MenuItem {
     double price;
 
    public:
-    MenuItem(string);
+    MenuItem(string, double);
+    MenuItem(string, double, string);
 
    public:
     string getId() const noexcept;
@@ -47,3 +48,23 @@ class MenuItem {
 double calculateChange(double, double);
 double calculateTotalOfChosenMenuItems(const vector<MenuItem>&);
 string formatNumber(double);
+
+/**
+ *
+ * TODO:
+ *
+ * THIS IS JUST FOR CONVENIENCE RIGHT NOW.
+ * IF YOU WANT TO IMPLEMENT THE LOGIC OF
+ * TURNING A NUMBER INTO A FORMATTED VERSION,
+ * THEN PLEASE DO SO.
+ *
+ * (e.g. 1234.00 to 1,234.00)
+ */
+template <typename T>
+string formatNumber(T number) {
+    static_assert(is_arithmetic<T>::value,
+                  "formatNumber() requires a numeric type of int, float, "
+                  "double, long, etc.");
+
+    return formatNumber(static_cast<double>(number));
+};
