@@ -33,9 +33,15 @@ class Renderer {
     Renderer();
 
    private:
+    // header
+    void createMenuHeader(bool);
+    void createOrderConfirmationHeader(bool);
+    void createOrderResultsHeader(bool);
+    void createAdminHeader(bool);
+    // body
     void createMenuView(bool);
-    void createOrderConfirmationView();
-    void createOrderResultsView();
+    void createOrderConfirmationView(bool);
+    void createOrderResultsView(bool);
 
    public:
     /**

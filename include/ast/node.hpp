@@ -153,6 +153,8 @@ class GridNode : public ContainerNode {
     virtual void onChildRemoved(size_t, NodePtr) override;
 
     virtual void updateChildrenDimensionsOnChange() override;
+    virtual void updateParentDimensionsOnChildChange(
+        NodePtr childCaller) override;
 
     unsigned int getColGap() const noexcept;
     void setColGap(unsigned int);

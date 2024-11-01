@@ -20,6 +20,11 @@ void Renderer::createView() {
 
     // if exists, remove
     if (rootNode) {
+        moveCursorTo(static_cast<unsigned int>(0), rootNode->getHeight() + 2);
+        cout << int(rootNode->getHeight());
+        moveCursorTo(static_cast<unsigned int>(0), rootNode->getHeight() + 3);
+        cout << int(body->getHeight());
+
         moveCursorTo(static_cast<unsigned int>(0), rootNode->getHeight());
         clearLinesFromCursorToEndOfLine(rootNode->getHeight());
 
@@ -40,17 +45,23 @@ void Renderer::createView() {
     title->setColor(255, 255, 0);
     title->setBold();
 
+    auto brTitle = make_shared<LineBreakNode>(1);
+
     header->appendChild(title);
+    header->appendChild(brTitle);
 
     switch (viewState) {
         case RendererState::MENU: {
+            createMenuHeader(isNew);
             createMenuView(isNew);
         }; break;
         case RendererState::ORDER_CONFIRMATION: {
-            createOrderConfirmationView();
+            createOrderConfirmationHeader(isNew);
+            createOrderConfirmationView(isNew);
         }; break;
         case RendererState::ORDER_RESULTS: {
-            createOrderResultsView();
+            createOrderResultsHeader(isNew);
+            createOrderResultsView(isNew);
         }; break;
     }
 
@@ -62,6 +73,14 @@ void Renderer::createView() {
 
     rootNode->render(&buf);
 }
+
+void Renderer::createMenuHeader(bool isNew) {}
+
+void Renderer::createOrderConfirmationHeader(bool isNew) {}
+
+void Renderer::createOrderResultsHeader(bool isNew) {}
+
+void Renderer::createAdminHeader(bool isNew) {}
 
 void Renderer::createMenuView(bool isNew) {
     State& state = getState();
@@ -106,11 +125,11 @@ void Renderer::createMenuView(bool isNew) {
 
     itemDisplay->setRowGap(1);
     itemDisplay->setIsFlexible(false);
-    itemDisplay->appendChild(itemDescription);
-    itemDisplay->appendChild(itemPrice);
-    itemDisplay->appendChild(itemQty);
 
     int pos = 1;
+
+    moveCursorTo(1, (20 + (pos++)));
+    cout << "menu grid width: " << menuGrid->getWidth();
 
     /**
      * TODO: fix bug when order of appending is
@@ -119,48 +138,56 @@ void Renderer::createMenuView(bool isNew) {
     menuGrid->appendChild(menuSelect);
     menuGrid->appendChild(itemDisplay);
 
+    /**
+     *
+     * DO NOT MOVE THIS.
+     */
+    itemDisplay->appendChild(itemDescription);
+    itemDisplay->appendChild(itemPrice);
+    itemDisplay->appendChild(itemQty);
+
     body->appendChild(menuGrid);
 
     saveCursorPosition();
 
-    for (const auto child : menuSelect->getChildren()) {
-        auto c = static_pointer_cast<SelectOptionNode>(child);
+    moveCursorTo(1, (20 + (pos++)));
+    cout << "body: "
+         << "(" << body->getWidth() << ", " << body->getHeight() << ")";
 
-        moveCursorTo(10, (15 + (pos++)));
-        cout << "c " << c->getValue() << " (posX, posY, width, height): "
-             << "(" << c->getPosX() << ", " << c->getPosY() << ", "
-             << c->getWidth() << ", " << c->getHeight() << ")";
-    }
-
-    moveCursorTo(10, (15 + (pos++)));
-    cout << "item qty (posX, posY, width, height): "
+    moveCursorTo(1, (20 + (pos++)));
+    cout << "item qty: "
          << "(" << itemQty->getPosX() << ", " << itemQty->getPosY() << ", "
          << itemQty->getWidth() << ", " << itemQty->getHeight() << ")";
-    moveCursorTo(10, (15 + (pos++)));
-    cout << "item price (posX, posY, width, height): "
+    moveCursorTo(1, (20 + (pos++)));
+    cout << "item price: "
          << "(" << itemPrice->getPosX() << ", " << itemPrice->getPosY() << ", "
          << itemPrice->getWidth() << ", " << itemPrice->getHeight() << ")";
-    moveCursorTo(10, (15 + (pos++)));
-    cout << "item desc (posX, posY, width, height): "
+    moveCursorTo(1, (20 + (pos++)));
+    cout << "item desc: "
          << "(" << itemDescription->getPosX() << ", "
          << itemDescription->getPosY() << ", " << itemDescription->getWidth()
          << ", " << itemDescription->getHeight() << ")";
-    moveCursorTo(10, (15 + (pos++)));
+    moveCursorTo(1, (20 + (pos++)));
+    cout << "item display: "
+         << "(" << itemDisplay->getPosX() << ", " << itemDisplay->getPosY()
+         << ", " << itemDisplay->getWidth() << ", " << itemDisplay->getHeight()
+         << ")";
+    moveCursorTo(1, (20 + (pos++)));
     cout << "menu select width: " << menuSelect->getWidth();
-    moveCursorTo(10, (15 + (pos++)));
+    moveCursorTo(1, (20 + (pos++)));
     cout << "menu select (posX, posY): "
          << "(" << menuSelect->getPosX() << ", " << menuSelect->getPosY()
          << ")";
-    moveCursorTo(10, (15 + (pos++)));
+    moveCursorTo(1, (20 + (pos++)));
     cout << "menu grid width: " << menuGrid->getWidth();
-    moveCursorTo(10, (15 + (pos++)));
+    moveCursorTo(1, (20 + (pos++)));
     cout << "screen width: " << getScreen().getWidth();
     restoreSavedCursorPosition();
 }
 
-void Renderer::createOrderConfirmationView() {}
+void Renderer::createOrderConfirmationView(bool isNew) {}
 
-void Renderer::createOrderResultsView() {}
+void Renderer::createOrderResultsView(bool isNew) {}
 
 void Renderer::renderBuffer() noexcept {
     cout << buf.str();

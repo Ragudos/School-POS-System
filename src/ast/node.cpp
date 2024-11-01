@@ -121,14 +121,14 @@ void Node::onChildAppended() {
         }
     }
 
+    appendedChild->updateChildrenDimensionsOnChange();
+
     /** === Update the parents' and children's dimensions or something */
     NodePtr prnt = getParent();
 
     if (prnt) {
         prnt->updateParentDimensionsOnChildChange(shared_from_this());
     }
-
-    appendedChild->updateChildrenDimensionsOnChange();
 }
 
 void Node::updateChildrenDimensionsOnChange() {
@@ -165,15 +165,14 @@ void Node::updateParentDimensionsOnChildChange(NodePtr childCaller) {
         childCaller->getPosY() + childCaller->getHeight();
 
     if (getHeight() < childCallerRealHeight) {
-        setHeight(getHeight() + (childCallerRealHeight - getHeight()) -
-                  getPosY());
+        setHeight(childCallerRealHeight);
     }
 
     unsigned int childCallerRealWidth =
         childCaller->getPosX() + childCaller->getWidth();
 
     if (getWidth() < childCallerRealWidth) {
-        setWidth(getWidth() + (childCallerRealWidth - getWidth()) - getPosX());
+        setWidth(childCallerRealWidth);
     }
 
     updateChildrenDimensionsOnChange();
@@ -300,14 +299,10 @@ void GridNode::onChildAppended() {
         appendedChild->setWidth(childWidth == 0 ? getWidth() : childWidth);
     }
 
+    appendedChild->setPosX(getPosX());
+    appendedChild->setPosY(getPosY());
+
     if (childrenSize == 1) {
-        appendedChild->setPosX(getPosX());
-        appendedChild->setPosY(getPosY());
-
-        if (!flexible && dynamic_pointer_cast<GridNode>(getParent())) {
-            appendedChild->setWidth(childWidth == 0 ? getWidth() : childWidth);
-        }
-
         setHeight(appendedChild->getHeight());
     } else {
         NodePtr prevSiblingOfAppendedChild = children.at(childrenSize - 2);
@@ -317,7 +312,7 @@ void GridNode::onChildAppended() {
 
         // have the appended child take the remaining width
         if (flexible && prevSiblingRealWidth < getWidth()) {
-            // appendedChild->setWidth(getWidth() - prevSiblingRealWidth);
+            appendedChild->setWidth(getWidth() - prevSiblingRealWidth);
         }
 
         // if overflow
@@ -338,7 +333,7 @@ void GridNode::onChildAppended() {
                                              ? prevSiblingHeight
                                              : appendedChildHeight;
 
-            for (size_t i = 0, l = childrenSize - 2; i < l; ++i) {
+            for (size_t i = 0, l = childrenSize - 1; i < l; ++i) {
                 NodePtr child = children.at(i);
                 unsigned int childHeight =
                     child->getPosY() + child->getHeight();
@@ -350,10 +345,12 @@ void GridNode::onChildAppended() {
 
             setHeight(tallestHeight);
 
-            appendedChild->setPosX(prevSiblingRealWidth);
+            appendedChild->setPosX(width);
             appendedChild->setPosY(prevSiblingOfAppendedChild->getPosY());
         }
     }
+
+    appendedChild->updateChildrenDimensionsOnChange();
 
     /** === Update the parents' and children's dimensions or something */
     NodePtr prnt = getParent();
@@ -361,8 +358,39 @@ void GridNode::onChildAppended() {
     if (prnt) {
         prnt->updateParentDimensionsOnChildChange(shared_from_this());
     }
+}
 
-    appendedChild->updateChildrenDimensionsOnChange();
+void GridNode::updateParentDimensionsOnChildChange(NodePtr childCaller) {
+    unsigned int childCallerRealWidth =
+        childCaller->getPosX() + childCaller->getWidth();
+
+    if (getWidth() < childCallerRealWidth) {
+        if (children.size() == 1 || !flexible) {
+            childCaller->setWidth(childWidth == 0
+                                      ? (childCallerRealWidth - getWidth())
+                                      : childWidth);
+        } else if (flexible && children.size() > 1) {
+            childCaller->setWidth(childCallerRealWidth - getWidth());
+        }
+    }
+
+    unsigned int childCallerRealHeight =
+        childCaller->getPosY() + childCaller->getHeight();
+
+    if (getHeight() < childCallerRealHeight) {
+        setHeight(childCallerRealHeight);
+    }
+
+    updateChildrenDimensionsOnChange();
+
+    NodePtr parent = getParent();
+
+    // Base case
+    if (parent == nullptr) {
+        return;
+    }
+
+    parent->updateParentDimensionsOnChildChange(shared_from_this());
 }
 
 void GridNode::updateChildrenDimensionsOnChange() {
@@ -503,11 +531,8 @@ void TextNode::render(ostringstream* buf) const {
 
             *buf << str;
 
-            moveCursorTo(buf, getPosX());
-            moveCursorDown(buf, 1);
-
-            currLine += 1;
-            start = end;
+            moveCursorTo(buf, getPosX(),
+                         getPosY() + static_cast<unsigned int>(++currLine));
         }
     } else {
         *buf << text;
