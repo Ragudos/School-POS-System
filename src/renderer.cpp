@@ -126,11 +126,6 @@ void Renderer::createMenuView(bool isNew) {
     itemDisplay->setRowGap(1);
     itemDisplay->setIsFlexible(false);
 
-    int pos = 1;
-
-    moveCursorTo(1, (20 + (pos++)));
-    cout << "menu grid width: " << menuGrid->getWidth();
-
     /**
      * TODO: fix bug when order of appending is
      * reversed below.
@@ -148,6 +143,8 @@ void Renderer::createMenuView(bool isNew) {
 
     body->appendChild(menuGrid);
 
+    /*
+    int pos = 1;
     saveCursorPosition();
 
     moveCursorTo(1, (20 + (pos++)));
@@ -182,7 +179,7 @@ void Renderer::createMenuView(bool isNew) {
     cout << "menu grid width: " << menuGrid->getWidth();
     moveCursorTo(1, (20 + (pos++)));
     cout << "screen width: " << getScreen().getWidth();
-    restoreSavedCursorPosition();
+    restoreSavedCursorPosition();*/
 }
 
 void Renderer::createOrderConfirmationView(bool isNew) {}
