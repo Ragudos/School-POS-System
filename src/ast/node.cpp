@@ -919,3 +919,59 @@ bool SelectNode::onKeyPressed(unsigned int keyCode) {
             return false;
     }
 }
+
+ButtonNode::ButtonNode(char icon, string text,
+                       tuple<unsigned int, unsigned int>)
+    : icon(icon), text(text), keyCode(keyCode) {}
+ButtonNode::ButtonNode(char icon, string text,
+                       tuple<unsigned int, unsigned int>, bool isPressed)
+    : icon(icon), text(text), keyCode(keyCode), isPressed(isPressed) {}
+
+void ButtonNode::render(ostringstream* buf) const {
+    textBold(buf);
+
+    *buf << icon << " ";
+
+    if (!isPressed) {
+        textReset(buf);
+    }
+
+    *buf << text;
+
+    textReset(buf);
+}
+
+void ButtonNode::notify() {
+    for (const auto& subscriber : subscribers) {
+        subscriber();
+    }
+}
+
+void ButtonNode::subscribe(SubscriberCallback cb) { subscribers.push_back(cb); }
+
+void ButtonNode::unsubscribe(SubscriberCallback cb) {
+    subscribers.erase(
+        remove_if(subscribers.begin(), subscribers.end(),
+                  [&cb](const ButtonNode::SubscriberCallback currCb) {
+                      return currCb.target_type() == cb.target_type();
+                  }),
+        subscribers.end());
+}
+
+bool ButtonNode::onKeyPressed(unsigned int pressedKeyCode) {
+    if (get<0>(keyCode) == pressedKeyCode ||
+        get<1>(keyCode) == pressedKeyCode) {
+        isPressed = true;
+
+        notify();
+
+        return true;
+    }
+
+    isPressed = false;
+
+    return false;
+}
+
+bool ButtonNode::canHaveChildren() const noexcept { return false; }
+NodeTypes ButtonNode::nodeType() const noexcept { return NodeTypes::LEAF; }

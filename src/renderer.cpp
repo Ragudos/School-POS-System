@@ -20,11 +20,6 @@ void Renderer::createView() {
 
     // if exists, remove
     if (rootNode) {
-        moveCursorTo(static_cast<unsigned int>(0), rootNode->getHeight() + 2);
-        cout << int(rootNode->getHeight());
-        moveCursorTo(static_cast<unsigned int>(0), rootNode->getHeight() + 3);
-        cout << int(body->getHeight());
-
         moveCursorTo(static_cast<unsigned int>(0), rootNode->getHeight());
         clearLinesFromCursorToEndOfLine(rootNode->getHeight());
 
@@ -74,7 +69,21 @@ void Renderer::createView() {
     rootNode->render(&buf);
 }
 
-void Renderer::createMenuHeader(bool isNew) {}
+void Renderer::createMenuHeader(bool isNew) {
+    Screen& screen = getScreen();
+    State& state = getState();
+    shared_ptr<GridNode> navHeader =
+        make_shared<GridNode>(screen.getWidth(), 10);
+
+    navHeader->setIsFlexible(false);
+
+    shared_ptr<ButtonNode> shopBtn = make_shared<ButtonNode>(
+        's', "shop", tuple<unsigned int, unsigned int>({KEY_s, KEY_S}), true);
+
+    navHeader->appendChild(shopBtn);
+
+    header->appendChild(navHeader);
+}
 
 void Renderer::createOrderConfirmationHeader(bool isNew) {}
 

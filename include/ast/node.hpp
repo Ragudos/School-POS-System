@@ -315,3 +315,42 @@ class SelectNode : public InteractableNode {
      */
     void setActiveChildWithValue(string);
 };
+
+class ButtonNode : public InteractableNode {
+   public:
+    using SubscriberCallback = function<void()>;
+
+   private:
+    char icon;
+    string text;
+    /**
+     *
+     * A {lowercase, uppercase} keyCode tuple
+     */
+    tuple<unsigned int, unsigned int> keyCode;
+    bool isPressed;
+
+    vector<SubscriberCallback> subscribers;
+
+   public:
+    ButtonNode(char, string, tuple<unsigned int, unsigned int>);
+    ButtonNode(char, string, tuple<unsigned int, unsigned int>, bool);
+
+   private:
+    void notify();
+
+   public:
+    virtual void render(ostringstream *) const override;
+    void subscribe(SubscriberCallback);
+    void unsubscribe(SubscriberCallback);
+
+   public:
+    /**
+     *
+     * Returns false if `keyCode` is not this node's
+     * trigger.
+     */
+    virtual bool onKeyPressed(unsigned int) override;
+    virtual bool canHaveChildren() const noexcept override;
+    virtual NodeTypes nodeType() const noexcept override;
+};
