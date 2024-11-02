@@ -40,10 +40,10 @@ void Renderer::createView() {
     title->setColor(255, 255, 0);
     title->setBold();
 
-    auto brTitle = make_shared<LineBreakNode>(1);
+    auto titleBr = make_shared<LineBreakNode>();
 
     header->appendChild(title);
-    header->appendChild(brTitle);
+    header->appendChild(titleBr);
 
     switch (viewState) {
         case RendererState::MENU: {
@@ -73,14 +73,40 @@ void Renderer::createMenuHeader(bool isNew) {
     Screen& screen = getScreen();
     State& state = getState();
     shared_ptr<GridNode> navHeader =
-        make_shared<GridNode>(screen.getWidth(), 10);
+        make_shared<GridNode>(screen.getWidth(), 0, 2);
 
     navHeader->setIsFlexible(false);
 
     shared_ptr<ButtonNode> shopBtn = make_shared<ButtonNode>(
         's', "shop", tuple<unsigned int, unsigned int>({KEY_s, KEY_S}), true);
+    shared_ptr<ButtonNode> adminBtn = make_shared<ButtonNode>(
+        'a', "admin", tuple<unsigned int, unsigned int>({KEY_a, KEY_A}));
+    shared_ptr<ButtonNode> checkoutBtn = make_shared<ButtonNode>(
+        'c', "checkout", tuple<unsigned int, unsigned int>({KEY_c, KEY_C}));
 
     navHeader->appendChild(shopBtn);
+    navHeader->appendChild(adminBtn);
+    navHeader->appendChild(checkoutBtn);
+
+    unsigned int pos = 20;
+
+    saveCursorPosition(&buf);
+    moveCursorTo(&buf, 0, pos++);
+    buf << "navHeader: " << navHeader->getPosX() << " " << navHeader->getPosY()
+        << " " << navHeader->getWidth() << " " << navHeader->getHeight();
+    moveCursorTo(&buf, 0, pos++);
+    buf << "header: " << header->getPosX() << " " << header->getPosY() << " "
+        << header->getWidth() << " " << header->getHeight();
+    moveCursorTo(&buf, 0, pos++);
+    buf << "s: " << shopBtn->getPosX() << " " << shopBtn->getPosY() << " "
+        << shopBtn->getWidth() << " " << shopBtn->getHeight();
+    moveCursorTo(&buf, 0, pos++);
+    buf << "a: " << adminBtn->getPosX() << " " << adminBtn->getPosY() << " "
+        << adminBtn->getWidth() << " " << adminBtn->getHeight();
+    moveCursorTo(&buf, 0, pos++);
+    buf << "a: " << checkoutBtn->getPosX() << " " << checkoutBtn->getPosY()
+        << " " << checkoutBtn->getWidth() << " " << checkoutBtn->getHeight();
+    restoreSavedCursorPosition(&buf);
 
     header->appendChild(navHeader);
 }

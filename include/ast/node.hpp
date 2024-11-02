@@ -345,6 +345,10 @@ class ButtonNode : public InteractableNode {
     void unsubscribe(SubscriberCallback);
 
    public:
+    virtual void setWidth(unsigned int w) override;
+    virtual void setHeight(unsigned int h) override;
+
+   public:
     /**
      *
      * Returns false if `keyCode` is not this node's

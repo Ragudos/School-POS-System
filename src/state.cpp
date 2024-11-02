@@ -22,9 +22,8 @@ void initializeState() {
     MenuItem item10("java-chip", 130);
 
     item1.setDescription(
-        "Amazing fdsjif jsdiofj iosdjfiosdjio fjiosdjf iosdjfio jsdiofj iosdjf "
-        "oisdjofijsdofjweklf msklcmvl,xcnmvm,.zxcn.zm,mcl;kajdpasidpqwoidopwe "
-        "jfiopsjf");
+        "Amazing What Ha Hello There Human How Are You? HaHaha heheHe kAkosa "
+        "Aarpn YumMy");
     item2.setDescription("Amazing");
     item3.setDescription("Amazing");
     item4.setDescription("Amazing");
