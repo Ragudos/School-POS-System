@@ -249,7 +249,7 @@ GridNode::GridNode(unsigned int width) : colGap(4), rowGap(2), childWidth(0) {
 
 GridNode::GridNode(unsigned int width, unsigned int childWidth)
     : colGap(4), rowGap(2), childWidth(childWidth) {
-    assert(childWidth > getWidth() ||
+    assert(childWidth <= getWidth() ||
            !"child width should be <= grid container's width.");
     setWidth(width);
 }
@@ -257,7 +257,7 @@ GridNode::GridNode(unsigned int width, unsigned int childWidth)
 GridNode::GridNode(unsigned int width, unsigned int childWidth,
                    unsigned int colGap)
     : colGap(colGap), rowGap(2), childWidth(childWidth) {
-    assert(childWidth > getWidth() ||
+    assert(childWidth <= getWidth() ||
            !"child width should be <= grid container's width.");
     setWidth(width);
 }
@@ -265,7 +265,7 @@ GridNode::GridNode(unsigned int width, unsigned int childWidth,
 GridNode::GridNode(unsigned int width, unsigned int childWidth,
                    unsigned int colGap, unsigned int rowGap)
     : colGap(colGap), rowGap(rowGap), childWidth(childWidth) {
-    assert(childWidth > getWidth() ||
+    assert(childWidth <= getWidth() ||
            !"child width should be <= grid container's width.");
     setWidth(width);
 }
