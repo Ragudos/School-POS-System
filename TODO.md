@@ -2,8 +2,8 @@
     [x] An abstracted, more organized way for the frontend (probably a tree-like structure like AST)
     [x] Interactable menu
     [] Gathering of input from user (An input component; this is why we need an organized way to structure parts of the frontend).
-
-
+    [] add-ons functionality
+    [] have grid take something like grid-columns (amount of columns it can take before wrapping because of overflow)
 
 ## BACKEND
     [] A way to store information in CSV files

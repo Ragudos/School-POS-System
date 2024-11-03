@@ -18,7 +18,7 @@ using namespace std;
 
 void onMenuSelectUpdated(optional<string>);
 
-enum RendererState { MENU, ORDER_CONFIRMATION, ORDER_RESULTS };
+enum RendererState { MENU, ORDER_CONFIRMATION, ORDER_RESULTS, ADMIN_MENU };
 
 class Renderer {
    private:
@@ -27,6 +27,7 @@ class Renderer {
     shared_ptr<ContainerNode> rootNode;
     shared_ptr<ContainerNode> header;
     shared_ptr<ContainerNode> body;
+    shared_ptr<ContainerNode> footer;
 
    public:
     ostringstream buf;
@@ -37,11 +38,17 @@ class Renderer {
     void createMenuHeader(bool);
     void createOrderConfirmationHeader(bool);
     void createOrderResultsHeader(bool);
-    void createAdminHeader(bool);
+    void createAdminMenuHeader(bool);
     // body
     void createMenuView(bool);
     void createOrderConfirmationView(bool);
     void createOrderResultsView(bool);
+    void createAdminMenuView(bool);
+    // footer
+    void createMenuFooter(bool);
+    void createOrderConfirmationFooter(bool);
+    void createOrderResultsFooter(bool);
+    void createAdminMenuFooter(bool);
 
    public:
     /**

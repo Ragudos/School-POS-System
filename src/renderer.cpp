@@ -49,14 +49,22 @@ void Renderer::createView() {
         case RendererState::MENU: {
             createMenuHeader(isNew);
             createMenuView(isNew);
+            createMenuFooter(isNew);
         }; break;
         case RendererState::ORDER_CONFIRMATION: {
             createOrderConfirmationHeader(isNew);
             createOrderConfirmationView(isNew);
+            createOrderConfirmationFooter(isNew);
         }; break;
         case RendererState::ORDER_RESULTS: {
             createOrderResultsHeader(isNew);
             createOrderResultsView(isNew);
+            createOrderResultsFooter(isNew);
+        }; break;
+        case RendererState::ADMIN_MENU: {
+            createAdminMenuHeader(isNew);
+            createAdminMenuView(isNew);
+            createAdminMenuFooter(isNew);
         }; break;
     }
 
@@ -106,16 +114,16 @@ void Renderer::createMenuHeader(bool isNew) {
     moveCursorTo(&buf, 0, pos++);
     buf << "a: " << checkoutBtn->getPosX() << " " << checkoutBtn->getPosY()
         << " " << checkoutBtn->getWidth() << " " << checkoutBtn->getHeight();
-    restoreSavedCursorPosition(&buf);
+    restoreSavedCursorPosition(&buf);*/
 
-    header->appendChild(navHeader);*/
+    header->appendChild(navHeader);
 }
 
 void Renderer::createOrderConfirmationHeader(bool isNew) {}
 
 void Renderer::createOrderResultsHeader(bool isNew) {}
 
-void Renderer::createAdminHeader(bool isNew) {}
+void Renderer::createAdminMenuHeader(bool isNew) {}
 
 void Renderer::createMenuView(bool isNew) {
     State& state = getState();
@@ -178,7 +186,7 @@ void Renderer::createMenuView(bool isNew) {
 
     body->appendChild(menuGrid);
 
-    int pos = 1;
+    /*int pos = 1;
     saveCursorPosition();
 
     moveCursorTo(1, (20 + (pos++)));
@@ -213,12 +221,22 @@ void Renderer::createMenuView(bool isNew) {
     cout << "menu grid width: " << menuGrid->getWidth();
     moveCursorTo(1, (20 + (pos++)));
     cout << "screen width: " << getScreen().getWidth();
-    restoreSavedCursorPosition();
+    restoreSavedCursorPosition();*/
 }
 
 void Renderer::createOrderConfirmationView(bool isNew) {}
 
 void Renderer::createOrderResultsView(bool isNew) {}
+
+void Renderer::createAdminMenuView(bool isNew) {}
+
+void Renderer::createMenuFooter(bool isNew) {}
+
+void Renderer::createOrderConfirmationFooter(bool isNew) {}
+
+void Renderer::createOrderResultsFooter(bool isNew) {}
+
+void Renderer::createAdminMenuFooter(bool isNew) {}
 
 void Renderer::renderBuffer() noexcept {
     cout << buf.str();
