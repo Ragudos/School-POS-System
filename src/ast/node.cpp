@@ -428,16 +428,26 @@ void GridNode::updateChildrenDimensionsOnChange() {
         c->setPosY(currPosY);
         c->setPosX(currPosX);
 
-        if (!flexible) {
-            currPosX +=
-                childWidth == 0 ? c->getWidth() + colGap : childWidth + colGap;
-        } else if (currPosX < getWidth() + cachedInitialPosX) {
-            currPosX += c->getWidth() + colGap;
-        }
+        if (i == l - 1) {
+            if (!flexible) {
+                currPosX += childWidth == 0 ? c->getWidth() : childWidth;
+            } else if (currPosX < getWidth() + cachedInitialPosX) {
+                currPosX += c->getWidth();
+            }
+        } else {
+            auto& nextC = children.at(i + 1);
 
-        if (currPosX >= getWidth() + cachedInitialPosX) {
-            currPosX = cachedInitialPosX;
-            currPosY += c->getHeight() + rowGap;
+            if (!flexible) {
+                currPosX += childWidth == 0 ? c->getWidth() + colGap
+                                            : childWidth + colGap;
+            } else if (currPosX < getWidth() + cachedInitialPosX) {
+                currPosX += c->getWidth() + colGap;
+            }
+
+            if (currPosX + nextC->getWidth() > getWidth() + cachedInitialPosX) {
+                currPosX = cachedInitialPosX;
+                currPosY += c->getHeight() + rowGap;
+            }
         }
 
         c->updateChildrenDimensionsOnChange();
@@ -538,15 +548,13 @@ void TextNode::render(ostringstream* buf) const {
         size_t currLine = 0;
 
         while (currLine < currHeight) {
-            size_t start = currLine * currWidth;
-            size_t end = currWidth * (currLine + 1);
+            size_t start = currWidth * currLine;
 
             if (start >= len) {
                 break;
             }
 
-            string str =
-                end > len ? text.substr(start) : text.substr(start, end);
+            string str = text.substr(start, currWidth);
 
             *buf << str;
 

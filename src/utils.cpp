@@ -47,21 +47,6 @@ string string_utils::kebabToPascal(const string &str,
 
     return res.str();
 }
-string string_utils::genRandomID(size_t len) {
-    const string chars =
-        "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
-    random_device rd;   // Seed generator
-    mt19937 gen(rd());  // Mersenne Twister RNG
-    uniform_int_distribution<> dist(0, chars.size() - 1);
-
-    string id;
-    id.reserve(len);
-    for (size_t i = 0; i < len; ++i) {
-        id += chars[dist(gen)];
-    }
-
-    return id;
-}
 
 void terminal::moveCursorTo(const unsigned int col) noexcept {
     cout << ESC << (col + 1) << "G";

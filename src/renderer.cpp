@@ -88,7 +88,7 @@ void Renderer::createMenuHeader(bool isNew) {
     navHeader->appendChild(adminBtn);
     navHeader->appendChild(checkoutBtn);
 
-    unsigned int pos = 20;
+    /*unsigned int pos = 20;
 
     saveCursorPosition(&buf);
     moveCursorTo(&buf, 0, pos++);
@@ -108,7 +108,7 @@ void Renderer::createMenuHeader(bool isNew) {
         << " " << checkoutBtn->getWidth() << " " << checkoutBtn->getHeight();
     restoreSavedCursorPosition(&buf);
 
-    header->appendChild(navHeader);
+    header->appendChild(navHeader);*/
 }
 
 void Renderer::createOrderConfirmationHeader(bool isNew) {}
@@ -178,7 +178,6 @@ void Renderer::createMenuView(bool isNew) {
 
     body->appendChild(menuGrid);
 
-    /*
     int pos = 1;
     saveCursorPosition();
 
@@ -214,7 +213,7 @@ void Renderer::createMenuView(bool isNew) {
     cout << "menu grid width: " << menuGrid->getWidth();
     moveCursorTo(1, (20 + (pos++)));
     cout << "screen width: " << getScreen().getWidth();
-    restoreSavedCursorPosition();*/
+    restoreSavedCursorPosition();
 }
 
 void Renderer::createOrderConfirmationView(bool isNew) {}
