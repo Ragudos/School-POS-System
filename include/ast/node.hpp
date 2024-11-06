@@ -102,6 +102,8 @@ class Node : public enable_shared_from_this<Node> {
      * unlike a grid container.
      */
     virtual void onChildAppended();
+
+   public:
     virtual void updateParentDimensionsOnChildChange(NodePtr);
     virtual void updateChildrenDimensionsOnChange();
 
@@ -132,6 +134,12 @@ class GridNode : public ContainerNode {
 
     unsigned int childWidth;
 
+    /**
+     *
+     * Whether to have its children take remaining width
+     */
+    bool flexible;
+
    public:
     GridNode();
     GridNode(unsigned int);
@@ -144,11 +152,18 @@ class GridNode : public ContainerNode {
     virtual void onChildAppended() override;
     virtual void onChildRemoved(size_t, NodePtr) override;
 
+    virtual void updateChildrenDimensionsOnChange() override;
+    virtual void updateParentDimensionsOnChildChange(
+        NodePtr childCaller) override;
+
     unsigned int getColGap() const noexcept;
     void setColGap(unsigned int);
 
     unsigned int getRowGap() const noexcept;
     void setRowGap(unsigned int);
+
+    bool isFlexible() const noexcept;
+    void setIsFlexible(bool) noexcept;
 };
 
 class LeafNode : public Node {
@@ -272,6 +287,8 @@ class SelectNode : public InteractableNode {
 
    public:
     SelectNode();
+    SelectNode(size_t);
+    ~SelectNode();
 
    public:
     void render(ostringstream *) const override;
@@ -286,13 +303,58 @@ class SelectNode : public InteractableNode {
 
    public:
     void resetActiveIdx() noexcept;
+    virtual bool onKeyPressed(unsigned int) override;
 
    public:
     optional<string> getValueOfSelectedOption() const;
+    size_t getActiveOptionIdx() const noexcept;
     /**
      *
      * Set the active idx based on provided value.
      * Throws an error if not found as child.
      */
     void setActiveChildWithValue(string);
+};
+
+class ButtonNode : public InteractableNode {
+   public:
+    using SubscriberCallback = function<void()>;
+
+   private:
+    char icon;
+    string text;
+    /**
+     *
+     * A {lowercase, uppercase} keyCode tuple
+     */
+    tuple<unsigned int, unsigned int> keyCode;
+    bool isPressed;
+
+    vector<SubscriberCallback> subscribers;
+
+   public:
+    ButtonNode(char, string, tuple<unsigned int, unsigned int>);
+    ButtonNode(char, string, tuple<unsigned int, unsigned int>, bool);
+
+   private:
+    void notify();
+
+   public:
+    virtual void render(ostringstream *) const override;
+    void subscribe(SubscriberCallback);
+    void unsubscribe(SubscriberCallback);
+
+   public:
+    virtual void setWidth(unsigned int w) override;
+    virtual void setHeight(unsigned int h) override;
+
+   public:
+    /**
+     *
+     * Returns false if `keyCode` is not this node's
+     * trigger.
+     */
+    virtual bool onKeyPressed(unsigned int) override;
+    virtual bool canHaveChildren() const noexcept override;
+    virtual NodeTypes nodeType() const noexcept override;
 };

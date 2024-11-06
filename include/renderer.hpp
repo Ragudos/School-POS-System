@@ -5,6 +5,7 @@
 #include <cassert>
 #include <constants/metadata.hpp>
 #include <contrib.hpp>
+#include <cstdint>
 #include <iostream>
 #include <memory>
 #include <screen.hpp>
@@ -15,7 +16,9 @@
 using namespace terminal;
 using namespace std;
 
-enum RendererState { MENU, ORDER_CONFIRMATION, ORDER_RESULTS };
+void onMenuSelectUpdated(optional<string>);
+
+enum RendererState { MENU, ORDER_CONFIRMATION, ORDER_RESULTS, ADMIN_MENU };
 
 class Renderer {
    private:
@@ -24,15 +27,28 @@ class Renderer {
     shared_ptr<ContainerNode> rootNode;
     shared_ptr<ContainerNode> header;
     shared_ptr<ContainerNode> body;
+    shared_ptr<ContainerNode> footer;
 
    public:
     ostringstream buf;
     Renderer();
 
    private:
-    void createMenuView();
-    void createOrderConfirmationView();
-    void createOrderResultsView();
+    // header
+    void createMenuHeader(bool);
+    void createOrderConfirmationHeader(bool);
+    void createOrderResultsHeader(bool);
+    void createAdminMenuHeader(bool);
+    // body
+    void createMenuView(bool);
+    void createOrderConfirmationView(bool);
+    void createOrderResultsView(bool);
+    void createAdminMenuView(bool);
+    // footer
+    void createMenuFooter(bool);
+    void createOrderConfirmationFooter(bool);
+    void createOrderResultsFooter(bool);
+    void createAdminMenuFooter(bool);
 
    public:
     /**
@@ -42,6 +58,12 @@ class Renderer {
      */
     void renderBuffer() noexcept;
     void createView();
+
+   public:
+    void onKeyPressed(unsigned int);
+
+   private:
+    void onKeyPressed(unsigned int, Node::NodePtr);
 };
 
 Renderer& getRenderer() noexcept;
