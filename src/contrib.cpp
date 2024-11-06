@@ -6,7 +6,7 @@ using namespace std;
 MenuItem::MenuItem(string id, double price) : id(id), price(price), qty(0) {}
 MenuItem::MenuItem(string id, double price, string desc)
     : id(id), price(price), description(desc), qty(0) {}
-// hi
+
 string MenuItem::getId() const noexcept { return id; }
 
 void MenuItem::setDescription(string desc) { description = desc; }
