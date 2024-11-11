@@ -803,7 +803,7 @@ void SelectNode::selectPrevious() noexcept {
 void SelectNode::notify() {
     optional<string> activeValId = getValueOfSelectedOption();
 
-    for (SelectNode::SubscriberCallback subscriber : subscribers) {
+    for (SubscriberCallback subscriber : subscribers) {
         subscriber(activeValId);
     }
 }
@@ -943,13 +943,14 @@ bool SelectNode::onKeyPressed(unsigned int keyCode) {
 }
 
 ButtonNode::ButtonNode(char icon, string text,
-                       tuple<unsigned int, unsigned int>)
+                       tuple<unsigned int, unsigned int> keyCode)
     : icon(icon), text(text), keyCode(keyCode), isPressed(false) {
     height = 1;
     setWidth(2 + static_cast<unsigned int>(text.size()));
 }
 ButtonNode::ButtonNode(char icon, string text,
-                       tuple<unsigned int, unsigned int>, bool isPressed)
+                       tuple<unsigned int, unsigned int> keyCode,
+                       bool isPressed)
     : icon(icon), text(text), keyCode(keyCode), isPressed(isPressed) {
     height = 1;
     setWidth(2 + static_cast<unsigned int>(text.size()));
@@ -1001,7 +1002,7 @@ void ButtonNode::render(ostringstream* buf) const {
 }
 
 void ButtonNode::notify() {
-    for (const auto& subscriber : subscribers) {
+    for (SubscriberCallback subscriber : subscribers) {
         subscriber();
     }
 }
@@ -1018,8 +1019,19 @@ void ButtonNode::unsubscribe(SubscriberCallback cb) {
 }
 
 bool ButtonNode::onKeyPressed(unsigned int pressedKeyCode) {
+    unsigned int pos = 25;
+
+    saveCursorPosition();
+    moveCursorTo(static_cast<unsigned int>(0), pos++);
+    cout << pressedKeyCode;
+    moveCursorTo(static_cast<unsigned int>(0), pos++);
+    cout << get<0>(keyCode) << " " << get<1>(keyCode);
+
     if (get<0>(keyCode) == pressedKeyCode ||
         get<1>(keyCode) == pressedKeyCode) {
+        moveCursorTo(static_cast<unsigned int>(0), pos++);
+        restoreSavedCursorPosition();
+        cout << "YAAAA";
         isPressed = true;
 
         notify();
@@ -1033,4 +1045,3 @@ bool ButtonNode::onKeyPressed(unsigned int pressedKeyCode) {
 }
 
 bool ButtonNode::canHaveChildren() const noexcept { return false; }
-NodeTypes ButtonNode::nodeType() const noexcept { return NodeTypes::LEAF; }

@@ -61,15 +61,14 @@ void programEntryPoint(LoopLambda* loop) {
 
         screen.updateScreenDimensions();
         // getPressedKeyCode() is a blocking operation on Linux.
-        int pressedKeyCode = getPressedKeyCode();
+        unsigned int pressedKeyCode = getPressedKeyCode();
 
         switch (pressedKeyCode) {
             case KEY_UP:
-                renderer.onKeyPressed(KEY_UP);
-                break;
             case KEY_DOWN:
-                renderer.onKeyPressed(KEY_DOWN);
-                // renderer.onKeyPressed(pressedKeyCode);
+            case KEY_PLUS:
+            case KEY_HYPHEN_MINUS:
+                renderer.onKeyPressed(pressedKeyCode);
                 break;
             case KEY_LEFT:
                 break;
@@ -90,17 +89,11 @@ void programEntryPoint(LoopLambda* loop) {
                 // TODO: Cleanup operations
                 loop->stop();
                 break;
-            case KEY_PLUS:
-                break;
-            case KEY_HYPHEN_MINUS:
-                break;
             case KEY_ESC:
                 break;
             case KEY_BACKSPACE:
                 break;
         }
-
-        renderer.renderBuffer();
     } catch (const exception& e) {
         err = e.what();
     } catch (...) {

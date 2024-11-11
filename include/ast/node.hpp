@@ -356,5 +356,4 @@ class ButtonNode : public InteractableNode {
      */
     virtual bool onKeyPressed(unsigned int) override;
     virtual bool canHaveChildren() const noexcept override;
-    virtual NodeTypes nodeType() const noexcept override;
 };

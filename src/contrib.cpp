@@ -54,9 +54,9 @@ void State::removeMenuItemWithId(string itemId) {
     throw logic_error("unimplemented");
 }
 
-optional<const MenuItem*> State::getMenuItemWithId(const string& itemId) {
+optional<MenuItem*> State::getMenuItemWithId(const string& itemId) {
     for (size_t i = 0, l = menuItems.size(); i < l; ++i) {
-        const MenuItem* item = &menuItems.at(i);
+        MenuItem* item = &menuItems.at(i);
 
         if (item->getId() == itemId) {
             return item;

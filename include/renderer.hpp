@@ -17,6 +17,8 @@ using namespace terminal;
 using namespace std;
 
 void onMenuSelectUpdated(optional<string>);
+void onIncrementBtnClicked();
+void onDecrementBtnClicked();
 
 enum RendererState { MENU, ORDER_CONFIRMATION, ORDER_RESULTS, ADMIN_MENU };
 
