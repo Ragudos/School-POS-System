@@ -68,16 +68,16 @@ void programEntryPoint(LoopLambda* loop) {
             case KEY_DOWN:
             case KEY_PLUS:
             case KEY_HYPHEN_MINUS:
+            case KEY_A:
+            case KEY_a:
+            case KEY_S:
+            case KEY_s:
                 renderer.onKeyPressed(pressedKeyCode);
                 break;
             case KEY_LEFT:
                 break;
             case KEY_RIGHT:
                 break;
-            case KEY_A:
-            case KEY_a:
-            case KEY_S:
-            case KEY_s:
             case KEY_C:
             case KEY_c:
                 break;

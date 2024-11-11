@@ -17,6 +17,9 @@ using namespace terminal;
 using namespace std;
 
 void onMenuSelectUpdated(optional<string>);
+void onShopBtnClicked();
+void onAdminBtnClicked();
+void onCheckoutBtnClicked();
 void onIncrementBtnClicked();
 void onDecrementBtnClicked();
 
@@ -24,8 +27,6 @@ enum RendererState { MENU, ORDER_CONFIRMATION, ORDER_RESULTS, ADMIN_MENU };
 
 class Renderer {
    private:
-    RendererState viewState;
-
     shared_ptr<ContainerNode> rootNode;
     shared_ptr<ContainerNode> header;
     shared_ptr<ContainerNode> body;
@@ -33,6 +34,7 @@ class Renderer {
 
    public:
     ostringstream buf;
+    RendererState viewState;
     Renderer();
 
    private:

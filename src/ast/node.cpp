@@ -1019,19 +1019,8 @@ void ButtonNode::unsubscribe(SubscriberCallback cb) {
 }
 
 bool ButtonNode::onKeyPressed(unsigned int pressedKeyCode) {
-    unsigned int pos = 25;
-
-    saveCursorPosition();
-    moveCursorTo(static_cast<unsigned int>(0), pos++);
-    cout << pressedKeyCode;
-    moveCursorTo(static_cast<unsigned int>(0), pos++);
-    cout << get<0>(keyCode) << " " << get<1>(keyCode);
-
     if (get<0>(keyCode) == pressedKeyCode ||
         get<1>(keyCode) == pressedKeyCode) {
-        moveCursorTo(static_cast<unsigned int>(0), pos++);
-        restoreSavedCursorPosition();
-        cout << "YAAAA";
         isPressed = true;
 
         notify();
