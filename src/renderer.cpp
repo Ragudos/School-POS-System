@@ -113,30 +113,30 @@ void Renderer::createMenuHeader(bool isNew) {
     navHeader->appendChild(adminBtn);
     navHeader->appendChild(checkoutBtn);
 
-    /*unsigned int pos = 20;
-
-    saveCursorPosition(&buf);
-    moveCursorTo(&buf, 0, pos++);
-    buf << "navHeader: " << navHeader->getPosX() << " " << navHeader->getPosY()
-        << " " << navHeader->getWidth() << " " << navHeader->getHeight();
-    moveCursorTo(&buf, 0, pos++);
-    buf << "header: " << header->getPosX() << " " << header->getPosY() << " "
-        << header->getWidth() << " " << header->getHeight();
-    moveCursorTo(&buf, 0, pos++);
-    buf << "s: " << shopBtn->getPosX() << " " << shopBtn->getPosY() << " "
-        << shopBtn->getWidth() << " " << shopBtn->getHeight();
-    moveCursorTo(&buf, 0, pos++);
-    buf << "a: " << adminBtn->getPosX() << " " << adminBtn->getPosY() << " "
-        << adminBtn->getWidth() << " " << adminBtn->getHeight();
-    moveCursorTo(&buf, 0, pos++);
-    buf << "a: " << checkoutBtn->getPosX() << " " << checkoutBtn->getPosY()
-        << " " << checkoutBtn->getWidth() << " " << checkoutBtn->getHeight();
-    restoreSavedCursorPosition(&buf);*/
-
     header->appendChild(navHeader);
 }
 
-void Renderer::createOrderConfirmationHeader(bool isNew) {}
+void Renderer::createOrderConfirmationHeader(bool isNew) {
+    Screen& screen = getScreen();
+    State& state = getState();
+    shared_ptr<GridNode> navHeader =
+        make_shared<GridNode>(screen.getWidth(), 0, 2);
+
+    navHeader->setIsFlexible(false);
+
+    shared_ptr<ButtonNode> shopBtn =
+        make_shared<ButtonNode>('s', "shop", make_tuple(KEY_S, KEY_s));
+    shared_ptr<ButtonNode> checkoutBtn = make_shared<ButtonNode>(
+        'c', "checkout", make_tuple(KEY_c, KEY_C), true);
+
+    shopBtn->subscribe(onShopBtnClicked);
+    checkoutBtn->subscribe(onCheckoutBtnClicked);
+
+    navHeader->appendChild(shopBtn);
+    navHeader->appendChild(checkoutBtn);
+
+    header->appendChild(navHeader);
+}
 
 void Renderer::createOrderResultsHeader(bool isNew) {}
 
@@ -158,26 +158,6 @@ void Renderer::createAdminMenuHeader(bool isNew) {
 
     navHeader->appendChild(shopBtn);
     navHeader->appendChild(adminBtn);
-
-    /*unsigned int pos = 20;
-
-    saveCursorPosition(&buf);
-    moveCursorTo(&buf, 0, pos++);
-    buf << "navHeader: " << navHeader->getPosX() << " " << navHeader->getPosY()
-        << " " << navHeader->getWidth() << " " << navHeader->getHeight();
-    moveCursorTo(&buf, 0, pos++);
-    buf << "header: " << header->getPosX() << " " << header->getPosY() << " "
-        << header->getWidth() << " " << header->getHeight();
-    moveCursorTo(&buf, 0, pos++);
-    buf << "s: " << shopBtn->getPosX() << " " << shopBtn->getPosY() << " "
-        << shopBtn->getWidth() << " " << shopBtn->getHeight();
-    moveCursorTo(&buf, 0, pos++);
-    buf << "a: " << adminBtn->getPosX() << " " << adminBtn->getPosY() << " "
-        << adminBtn->getWidth() << " " << adminBtn->getHeight();
-    moveCursorTo(&buf, 0, pos++);
-    buf << "a: " << checkoutBtn->getPosX() << " " << checkoutBtn->getPosY()
-        << " " << checkoutBtn->getWidth() << " " << checkoutBtn->getHeight();
-    restoreSavedCursorPosition(&buf);*/
 
     header->appendChild(navHeader);
 }
@@ -262,11 +242,11 @@ void Renderer::createMenuFooter(bool isNew) {
     shared_ptr<ButtonNode> decrementBtn = make_shared<ButtonNode>(
         '-', "subtract", make_tuple(KEY_HYPHEN_MINUS, KEY_HYPHEN_MINUS));
 
-    toolTipsContainer->appendChild(incrementBtn);
-    toolTipsContainer->appendChild(decrementBtn);
-
     incrementBtn->subscribe(onIncrementBtnClicked);
     decrementBtn->subscribe(onDecrementBtnClicked);
+
+    toolTipsContainer->appendChild(incrementBtn);
+    toolTipsContainer->appendChild(decrementBtn);
 
     shared_ptr<TextNode> lineSeparatorUp =
         make_shared<TextNode>(string(toolTipsContainer->getWidth(), '-'));
@@ -333,6 +313,11 @@ void onMenuSelectUpdated(optional<string> selectedMenuItemId) {
 
 void onShopBtnClicked() {
     Renderer& renderer = getRenderer();
+
+    if (renderer.viewState == RendererState::MENU) {
+        return;
+    }
+
     renderer.viewState = RendererState::MENU;
 
     renderer.createView();
@@ -345,13 +330,32 @@ void onAddonsBtnClicked() {}
 
 void onAdminBtnClicked() {
     Renderer& renderer = getRenderer();
+
+    if (renderer.viewState == RendererState::ADMIN_MENU) {
+        return;
+    }
+
     renderer.viewState = RendererState::ADMIN_MENU;
 
     renderer.createView();
     renderer.renderBuffer();
 }
 
-void onCheckoutBtnClicked() {}
+void onCheckoutBtnClicked() {
+    State& state = getState();
+    Renderer& renderer = getRenderer();
+
+    if (state.amountOfDistinctChosenItems() == 0 ||
+        renderer.viewState == ORDER_CONFIRMATION) {
+        // TODO: show a notif to user in terminal.
+        return;
+    }
+
+    renderer.viewState = RendererState::ORDER_CONFIRMATION;
+
+    renderer.createView();
+    renderer.renderBuffer();
+}
 
 void onIncrementBtnClicked() {
     State& state = getState();

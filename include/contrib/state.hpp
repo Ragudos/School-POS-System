@@ -28,6 +28,12 @@ class State {
     void appendMenuItem(const MenuItem&);
     void removeMenuItemWithId(const string&);
 
+    /**
+     *
+     * How many items have a qty > 0
+     */
+    int amountOfDistinctChosenItems() const noexcept;
+
     optional<MenuItem*> getMenuItemWithId(const string&);
 
     string getSelectedMenuItemId() const noexcept;

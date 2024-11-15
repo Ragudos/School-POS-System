@@ -53,6 +53,20 @@ void State::removeMenuItemWithId(const string& itemId) {
     throw logic_error("unimplemented");
 }
 
+int State::amountOfDistinctChosenItems() const noexcept {
+    int amount = 0;
+
+    for (const auto& item : menuItems) {
+        if (item.getQty() == 0) {
+            continue;
+        }
+
+        amount += 1;
+    }
+
+    return amount;
+}
+
 optional<MenuItem*> State::getMenuItemWithId(const string& itemId) {
     for (size_t i = 0, l = menuItems.size(); i < l; ++i) {
         MenuItem* item = &menuItems.at(i);
