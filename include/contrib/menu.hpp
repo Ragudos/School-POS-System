@@ -21,7 +21,7 @@ using namespace std;
 constexpr static size_t MAX_MENU_ITEM_NAME_LENGTH = 10;
 constexpr static size_t MAX_MENU_ITEM_DESCRIPTION_LENGTH = 50;
 
-enum MenuItemSizes { DEMI, SHORT, TALL, GRANDE, VENTI, TRENTA };
+enum MenuItemSizes { TALL, GRANDE, VENTI, TRENTA };
 
 struct MenuItemAddonData {
    private:
