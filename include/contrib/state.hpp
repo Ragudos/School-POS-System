@@ -12,6 +12,7 @@
 #endif
 
 #include <contrib/menu.hpp>
+#include <memory>
 #include <iostream>
 #include <optional>
 #include <string>
