@@ -993,6 +993,7 @@ void ButtonNode::render(ostringstream* buf) const {
     *buf << icon << " ";
 
     if (!isPressed) {
+        textRemoveBold(buf);
         textDim(buf);
     }
 

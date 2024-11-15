@@ -1,9 +1,9 @@
+#include <contrib/state.hpp>
 #include <iostream>
 #include <keyboard.hpp>
 #include <looplambda.hpp>
 #include <renderer.hpp>
 #include <screen.hpp>
-#include <state.hpp>
 #include <utils.hpp>
 
 using namespace std;
@@ -49,7 +49,12 @@ int main() {
 // For now, we just re-initialize all the nodes based
 // on current view state since I'm too lazy
 // to implement a cascading change of dimensions for all nodes.
-void onScreenSizeChange() { getRenderer().createView(); }
+void onScreenSizeChange() {
+    Renderer& renderer = getRenderer();
+
+    renderer.createView();
+    renderer.renderBuffer();
+}
 
 void programEntryPoint(LoopLambda* loop) {
     string err;
@@ -64,22 +69,9 @@ void programEntryPoint(LoopLambda* loop) {
         unsigned int pressedKeyCode = getPressedKeyCode();
 
         switch (pressedKeyCode) {
-            case KEY_UP:
-            case KEY_DOWN:
-            case KEY_PLUS:
-            case KEY_HYPHEN_MINUS:
-            case KEY_A:
-            case KEY_a:
-            case KEY_S:
-            case KEY_s:
-                renderer.onKeyPressed(pressedKeyCode);
-                break;
             case KEY_LEFT:
                 break;
             case KEY_RIGHT:
-                break;
-            case KEY_C:
-            case KEY_c:
                 break;
             case KEY_R:
             case KEY_r:
@@ -93,6 +85,8 @@ void programEntryPoint(LoopLambda* loop) {
                 break;
             case KEY_BACKSPACE:
                 break;
+            default:
+                renderer.onKeyPressed(pressedKeyCode);
         }
     } catch (const exception& e) {
         err = e.what();

@@ -11,7 +11,7 @@
 
 #endif
 
-#include <contrib.hpp>
+#include <contrib/menu.hpp>
 #include <iostream>
 #include <optional>
 #include <string>
@@ -19,21 +19,20 @@
 
 using namespace std;
 
-/** === Global state === */
-
 class State {
    private:
     string selectedMenuItemId;
     vector<MenuItem> menuItems;
 
    public:
-    void appendMenuItem(MenuItem);
-    void removeMenuItemWithId(string);
+    void appendMenuItem(const MenuItem&);
+    void removeMenuItemWithId(const string&);
 
-   public:
     optional<MenuItem*> getMenuItemWithId(const string&);
+
     string getSelectedMenuItemId() const noexcept;
-    void setSelectedMenuItemId(string);
+    void setSelectedMenuItemId(const string&);
+
     const vector<MenuItem>& getMenuItems() const noexcept;
 };
 

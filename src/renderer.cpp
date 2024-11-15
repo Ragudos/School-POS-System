@@ -86,22 +86,30 @@ void Renderer::createMenuHeader(bool isNew) {
     Screen& screen = getScreen();
     State& state = getState();
     shared_ptr<GridNode> navHeader =
-        make_shared<GridNode>(screen.getWidth(), 0, 2);
+        make_shared<GridNode>(screen.getWidth(), 0, 2, 1);
 
     navHeader->setIsFlexible(false);
 
     shared_ptr<ButtonNode> shopBtn =
         make_shared<ButtonNode>('s', "shop", make_tuple(KEY_s, KEY_S), true);
+    shared_ptr<ButtonNode> sizesBtn =
+        make_shared<ButtonNode>('1', "sizes", make_tuple(KEY_1, KEY_1));
+    shared_ptr<ButtonNode> addonsBtn =
+        make_shared<ButtonNode>('2', "add-ons", make_tuple(KEY_2, KEY_2));
     shared_ptr<ButtonNode> adminBtn =
         make_shared<ButtonNode>('a', "admin", make_tuple(KEY_a, KEY_A));
     shared_ptr<ButtonNode> checkoutBtn =
         make_shared<ButtonNode>('c', "checkout", make_tuple(KEY_c, KEY_C));
 
     shopBtn->subscribe(onShopBtnClicked);
+    sizesBtn->subscribe(onSizesBtnClicked);
+    addonsBtn->subscribe(onAddonsBtnClicked);
     adminBtn->subscribe(onAdminBtnClicked);
     checkoutBtn->subscribe(onCheckoutBtnClicked);
 
     navHeader->appendChild(shopBtn);
+    navHeader->appendChild(sizesBtn);
+    navHeader->appendChild(addonsBtn);
     navHeader->appendChild(adminBtn);
     navHeader->appendChild(checkoutBtn);
 
@@ -246,6 +254,9 @@ void Renderer::createAdminMenuView(bool isNew) {}
 void Renderer::createMenuFooter(bool isNew) {
     shared_ptr<GridNode> toolTipsContainer = make_shared<GridNode>();
 
+    toolTipsContainer->setColGap(2);
+    toolTipsContainer->setRowGap(1);
+
     shared_ptr<ButtonNode> incrementBtn =
         make_shared<ButtonNode>('+', "add", make_tuple(KEY_PLUS, KEY_PLUS));
     shared_ptr<ButtonNode> decrementBtn = make_shared<ButtonNode>(
@@ -327,6 +338,10 @@ void onShopBtnClicked() {
     renderer.createView();
     renderer.renderBuffer();
 }
+
+void onSizesBtnClicked() {}
+
+void onAddonsBtnClicked() {}
 
 void onAdminBtnClicked() {
     Renderer& renderer = getRenderer();

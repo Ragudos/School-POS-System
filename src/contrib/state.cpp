@@ -1,5 +1,4 @@
-#include <memory>
-#include <state.hpp>
+#include <contrib/state.hpp>
 
 static unique_ptr<State> state;
 
@@ -46,4 +45,44 @@ void initializeState() {
     state->appendMenuItem(item10);
 }
 
-/** === Decided to put the definitions in @file contrib.cpp === */
+void State::appendMenuItem(const MenuItem& menuItem) {
+    menuItems.push_back(menuItem);
+}
+
+void State::removeMenuItemWithId(const string& itemId) {
+    throw logic_error("unimplemented");
+}
+
+optional<MenuItem*> State::getMenuItemWithId(const string& itemId) {
+    for (size_t i = 0, l = menuItems.size(); i < l; ++i) {
+        MenuItem* item = &menuItems.at(i);
+
+        if (item->getId() == itemId) {
+            return item;
+        }
+    }
+
+    return nullopt;
+}
+
+void State::setSelectedMenuItemId(const string& id) {
+    for (const auto& item : menuItems) {
+        if (item.getId() == id) {
+            selectedMenuItemId = id;
+
+            return;
+        }
+    }
+
+    assert(false ||
+           "State::setSelectedMenuItemId() received an id that's not in "
+           "menuItems");
+}
+
+string State::getSelectedMenuItemId() const noexcept {
+    return selectedMenuItemId;
+}
+
+const vector<MenuItem>& State::getMenuItems() const noexcept {
+    return menuItems;
+}

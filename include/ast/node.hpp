@@ -31,9 +31,7 @@ using namespace string_utils;
 using namespace terminal;
 
 enum NodeTypes { CONTAINER, INTERACTABLE, LEAF };
-
 enum NodeRenderStyle { BLOCK, INLINE };
-
 enum TextNodeFormats { BOLD, ITALIC, UNDERLINE, STRIKETHROUGH, DIM };
 
 class Node : public enable_shared_from_this<Node> {
