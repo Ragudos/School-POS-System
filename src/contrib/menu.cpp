@@ -1,5 +1,17 @@
 #include <contrib/menu.hpp>
 
+MenuItemSizes MenuItemSizeData::getSize() const noexcept { return size; }
+
+double MenuItemSizeData::getPrice() const noexcept { return additionalPrice; }
+
+string MenuItemSizeData::getDescription() const noexcept { return description; }
+
+MenuItemSizes MenuItemSizeData::getSize() const noexcept { return size; }
+
+double MenuItemSizeData::getPrice() const noexcept { return additionalPrice; }
+
+string MenuItemSizeData::getDescription() const noexcept { return description; }
+
 MenuItemAddonData::MenuItemAddonData(const string& id,
                                      const double& additionalPrice)
     : id(id), additionalPrice(additionalPrice) {}
