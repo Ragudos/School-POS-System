@@ -1,4 +1,5 @@
 {
+  "terminal.integrated.env.windows": { "TERM": "xterm-256color" },
   "editor.formatOnSave": true,
   "cmake.ignoreCMakeListsMissing": true,
   "files.associations": {

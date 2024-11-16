@@ -268,6 +268,7 @@ void terminal::clearScreen(ostringstream *buf) noexcept {
 void terminal::enterAltScreen() noexcept { cout << ESC << "?1049h"; }
 void terminal::exitAltScreen() noexcept { cout << ESC << "?1049l"; }
 void terminal::disableTextWrapping() noexcept { cout << ESC << "?7l"; }
+void terminal::enableTextWrapping() noexcept { cout << ESC << "?7h"; }
 tuple<unsigned int, unsigned int> terminal::getCursorPosition() {
     cout << ESC << "6n";
 
