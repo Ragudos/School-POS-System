@@ -1,6 +1,12 @@
 
 #include <contrib/menu.hpp>
 
+ MenuItemSizes MenuItemSizeData::getSize() const noexcept {return size; }
+
+ double MenuItemSizeData::getPrice() const noexcept{return additionalPrice;}
+
+ string MenuItemSizeData::getDescription() const noexcept{return description;}
+
 MenuItem::MenuItem(const string& id, const double& price)
     : id(id), price(price), qty(0) {}
 MenuItem::MenuItem(const string& id, const double& price,
@@ -44,5 +50,5 @@ void MenuItem::resetQty() noexcept { qty = 0; }
 double MenuItem::getPrice() const noexcept { return price; }
 
 double MenuItem::calculateSubTotal() const noexcept {
-    throw logic_error("unimplemented");
+    price*=;
 }
