@@ -1,5 +1,41 @@
-
 #include <contrib/menu.hpp>
+
+MenuItemAddonData::MenuItemAddonData(const string& id,
+                                     const double& additionalPrice)
+    : id(id), additionalPrice(additionalPrice) {}
+MenuItemAddonData::MenuItemAddonData(const string& id,
+                                     const double& additionaPrice,
+                                     const string& description)
+    : id(id), additionalPrice(additionalPrice) {
+    setDescription(description);
+}
+
+string MenuItemAddonData::getId() const noexcept { return id; }
+
+double MenuItemAddonData::getAdditionalPrice() const noexcept {
+    return additionalPrice;
+}
+
+string MenuItemAddonData::getDescription() const noexcept {
+    return description;
+}
+
+void MenuItemAddonData::setDescription(const string& desc) {
+    assert(desc.size() <= MAX_MENU_ADDON_DESCRIPTION_LENGTH ||
+           "MenuItemAddonData::setDescription() received a long description.");
+
+    description = desc;
+}
+
+MenuItemAddon::MenuItemAddon(const MenuItemAddonData& menuItemAddon)
+    : id(menuItemAddon.getId()),
+      additionalPrice(menuItemAddon.getAdditionalPrice()),
+      qtyOfMenuItem(1) {}
+MenuItemAddon::MenuItemAddon(const MenuItemAddonData& menuItemAddon,
+                             const uint8_t& qty)
+    : id(menuItemAddon.getId()),
+      additionalPrice(menuItemAddon.getAdditionalPrice()),
+      qtyOfMenuItem(qty) {}
 
 MenuItem::MenuItem(const string& id, const double& price)
     : id(id), price(price), qty(0) {}

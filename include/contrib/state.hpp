@@ -23,6 +23,8 @@ class State {
    private:
     string selectedMenuItemId;
     vector<MenuItem> menuItems;
+    vector<MenuItemSizeData> menuItemSizes;
+    vector<MenuItemAddonData> menuItemAddons;
 
    public:
     void appendMenuItem(const MenuItem&);
