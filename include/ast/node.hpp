@@ -316,10 +316,11 @@ class SelectNode : public InteractableNode {
 
 class ButtonNode : public InteractableNode {
    public:
-    using SubscriberCallback = function<void()>;
+    using SubscriberCallback = function<void(unsigned int)>;
 
    private:
-    char icon;
+    /** utf-8 string */
+    string icon;
     string text;
     /**
      *
@@ -331,11 +332,11 @@ class ButtonNode : public InteractableNode {
     vector<SubscriberCallback> subscribers;
 
    public:
-    ButtonNode(char, string, tuple<unsigned int, unsigned int>);
-    ButtonNode(char, string, tuple<unsigned int, unsigned int>, bool);
+    ButtonNode(string, string, tuple<unsigned int, unsigned int>);
+    ButtonNode(string, string, tuple<unsigned int, unsigned int>, bool);
 
    private:
-    void notify();
+    void notify(unsigned int);
 
    public:
     virtual void render(ostringstream *) const override;

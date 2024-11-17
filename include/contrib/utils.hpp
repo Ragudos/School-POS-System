@@ -20,7 +20,7 @@
 using namespace std;
 
 double calculateChange(const double&, const double&);
-double calculateTotalOfChosenMenuItems(const vector<MenuItem>&);
+double calculateTotalOfChosenMenuItems();
 
 string formatNumber(const int&);
 string formatNumber(const double&);

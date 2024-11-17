@@ -4,15 +4,7 @@ double calculateChange(const double& payment, const double& price) {
     return payment - price;
 }
 
-double calculateTotalOfChosenMenuItems(const vector<MenuItem>& items) {
-    double total = 0.0;
-
-    for (const auto& item : items) {
-        total += item.calculateSubTotal();
-    }
-
-    return total;
-}
+double calculateTotalOfChosenMenuItems() { throw logic_error("unimplemented"); }
 
 /** === For now, we just turn them to string  ===  **/
 string formatNumber(const int& num) { return to_string(num); }

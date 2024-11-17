@@ -1,96 +1,125 @@
 #include <contrib/menu.hpp>
 
-MenuItemSizes MenuItemSizeData::getSize() const noexcept { return size; }
-
-double MenuItemSizeData::getPrice() const noexcept { return additionalPrice; }
-
-string MenuItemSizeData::getDescription() const noexcept { return description; }
-
-MenuItemSizes MenuItemSizeData::getSize() const noexcept { return size; }
-
-double MenuItemSizeData::getPrice() const noexcept { return additionalPrice; }
-
-string MenuItemSizeData::getDescription() const noexcept { return description; }
-
-MenuItemAddonData::MenuItemAddonData(const string& id,
-                                     const double& additionalPrice)
-    : id(id), additionalPrice(additionalPrice) {}
-MenuItemAddonData::MenuItemAddonData(const string& id,
-                                     const double& additionaPrice,
-                                     const string& description)
-    : id(id), additionalPrice(additionalPrice) {
-    setDescription(description);
+MenuItemSizeData::MenuItemSizeData(const MenuItemSizes& s, const string& desc) {
+    size = s;
+    description = desc;
 }
 
-string MenuItemAddonData::getId() const noexcept { return id; }
+MenuItemSizes MenuItemSizeData::getSize() const noexcept { return size; }
 
-double MenuItemAddonData::getAdditionalPrice() const noexcept {
-    return additionalPrice;
+string toString(MenuItemSizes size) noexcept {
+    switch (size) {
+        case MenuItemSizes::TALL:
+            return "TALL";
+        case MenuItemSizes::GRANDE:
+            return "GRANDE";
+        case MenuItemSizes::VENTI:
+            return "VENTI";
+        case MenuItemSizes::TRENTA:
+            return "TRENTA";
+    }
+
+    return "";
 }
+
+MenuItemAddonData::MenuItemAddonData(const string& n, const double& p)
+    : name(n), price(p) {}
+MenuItemAddonData::MenuItemAddonData(const string& n, const double& p,
+                                     const string& desc)
+    : name(n), price(p) {
+    setDescription(desc);
+}
+
+string MenuItemAddonData::getName() const noexcept { return name; }
+
+double MenuItemAddonData::getPrice() const noexcept { return price; }
 
 string MenuItemAddonData::getDescription() const noexcept {
     return description;
 }
 
 void MenuItemAddonData::setDescription(const string& desc) {
-    assert(desc.size() <= MAX_MENU_ADDON_DESCRIPTION_LENGTH ||
-           "MenuItemAddonData::setDescription() received a long description.");
+    assert(desc.size() <= 50);
 
     description = desc;
 }
 
-MenuItemAddon::MenuItemAddon(const MenuItemAddonData& menuItemAddon)
-    : id(menuItemAddon.getId()),
-      additionalPrice(menuItemAddon.getAdditionalPrice()),
-      qtyOfMenuItem(1) {}
-MenuItemAddon::MenuItemAddon(const MenuItemAddonData& menuItemAddon,
-                             const uint8_t& qty)
-    : id(menuItemAddon.getId()),
-      additionalPrice(menuItemAddon.getAdditionalPrice()),
-      qtyOfMenuItem(qty) {}
+MenuItemAddon::MenuItemAddon(const string& menuItemUid,
+                             const MenuItemAddonData& data)
+    : menuItemUid(menuItemUid),
+      name(data.getName()),
+      price(data.getPrice()),
+      qty(1) {}
 
-MenuItem::MenuItem(const string& id, const double& price)
-    : id(id), price(price), qty(0) {}
-MenuItem::MenuItem(const string& id, const double& price,
-                   const string& description)
-    : id(id), price(price), qty(0) {
-    setDescription(description);
+string MenuItemAddon::getName() const noexcept { return name; }
+
+double MenuItemAddon::getPrice() const noexcept { return price; }
+
+string MenuItemAddon::getMenuItemUid() const noexcept { return menuItemUid; }
+
+MenuItemData::MenuItemData(const string& n, const double& bp)
+    : name(kebabToPascal(n)), basePrice(bp) {}
+MenuItemData::MenuItemData(const string& n, const double& bp,
+                           const string& desc)
+    : name(kebabToPascal(n)), basePrice(bp) {
+    setDescription(desc);
 }
 
-string MenuItem::getId() const noexcept { return id; }
+string MenuItemData::getName() const noexcept { return name; }
 
-string MenuItem::getDescription() const noexcept { return description; }
+string MenuItemData::getDescription() const noexcept { return description; }
 
-void MenuItem::setDescription(const string& desc) {
-    assert(desc.size() <= MAX_MENU_ITEM_DESCRIPTION_LENGTH ||
-           "MenuItem::setDescription() max description size.");
+void MenuItemData::setDescription(const string& desc) {
+    assert(desc.size() <= 50);
 
     description = desc;
 }
+
+double MenuItemData::getBasePrice() const noexcept { return basePrice; }
+
+MenuItem::MenuItem(const MenuItemData& data)
+    : uid(genRandomID(8)),
+      name(data.getName()),
+      basePrice(data.getBasePrice()),
+      size(MenuItemSizes::TALL),
+      qty(1) {}
+
+MenuItem::MenuItem(const MenuItemData& data, const MenuItemSizes& size)
+    : uid(genRandomID(8)),
+      name(data.getName()),
+      basePrice(data.getBasePrice()),
+      size(size),
+      qty(1) {}
+
+string MenuItem::getUid() const noexcept { return uid; }
+
+string MenuItem::getName() const noexcept { return name; }
+
+double MenuItem::getBasePrice() const noexcept { return basePrice; }
+
+MenuItemSizes MenuItem::getSize() const noexcept { return size; }
+void MenuItem::setSize(MenuItemSizes s) noexcept { size = s; }
 
 uint8_t MenuItem::getQty() const noexcept { return qty; }
 
-void MenuItem::increaseQty(uint8_t amount) {
-    assert(qty < 256 || "MenuItem::increaseQty() max qty reached!");
+void MenuItem::increaseQty(const uint8_t& amount) { qty += amount; }
 
-    qty += amount;
-}
-
-void MenuItem::decreaseQty(uint8_t amount) {
+void MenuItem::decreaseQty(const uint8_t& amount) {
     if (qty == 0) {
         return;
     }
 
-    assert(qty >= amount ||
-           "MenuItem::decreaseQty() amount exceeds current qty!");
+    assert(amount <= qty);
 
     qty -= amount;
 }
 
 void MenuItem::resetQty() noexcept { qty = 0; }
 
-double MenuItem::getPrice() const noexcept { return price; }
+optional<string> MenuItem::getRemarks() const noexcept { return remarks; }
 
-double MenuItem::calculateSubTotal() const noexcept {
-    throw logic_error("unimplemented");
+void MenuItem::setRemarks(const string& remark) {
+    assert(remark.size() <= 50);
+
+    remarks = remark;
 }

@@ -11,9 +11,10 @@
 
 #endif
 
+#include <algorithm>
 #include <contrib/menu.hpp>
-#include <memory>
 #include <iostream>
+#include <memory>
 #include <optional>
 #include <string>
 #include <vector>
@@ -22,27 +23,30 @@ using namespace std;
 
 class State {
    private:
-    string selectedMenuItemId;
-    vector<MenuItem> menuItems;
-    vector<MenuItemSizeData> menuItemSizes;
-    vector<MenuItemAddonData> menuItemAddons;
+    string selectedMenuItemDataName;
+    vector<MenuItemData> menuItemsData;
+
+    string selectedMenuItemInCartUid;
+    vector<MenuItem> cart;
 
    public:
-    void appendMenuItem(const MenuItem&);
-    void removeMenuItemWithId(const string&);
+    void appendMenuItemData(const MenuItemData&);
+    void removeMenuItemDataWithName(const string&);
 
-    /**
-     *
-     * How many items have a qty > 0
-     */
-    int amountOfDistinctChosenItems() const noexcept;
+    void appendMenuItemToCart(const MenuItem&);
+    void removeMenuItemFromCartWithUid(const string&);
 
-    optional<MenuItem*> getMenuItemWithId(const string&);
+    optional<MenuItemData> getMenuItemDataWithName(const string&);
+    optional<MenuItem*> getMenuItemWithUid(const string&);
 
-    string getSelectedMenuItemId() const noexcept;
-    void setSelectedMenuItemId(const string&);
+    string getSelectedMenuItemDataName() const noexcept;
+    void setSelectedMenuItemDataName(const string&);
+    string getSelectedMenuItemInCartUid() const noexcept;
+    void setSelectedMenuItemInCartUid(const string&);
+    void resetSelectedMenuItemInCardUid();
 
-    const vector<MenuItem>& getMenuItems() const noexcept;
+    const vector<MenuItemData>& getMenuItemsData() const noexcept;
+    const vector<MenuItem>& getMenuItemsInCart() const noexcept;
 };
 
 State& getState() noexcept;

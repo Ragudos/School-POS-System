@@ -14,155 +14,113 @@
 #include <cassert>
 #include <cstdint>
 #include <iostream>
+#include <optional>
+#include <utils.hpp>
 #include <vector>
 
 using namespace std;
-
-constexpr static size_t MAX_MENU_ITEM_NAME_LENGTH = 10;
-constexpr static size_t MAX_MENU_ITEM_DESCRIPTION_LENGTH = 50;
-constexpr static size_t MAX_MENU_ADDON_DESCRIPTION_LENGTH = 50;
+using namespace string_utils;
 
 enum MenuItemSizes { TALL, GRANDE, VENTI, TRENTA };
 
-struct MenuItemAddonData {
+class MenuItemSizeData {
    private:
-    string id;
-    double additionalPrice;
+    string description;
+    MenuItemSizes size;
+
+   public:
+    MenuItemSizeData(const MenuItemSizes&, const string&);
+
+    MenuItemSizes getSize() const noexcept;
+};
+
+string toString(MenuItemSizes) noexcept;
+
+class MenuItemAddonData {
+   private:
+    string name;
+    double price;
     string description;
 
    public:
     MenuItemAddonData(const string&, const double&);
     MenuItemAddonData(const string&, const double&, const string&);
 
-    string getId() const noexcept;
+    string getName() const noexcept;
 
-    double getAdditionalPrice() const noexcept;
+    double getPrice() const noexcept;
 
     string getDescription() const noexcept;
     void setDescription(const string&);
 };
 
-struct MenuItemAddon {
+class MenuItemAddon {
    private:
-    string id;
-    double additionalPrice;
-    /**
-     * Must not exceed the qty
-     * of MenuItem this addon is in.
-     **/
-    uint8_t qtyOfMenuItem;
+    string menuItemUid;
+
+    string name;
+    double price;
+
+    uint8_t qty;
 
    public:
-    /**
-     *
-     * Gives qtyOfMenuItem a value of 1 by default.
-     */
-    MenuItemAddon(const MenuItemAddonData&);
-    MenuItemAddon(const MenuItemAddonData&, const uint8_t&);
+    MenuItemAddon(const string&, const MenuItemAddonData&);
+
+    string getName() const noexcept;
+
+    double getPrice() const noexcept;
+
+    string getMenuItemUid() const noexcept;
 };
 
-struct MenuItemSizeData {
+class MenuItemData {
    private:
-    MenuItemSizes size;
-    double additionalPrice;
+    string name;
+    double basePrice;
     string description;
 
    public:
-    MenuItemSizeData(const MenuItemSizes&, const double&);
-    MenuItemSizeData(const MenuItemSizes&, const double&, const string&);
+    MenuItemData(const string&, const double&);
+    MenuItemData(const string&, const double&, const string&);
 
-    MenuItemSizes getSize() const noexcept;
-
-    double getPrice() const noexcept;
+    string getName() const noexcept;
 
     string getDescription() const noexcept;
     void setDescription(const string&);
+
+    double getBasePrice() const noexcept;
 };
-
-struct MenuItemSize {
-   private:
-    MenuItemSizes size;
-    double additionalPrice;
-    /**
-     * Must not exceed the qty
-     * of MenuItem this size is in that
-     * DOES NOT YET have
-     * a specified size.
-     *
-     * (i.e. a different size, VENTI, has qtyOfMenuItem of 6
-     * out of 10 qty of MenuItem, so only 4 can be occupied by this
-     * MenuItemSize)
-     */
-    uint8_t qtyOfMenuItem;
-
-   public:
-    MenuItemSize(const MenuItemSizeData&);
-
-    MenuItemSizes getSize() const noexcept;
-
-    double getPrice() const noexcept;
-
-    uint8_t getQtyOfMenuItem() const noexcept;
-};
-
-// TODO: MenuItemData class as well to separate
-// quantity specifier to metadata that is displayed (description etc.).
 
 class MenuItem {
    private:
-    string id;
-    double price;
-    string description;
+    string uid;
+    string name;
+    double basePrice;
+
+    MenuItemSizes size;
+
     uint8_t qty;
-    vector<MenuItemAddon> addons;
-    vector<MenuItemSize> sizes;
+
+    optional<string> remarks;
 
    public:
-    MenuItem(const string&, const double&);
-    MenuItem(const string&, const double&, const string&);
+    MenuItem(const MenuItemData&);
+    MenuItem(const MenuItemData&, const MenuItemSizes&);
 
-    string getId() const noexcept;
+    string getUid() const noexcept;
 
-    void setDescription(const string&);
-    string getDescription() const noexcept;
+    string getName() const noexcept;
+
+    double getBasePrice() const noexcept;
+
+    MenuItemSizes getSize() const noexcept;
+    void setSize(MenuItemSizes size) noexcept;
 
     uint8_t getQty() const noexcept;
-    void increaseQty(uint8_t);
-    void decreaseQty(uint8_t);
+    void increaseQty(const uint8_t&);
+    void decreaseQty(const uint8_t&);
     void resetQty() noexcept;
 
-    /**
-     *
-     * Increment addon qty for this MenuItem,
-     * can only increase based on this MenuItem's
-     * qty. If MenuItemAddon does not exist yet,
-     * create it.
-     */
-    void addAddon(const MenuItemAddonData&);
-    /**
-     *
-     * Decrement addon qty for this MenuItem.
-     * Removes it in vector if it turns to 0.
-     */
-    void decreaseAddon(const MenuItemAddonData&);
-
-    /**
-     *
-     * Increment size qty for this MenuItem,
-     * can only increase based on this MenuItem's
-     * qty. If MenuItemSize does not exist yet,
-     * create it.
-     */
-    void addSize(const MenuItemSizeData&);
-
-    /**
-     *
-     * Decrement size qty for this MenuItem.
-     * Removes it in vector if it turns to 0.
-     */
-    void decreaseSize(const MenuItemSizeData&);
-
-    double getPrice() const noexcept;
-
-    double calculateSubTotal() const noexcept;
+    optional<string> getRemarks() const noexcept;
+    void setRemarks(const string&);
 };

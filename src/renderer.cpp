@@ -1,7 +1,6 @@
 #include <memory>
 #include <renderer.hpp>
 
-
 static unique_ptr<Renderer> renderer;
 
 Renderer& getRenderer() noexcept { return *renderer; }
@@ -53,6 +52,15 @@ void Renderer::createView() {
             createMenuView(isNew);
             createMenuFooter(isNew);
         }; break;
+        case RendererState::MENU_ITEM: {
+            createMenuItemHeader(isNew);
+            createMenuItemView(isNew);
+            createMenuItemFooter(isNew);
+        }; break;
+        case RendererState::MENU_ITEM_SIZES: {
+        };
+        case RendererState::MENU_ITEM_ADDONS: {
+        }; break;
         case RendererState::ORDER_CONFIRMATION: {
             createOrderConfirmationHeader(isNew);
             createOrderConfirmationView(isNew);
@@ -91,30 +99,54 @@ void Renderer::createMenuHeader(bool isNew) {
     navHeader->setIsFlexible(false);
 
     shared_ptr<ButtonNode> shopBtn =
-        make_shared<ButtonNode>('s', "shop", make_tuple(KEY_s, KEY_S), true);
-    shared_ptr<ButtonNode> sizesBtn =
-        make_shared<ButtonNode>('1', "sizes", make_tuple(KEY_1, KEY_1));
-    shared_ptr<ButtonNode> addonsBtn =
-        make_shared<ButtonNode>('2', "add-ons", make_tuple(KEY_2, KEY_2));
+        make_shared<ButtonNode>("s", "shop", make_tuple(KEY_s, KEY_S), true);
     shared_ptr<ButtonNode> adminBtn =
-        make_shared<ButtonNode>('a', "admin", make_tuple(KEY_a, KEY_A));
+        make_shared<ButtonNode>("a", "admin", make_tuple(KEY_a, KEY_A));
     shared_ptr<ButtonNode> checkoutBtn =
-        make_shared<ButtonNode>('c', "checkout", make_tuple(KEY_c, KEY_C));
+        make_shared<ButtonNode>("c", "checkout", make_tuple(KEY_c, KEY_C));
 
     shopBtn->subscribe(onShopBtnClicked);
-    sizesBtn->subscribe(onSizesBtnClicked);
-    addonsBtn->subscribe(onAddonsBtnClicked);
     adminBtn->subscribe(onAdminBtnClicked);
     checkoutBtn->subscribe(onCheckoutBtnClicked);
 
     navHeader->appendChild(shopBtn);
-    navHeader->appendChild(sizesBtn);
-    navHeader->appendChild(addonsBtn);
     navHeader->appendChild(adminBtn);
     navHeader->appendChild(checkoutBtn);
 
     header->appendChild(navHeader);
 }
+
+void Renderer::createMenuItemHeader(bool isNew) {
+    Screen& screen = getScreen();
+    State& state = getState();
+    shared_ptr<GridNode> navHeader =
+        make_shared<GridNode>(screen.getWidth(), 0);
+
+    navHeader->setIsFlexible(false);
+    navHeader->setColGap(2);
+    navHeader->setRowGap(1);
+
+    shared_ptr<ButtonNode> backBtn =
+        make_shared<ButtonNode>("←", "esc", make_tuple(KEY_ESC, KEY_ESC));
+    shared_ptr<ButtonNode> sizesBtn =
+        make_shared<ButtonNode>("s", "sizes", make_tuple(KEY_S, KEY_s));
+    shared_ptr<ButtonNode> addonsBtn =
+        make_shared<ButtonNode>("a", "addons", make_tuple(KEY_A, KEY_a));
+
+    backBtn->subscribe(onEscBtnClickedOnMenuItem);
+    sizesBtn->subscribe(onSizesBtnClicked);
+    addonsBtn->subscribe(onAddonsBtnClicked);
+
+    navHeader->appendChild(backBtn);
+    navHeader->appendChild(sizesBtn);
+    navHeader->appendChild(addonsBtn);
+
+    header->appendChild(navHeader);
+}
+
+void Renderer::createMenuItemSizesHeader(bool isNew) {}
+
+void Renderer::createMenuItemAddonsHeader(bool isNew) {}
 
 void Renderer::createOrderConfirmationHeader(bool isNew) {
     Screen& screen = getScreen();
@@ -125,9 +157,9 @@ void Renderer::createOrderConfirmationHeader(bool isNew) {
     navHeader->setIsFlexible(false);
 
     shared_ptr<ButtonNode> shopBtn =
-        make_shared<ButtonNode>('s', "shop", make_tuple(KEY_S, KEY_s));
+        make_shared<ButtonNode>("s", "shop", make_tuple(KEY_S, KEY_s));
     shared_ptr<ButtonNode> checkoutBtn = make_shared<ButtonNode>(
-        'c', "checkout", make_tuple(KEY_c, KEY_C), true);
+        "c", "checkout", make_tuple(KEY_c, KEY_C), true);
 
     shopBtn->subscribe(onShopBtnClicked);
     checkoutBtn->subscribe(onCheckoutBtnClicked);
@@ -149,9 +181,9 @@ void Renderer::createAdminMenuHeader(bool isNew) {
     navHeader->setIsFlexible(false);
 
     shared_ptr<ButtonNode> shopBtn =
-        make_shared<ButtonNode>('s', "shop", make_tuple(KEY_s, KEY_S));
+        make_shared<ButtonNode>("s", "shop", make_tuple(KEY_s, KEY_S));
     shared_ptr<ButtonNode> adminBtn =
-        make_shared<ButtonNode>('a', "admin", make_tuple(KEY_a, KEY_A), true);
+        make_shared<ButtonNode>("a", "admin", make_tuple(KEY_a, KEY_A), true);
 
     shopBtn->subscribe(onShopBtnClicked);
     adminBtn->subscribe(onAdminBtnClicked);
@@ -169,22 +201,25 @@ void Renderer::createMenuView(bool isNew) {
 
     menuGrid->setIsFlexible(true);
 
-    for (const auto item : state.getMenuItems()) {
+    for (const auto item : state.getMenuItemsData()) {
         shared_ptr<SelectOptionNode> optionNode =
-            make_shared<SelectOptionNode>(item.getId());
+            make_shared<SelectOptionNode>(item.getName());
 
         menuSelect->appendChild(optionNode);
     }
 
     if (!isNew) {
-        menuSelect->setActiveChildWithValue(state.getSelectedMenuItemId());
+        menuSelect->setActiveChildWithValue(
+            state.getSelectedMenuItemDataName());
     } else {
-        state.setSelectedMenuItemId(
-            state.getMenuItems().at(menuSelect->getActiveOptionIdx()).getId());
+        state.setSelectedMenuItemDataName(
+            state.getMenuItemsData()
+                .at(menuSelect->getActiveOptionIdx())
+                .getName());
     }
 
-    optional<MenuItem*> maybeItem =
-        state.getMenuItemWithId(menuSelect->getValueOfSelectedOption().value());
+    optional<MenuItemData> maybeItem = state.getMenuItemDataWithName(
+        menuSelect->getValueOfSelectedOption().value());
 
     assert(
         maybeItem != nullopt ||
@@ -194,15 +229,13 @@ void Renderer::createMenuView(bool isNew) {
 
     menuSelect->subscribe(onMenuSelectUpdated);
 
-    const MenuItem* item = maybeItem.value();
+    const MenuItemData item = maybeItem.value();
 
     shared_ptr<GridNode> itemDisplay = make_shared<GridNode>();
     shared_ptr<TextNode> itemDescription =
-        make_shared<TextNode>(item->getDescription());
+        make_shared<TextNode>(item.getDescription());
     shared_ptr<TextNode> itemPrice =
-        make_shared<TextNode>(formatNumber(item->getPrice()));
-    shared_ptr<TextNode> itemQty =
-        make_shared<TextNode>("quantity: " + formatNumber(item->getQty()));
+        make_shared<TextNode>(formatNumber(item.getBasePrice()));
 
     itemDisplay->setRowGap(1);
     itemDisplay->setIsFlexible(false);
@@ -220,10 +253,62 @@ void Renderer::createMenuView(bool isNew) {
      */
     itemDisplay->appendChild(itemDescription);
     itemDisplay->appendChild(itemPrice);
-    itemDisplay->appendChild(itemQty);
 
     body->appendChild(menuGrid);
 }
+
+void Renderer::createMenuItemView(bool isNew) {
+    Screen& screen = getScreen();
+    State& state = getState();
+    shared_ptr<GridNode> menuItemMetadataContainer =
+        make_shared<GridNode>(screen.getWidth(), screen.getWidth());
+    shared_ptr<GridNode> menuItemDynamicMetadataContainer =
+        make_shared<GridNode>(screen.getWidth(), 0);
+
+    menuItemMetadataContainer->setRowGap(1);
+    menuItemDynamicMetadataContainer->setRowGap(1);
+
+    menuItemMetadataContainer->setIsFlexible(false);
+    menuItemDynamicMetadataContainer->setIsFlexible(false);
+
+    optional<MenuItem*> maybeCurrMenuItem =
+        state.getMenuItemWithUid(state.getSelectedMenuItemInCartUid());
+
+    assert(maybeCurrMenuItem.has_value());
+
+    MenuItem* currMenuItem = maybeCurrMenuItem.value();
+
+    shared_ptr<TextNode> menuItemName =
+        make_shared<TextNode>(currMenuItem->getName());
+    shared_ptr<TextNode> menuItemDescription = make_shared<TextNode>(
+        state.getMenuItemDataWithName(currMenuItem->getName())
+            .value()
+            .getDescription());
+    shared_ptr<TextNode> menuItemPrice =
+        make_shared<TextNode>(formatNumber(currMenuItem->getBasePrice()));
+
+    menuItemMetadataContainer->appendChild(menuItemName);
+    menuItemMetadataContainer->appendChild(menuItemDescription);
+    menuItemMetadataContainer->appendChild(menuItemPrice);
+
+    shared_ptr<TextNode> size =
+        make_shared<TextNode>("size: " + toString(currMenuItem->getSize()));
+    shared_ptr<TextNode> qty = make_shared<TextNode>(
+        "- " + formatNumber(currMenuItem->getQty()) + " +");
+
+    menuItemDynamicMetadataContainer->appendChild(size);
+    menuItemDynamicMetadataContainer->appendChild(qty);
+
+    auto br = make_shared<LineBreakNode>(2);
+
+    body->appendChild(menuItemMetadataContainer);
+    body->appendChild(br);
+    body->appendChild(menuItemDynamicMetadataContainer);
+}
+
+void Renderer::createMenuItemSizesView(bool isNew) {}
+
+void Renderer::createMenuItemAddonsView(bool isNew) {}
 
 void Renderer::createOrderConfirmationView(bool isNew) {}
 
@@ -237,16 +322,16 @@ void Renderer::createMenuFooter(bool isNew) {
     toolTipsContainer->setColGap(2);
     toolTipsContainer->setRowGap(1);
 
-    shared_ptr<ButtonNode> incrementBtn =
-        make_shared<ButtonNode>('+', "add", make_tuple(KEY_PLUS, KEY_PLUS));
-    shared_ptr<ButtonNode> decrementBtn = make_shared<ButtonNode>(
-        '-', "subtract", make_tuple(KEY_HYPHEN_MINUS, KEY_HYPHEN_MINUS));
+    shared_ptr<ButtonNode> enterBtn = make_shared<ButtonNode>(
+        "\u23CE", "enter", make_tuple(KEY_ENTER, KEY_ENTER), true);
+    // Just a text
+    shared_ptr<ButtonNode> upDownBtn =
+        make_shared<ButtonNode>("↑/↓", "up/down", make_tuple(0, 0), true);
 
-    incrementBtn->subscribe(onIncrementBtnClicked);
-    decrementBtn->subscribe(onDecrementBtnClicked);
+    enterBtn->subscribe(onEnterBtnClickedMenuSelect);
 
-    toolTipsContainer->appendChild(incrementBtn);
-    toolTipsContainer->appendChild(decrementBtn);
+    toolTipsContainer->appendChild(enterBtn);
+    toolTipsContainer->appendChild(upDownBtn);
 
     shared_ptr<TextNode> lineSeparatorUp =
         make_shared<TextNode>(string(toolTipsContainer->getWidth(), '-'));
@@ -257,6 +342,33 @@ void Renderer::createMenuFooter(bool isNew) {
     footer->appendChild(toolTipsContainer);
     footer->appendChild(lineSeparatorBottom);
 }
+
+void Renderer::createMenuItemFooter(bool isNew) {
+    shared_ptr<GridNode> toolTipsContainer = make_shared<GridNode>();
+
+    toolTipsContainer->setColGap(2);
+    toolTipsContainer->setRowGap(1);
+
+    shared_ptr<ButtonNode> upDownBtn = make_shared<ButtonNode>(
+        "-/+", "add/minus", make_tuple(KEY_HYPHEN_MINUS, KEY_PLUS), true);
+
+    upDownBtn->subscribe(onAddMinusBtnClicked);
+
+    toolTipsContainer->appendChild(upDownBtn);
+
+    shared_ptr<TextNode> lineSeparatorUp =
+        make_shared<TextNode>(string(toolTipsContainer->getWidth(), '-'));
+    shared_ptr<TextNode> lineSeparatorBottom =
+        make_shared<TextNode>(string(toolTipsContainer->getWidth(), '-'));
+
+    footer->appendChild(lineSeparatorUp);
+    footer->appendChild(toolTipsContainer);
+    footer->appendChild(lineSeparatorBottom);
+}
+
+void Renderer::createMenuItemSizesFooter(bool isNew) {}
+
+void Renderer::createMenuItemAddonsFooter(bool isNew) {}
 
 void Renderer::createOrderConfirmationFooter(bool isNew) {}
 
@@ -291,15 +403,15 @@ void Renderer::onKeyPressed(unsigned int keyCode, Node::NodePtr currNode) {
     }
 }
 
-void onMenuSelectUpdated(optional<string> selectedMenuItemId) {
-    if (!selectedMenuItemId.has_value()) {
+void onMenuSelectUpdated(optional<string> selectedMenuItemDataName) {
+    if (!selectedMenuItemDataName.has_value()) {
         return;
     }
 
     State& state = getState();
     Renderer& renderer = getRenderer();
 
-    state.setSelectedMenuItemId(selectedMenuItemId.value());
+    state.setSelectedMenuItemDataName(selectedMenuItemDataName.value());
 
     /**
      *
@@ -311,7 +423,31 @@ void onMenuSelectUpdated(optional<string> selectedMenuItemId) {
     renderer.renderBuffer();
 }
 
-void onShopBtnClicked() {
+void onEnterBtnClickedMenuSelect(unsigned int) {
+    Renderer& renderer = getRenderer();
+    State& state = getState();
+
+    if (renderer.viewState == RendererState::MENU_ITEM) {
+        return;
+    }
+
+    optional<MenuItemData> maybeSelectedMenuItemData =
+        state.getMenuItemDataWithName(state.getSelectedMenuItemDataName());
+
+    assert(maybeSelectedMenuItemData.has_value());
+
+    MenuItem menuItem(maybeSelectedMenuItemData.value());
+
+    state.appendMenuItemToCart(menuItem);
+    state.setSelectedMenuItemInCartUid(menuItem.getUid());
+
+    renderer.viewState = RendererState::MENU_ITEM;
+
+    renderer.createView();
+    renderer.renderBuffer();
+}
+
+void onShopBtnClicked(unsigned int) {
     Renderer& renderer = getRenderer();
 
     if (renderer.viewState == RendererState::MENU) {
@@ -324,11 +460,83 @@ void onShopBtnClicked() {
     renderer.renderBuffer();
 }
 
-void onSizesBtnClicked() {}
+void onEscBtnClickedOnMenuItem(unsigned int) {
+    Renderer& renderer = getRenderer();
 
-void onAddonsBtnClicked() {}
+    if (renderer.viewState != RendererState::MENU_ITEM) {
+        return;
+    }
 
-void onAdminBtnClicked() {
+    State& state = getState();
+
+    // just remove for now, and not ask
+    // for confirmation
+    state.removeMenuItemFromCartWithUid(state.getSelectedMenuItemInCartUid());
+    state.resetSelectedMenuItemInCardUid();
+
+    renderer.viewState = RendererState::MENU;
+
+    renderer.createView();
+    renderer.renderBuffer();
+}
+
+void onSizesBtnClicked(unsigned int) {
+    Renderer& renderer = getRenderer();
+    State& state = getState();
+
+    if (renderer.viewState == RendererState::MENU_ITEM_SIZES) {
+        return;
+    }
+
+    renderer.viewState = RendererState::MENU_ITEM_SIZES;
+
+    renderer.createView();
+    renderer.renderBuffer();
+}
+
+void onAddonsBtnClicked(unsigned int) {
+    Renderer& renderer = getRenderer();
+    State& state = getState();
+
+    if (renderer.viewState == RendererState::MENU_ITEM_ADDONS) {
+        return;
+    }
+
+    renderer.viewState = RendererState::MENU_ITEM_ADDONS;
+
+    renderer.createView();
+    renderer.renderBuffer();
+}
+
+void onAddMinusBtnClicked(unsigned int keyCode) {
+    Renderer& renderer = getRenderer();
+    State& state = getState();
+
+    switch (renderer.viewState) {
+        case RendererState::MENU_ITEM: {
+            optional<MenuItem*> maybeCurrMenuItem =
+                state.getMenuItemWithUid(state.getSelectedMenuItemInCartUid());
+
+            assert(maybeCurrMenuItem.has_value());
+
+            MenuItem* currMenuItem = maybeCurrMenuItem.value();
+
+            switch (keyCode) {
+                case KEY_HYPHEN_MINUS:
+                    currMenuItem->decreaseQty(1);
+                    break;
+                case KEY_PLUS:
+                    currMenuItem->increaseQty(1);
+                    break;
+            }
+        }; break;
+    };
+
+    renderer.createView();
+    renderer.renderBuffer();
+}
+
+void onAdminBtnClicked(unsigned int) {
     Renderer& renderer = getRenderer();
 
     if (renderer.viewState == RendererState::ADMIN_MENU) {
@@ -341,51 +549,11 @@ void onAdminBtnClicked() {
     renderer.renderBuffer();
 }
 
-void onCheckoutBtnClicked() {
+void onCheckoutBtnClicked(unsigned int) {
     State& state = getState();
     Renderer& renderer = getRenderer();
-
-    if (state.amountOfDistinctChosenItems() == 0 ||
-        renderer.viewState == ORDER_CONFIRMATION) {
-        // TODO: show a notif to user in terminal.
-        return;
-    }
 
     renderer.viewState = RendererState::ORDER_CONFIRMATION;
-
-    renderer.createView();
-    renderer.renderBuffer();
-}
-
-void onIncrementBtnClicked() {
-    State& state = getState();
-    Renderer& renderer = getRenderer();
-
-    optional<MenuItem*> maybeSelectedMenuItem =
-        state.getMenuItemWithId(state.getSelectedMenuItemId());
-
-    assert(maybeSelectedMenuItem.has_value() || !"onIncrementBtnClicked() called despite State not having a selectedMenuItem");
-
-    MenuItem* selectedMenuItem = maybeSelectedMenuItem.value();
-
-    selectedMenuItem->increaseQty(1);
-
-    renderer.createView();
-    renderer.renderBuffer();
-}
-
-void onDecrementBtnClicked() {
-    State& state = getState();
-    Renderer& renderer = getRenderer();
-
-    optional<MenuItem*> maybeSelectedMenuItem =
-        state.getMenuItemWithId(state.getSelectedMenuItemId());
-
-    assert(maybeSelectedMenuItem.has_value() || !"onIncrementBtnClicked() called despite State not having a selectedMenuItem");
-
-    MenuItem* selectedMenuItem = maybeSelectedMenuItem.value();
-
-    selectedMenuItem->decreaseQty(1);
 
     renderer.createView();
     renderer.renderBuffer();

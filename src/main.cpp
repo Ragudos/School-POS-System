@@ -17,6 +17,8 @@ void gracefulError(const exception&);
 void gracefulError(const string&);
 
 int main() {
+    setlocale(LC_ALL, "en_US.UTF-8");
+
     enterAltScreen();
     hideCursor();
     disableTextWrapping();
@@ -80,8 +82,6 @@ void programEntryPoint(LoopLambda* loop) {
             case KEY_q:
                 // TODO: Cleanup operations
                 loop->stop();
-                break;
-            case KEY_ESC:
                 break;
             case KEY_BACKSPACE:
                 break;

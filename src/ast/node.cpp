@@ -942,18 +942,21 @@ bool SelectNode::onKeyPressed(unsigned int keyCode) {
     }
 }
 
-ButtonNode::ButtonNode(char icon, string text,
+ButtonNode::ButtonNode(string icon, string text,
                        tuple<unsigned int, unsigned int> keyCode)
     : icon(icon), text(text), keyCode(keyCode), isPressed(false) {
     height = 1;
-    setWidth(2 + static_cast<unsigned int>(text.size()));
+    setWidth(static_cast<unsigned int>(numOfUtf8Chars(icon)) + 1 +
+             static_cast<unsigned int>(text.size()));
 }
-ButtonNode::ButtonNode(char icon, string text,
+
+ButtonNode::ButtonNode(string icon, string text,
                        tuple<unsigned int, unsigned int> keyCode,
                        bool isPressed)
     : icon(icon), text(text), keyCode(keyCode), isPressed(isPressed) {
     height = 1;
-    setWidth(2 + static_cast<unsigned int>(text.size()));
+    setWidth(static_cast<unsigned int>(numOfUtf8Chars(icon)) + 1 +
+             static_cast<unsigned int>(text.size()));
 }
 
 void ButtonNode::setWidth(unsigned int w) {
@@ -1002,9 +1005,9 @@ void ButtonNode::render(ostringstream* buf) const {
     textReset(buf);
 }
 
-void ButtonNode::notify() {
+void ButtonNode::notify(unsigned int keyCode) {
     for (SubscriberCallback subscriber : subscribers) {
-        subscriber();
+        subscriber(keyCode);
     }
 }
 
@@ -1024,7 +1027,7 @@ bool ButtonNode::onKeyPressed(unsigned int pressedKeyCode) {
         get<1>(keyCode) == pressedKeyCode) {
         isPressed = true;
 
-        notify();
+        notify(pressedKeyCode);
 
         return true;
     }

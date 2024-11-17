@@ -18,18 +18,24 @@ using namespace terminal;
 using namespace std;
 
 void onMenuSelectUpdated(optional<string>);
-void onShopBtnClicked();
-void onSizesBtnClicked();
-void onAddonsBtnClicked();
-void onAdminBtnClicked();
-void onCheckoutBtnClicked();
-void onIncrementBtnClicked();
-void onDecrementBtnClicked();
+void onEnterBtnClickedMenuSelect(unsigned int);
+
+void onShopBtnClicked(unsigned int);
+
+void onEscBtnClickedOnMenuItem(unsigned int);
+void onSizesBtnClicked(unsigned int);
+void onAddonsBtnClicked(unsigned int);
+
+void onAddMinusBtnClicked(unsigned int);
+
+void onAdminBtnClicked(unsigned int);
+void onCheckoutBtnClicked(unsigned int);
 
 enum RendererState {
     MENU,
-    MENU_SIZES,
-    MENU_ADDONS,
+    MENU_ITEM,
+    MENU_ITEM_SIZES,
+    MENU_ITEM_ADDONS,
     ORDER_CONFIRMATION,
     ORDER_RESULTS,
     ADMIN_MENU
@@ -50,22 +56,25 @@ class Renderer {
    private:
     // header
     void createMenuHeader(bool);
-    void createMenuSizesHeader(bool);
-    void createMenuAddonsHeader(bool);
+    void createMenuItemHeader(bool);
+    void createMenuItemSizesHeader(bool);
+    void createMenuItemAddonsHeader(bool);
     void createOrderConfirmationHeader(bool);
     void createOrderResultsHeader(bool);
     void createAdminMenuHeader(bool);
     // body
     void createMenuView(bool);
-    void createMenuSizesView(bool);
-    void createMenuAddonsView(bool);
+    void createMenuItemView(bool);
+    void createMenuItemSizesView(bool);
+    void createMenuItemAddonsView(bool);
     void createOrderConfirmationView(bool);
     void createOrderResultsView(bool);
     void createAdminMenuView(bool);
     // footer
     void createMenuFooter(bool);
-    void createMenuSizesFooter(bool);
-    void createMenuAddonsFooter(bool);
+    void createMenuItemFooter(bool);
+    void createMenuItemSizesFooter(bool);
+    void createMenuItemAddonsFooter(bool);
     void createOrderConfirmationFooter(bool);
     void createOrderResultsFooter(bool);
     void createAdminMenuFooter(bool);
