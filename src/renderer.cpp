@@ -22,10 +22,10 @@ void Renderer::createView() {
         moveCursorTo(static_cast<unsigned int>(0), rootNode->getHeight());
         clearLinesFromCursorToEndOfLine(rootNode->getHeight());
 
-        rootNode.reset();
         header.reset();
         body.reset();
         footer.reset();
+        rootNode.reset();
 
         isNew = false;
     }
