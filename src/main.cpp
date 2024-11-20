@@ -1,9 +1,9 @@
+#include <contrib/state.hpp>
 #include <iostream>
 #include <keyboard.hpp>
 #include <looplambda.hpp>
 #include <renderer.hpp>
 #include <screen.hpp>
-#include <state.hpp>
 #include <utils.hpp>
 
 using namespace std;
@@ -17,6 +17,8 @@ void gracefulError(const exception&);
 void gracefulError(const string&);
 
 int main() {
+    setlocale(LC_ALL, "en_US.UTF-8");
+
     enterAltScreen();
     hideCursor();
     disableTextWrapping();
@@ -49,7 +51,12 @@ int main() {
 // For now, we just re-initialize all the nodes based
 // on current view state since I'm too lazy
 // to implement a cascading change of dimensions for all nodes.
-void onScreenSizeChange() { getRenderer().createView(); }
+void onScreenSizeChange() {
+    Renderer& renderer = getRenderer();
+
+    renderer.createView();
+    renderer.renderBuffer();
+}
 
 void programEntryPoint(LoopLambda* loop) {
     string err;
@@ -61,26 +68,12 @@ void programEntryPoint(LoopLambda* loop) {
 
         screen.updateScreenDimensions();
         // getPressedKeyCode() is a blocking operation on Linux.
-        int pressedKeyCode = getPressedKeyCode();
+        unsigned int pressedKeyCode = getPressedKeyCode();
 
         switch (pressedKeyCode) {
-            case KEY_UP:
-                renderer.onKeyPressed(KEY_UP);
-                break;
-            case KEY_DOWN:
-                renderer.onKeyPressed(KEY_DOWN);
-                // renderer.onKeyPressed(pressedKeyCode);
-                break;
             case KEY_LEFT:
                 break;
             case KEY_RIGHT:
-                break;
-            case KEY_A:
-            case KEY_a:
-            case KEY_S:
-            case KEY_s:
-            case KEY_C:
-            case KEY_c:
                 break;
             case KEY_R:
             case KEY_r:
@@ -90,17 +83,11 @@ void programEntryPoint(LoopLambda* loop) {
                 // TODO: Cleanup operations
                 loop->stop();
                 break;
-            case KEY_PLUS:
-                break;
-            case KEY_HYPHEN_MINUS:
-                break;
-            case KEY_ESC:
-                break;
             case KEY_BACKSPACE:
                 break;
+            default:
+                renderer.onKeyPressed(pressedKeyCode);
         }
-
-        renderer.renderBuffer();
     } catch (const exception& e) {
         err = e.what();
     } catch (...) {

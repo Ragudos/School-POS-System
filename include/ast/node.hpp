@@ -31,9 +31,7 @@ using namespace string_utils;
 using namespace terminal;
 
 enum NodeTypes { CONTAINER, INTERACTABLE, LEAF };
-
 enum NodeRenderStyle { BLOCK, INLINE };
-
 enum TextNodeFormats { BOLD, ITALIC, UNDERLINE, STRIKETHROUGH, DIM };
 
 class Node : public enable_shared_from_this<Node> {
@@ -318,10 +316,11 @@ class SelectNode : public InteractableNode {
 
 class ButtonNode : public InteractableNode {
    public:
-    using SubscriberCallback = function<void()>;
+    using SubscriberCallback = function<void(unsigned int)>;
 
    private:
-    char icon;
+    /** utf-8 string */
+    string icon;
     string text;
     /**
      *
@@ -333,11 +332,11 @@ class ButtonNode : public InteractableNode {
     vector<SubscriberCallback> subscribers;
 
    public:
-    ButtonNode(char, string, tuple<unsigned int, unsigned int>);
-    ButtonNode(char, string, tuple<unsigned int, unsigned int>, bool);
+    ButtonNode(string, string, tuple<unsigned int, unsigned int>);
+    ButtonNode(string, string, tuple<unsigned int, unsigned int>, bool);
 
    private:
-    void notify();
+    void notify(unsigned int);
 
    public:
     virtual void render(ostringstream *) const override;
@@ -356,5 +355,4 @@ class ButtonNode : public InteractableNode {
      */
     virtual bool onKeyPressed(unsigned int) override;
     virtual bool canHaveChildren() const noexcept override;
-    virtual NodeTypes nodeType() const noexcept override;
 };
