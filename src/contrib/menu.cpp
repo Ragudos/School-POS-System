@@ -39,7 +39,7 @@ string MenuItemAddonData::getDescription() const noexcept {
 }
 
 void MenuItemAddonData::setDescription(const string& desc) {
-    assert(desc.size() <= 50);
+    assert(desc.size() <= 250);
 
     description = desc;
 }
@@ -70,7 +70,7 @@ string MenuItemData::getName() const noexcept { return name; }
 string MenuItemData::getDescription() const noexcept { return description; }
 
 void MenuItemData::setDescription(const string& desc) {
-    assert(desc.size() <= 50);
+    assert(desc.size() <= 250);
 
     description = desc;
 }
