@@ -41,7 +41,7 @@ void Renderer::createView() {
     title->setColor(255, 255, 0);
     title->setBold();
 
-    auto titleBr = make_shared<LineBreakNode>();
+    auto titleBr = make_shared<LineBreakNode>(2);
 
     header->appendChild(title);
     header->appendChild(titleBr);
@@ -58,11 +58,14 @@ void Renderer::createView() {
             createMenuItemFooter(isNew);
         }; break;
         case RendererState::MENU_ITEM_SIZES: {
-		createMenuItemSizesHeader(isNew);
-		createMenuItemSizesView(isNew);
-		createMenuItemSizesFooter(isNew);
-        };
+            createMenuItemSizesHeader(isNew);
+            createMenuItemSizesView(isNew);
+            createMenuItemSizesFooter(isNew);
+        }; break;
         case RendererState::MENU_ITEM_ADDONS: {
+            createMenuItemAddonsHeader(isNew);
+            createMenuItemAddonsView(isNew);
+            createMenuItemAddonsFooter(isNew);
         }; break;
         case RendererState::ORDER_CONFIRMATION: {
             createOrderConfirmationHeader(isNew);
@@ -163,8 +166,7 @@ void Renderer::createMenuItemSizesHeader(bool isNew) {
     shared_ptr<ButtonNode> addonsBtn =
         make_shared<ButtonNode>("a", "addons", make_tuple(KEY_A, KEY_a));
 
-	backBtn->subscribe(onEscBtnClickedOnMenuItem);
-    sizesBtn->subscribe(onSizesBtnClicked);
+    backBtn->subscribe(onEscBtnClickedOnMenuItem);
     addonsBtn->subscribe(onAddonsBtnClicked);
 
     navHeader->appendChild(backBtn);
@@ -174,7 +176,32 @@ void Renderer::createMenuItemSizesHeader(bool isNew) {
     header->appendChild(navHeader);
 }
 
-void Renderer::createMenuItemAddonsHeader(bool isNew) {}
+void Renderer::createMenuItemAddonsHeader(bool isNew) {
+    Screen& screen = getScreen();
+    State& state = getState();
+    shared_ptr<GridNode> navHeader =
+        make_shared<GridNode>(screen.getWidth(), 0);
+
+    navHeader->setIsFlexible(false);
+    navHeader->setColGap(2);
+    navHeader->setRowGap(1);
+
+    shared_ptr<ButtonNode> backBtn =
+        make_shared<ButtonNode>("←", "esc", make_tuple(KEY_ESC, KEY_ESC));
+    shared_ptr<ButtonNode> sizesBtn =
+        make_shared<ButtonNode>("s", "sizes", make_tuple(KEY_S, KEY_s));
+    shared_ptr<ButtonNode> addonsBtn =
+        make_shared<ButtonNode>("a", "addons", make_tuple(KEY_A, KEY_a), true);
+
+    backBtn->subscribe(onEscBtnClickedOnMenuItem);
+    sizesBtn->subscribe(onSizesBtnClicked);
+
+    navHeader->appendChild(backBtn);
+    navHeader->appendChild(sizesBtn);
+    navHeader->appendChild(addonsBtn);
+
+    header->appendChild(navHeader);
+}
 
 void Renderer::createOrderConfirmationHeader(bool isNew) {
     Screen& screen = getScreen();
@@ -495,22 +522,29 @@ void onShopBtnClicked(unsigned int) {
 
 void onEscBtnClickedOnMenuItem(unsigned int) {
     Renderer& renderer = getRenderer();
-
-    if (renderer.viewState != RendererState::MENU_ITEM && renderer.viewState != RendererState::MENU_ITEM_SIZES) {
-        return;
-    }
-
     State& state = getState();
 
-    // just remove for now, and not ask
-    // for confirmation
-    state.removeMenuItemFromCartWithUid(state.getSelectedMenuItemInCartUid());
-    state.resetSelectedMenuItemInCardUid();
+    switch (renderer.viewState) {
+        case RendererState::MENU_ITEM: {
+            // just remove for now, and not ask
+            // for confirmation
+            state.removeMenuItemFromCartWithUid(
+                state.getSelectedMenuItemInCartUid());
+            state.resetSelectedMenuItemInCardUid();
 
-    renderer.viewState = RendererState::MENU;
+            renderer.viewState = RendererState::MENU;
 
-    renderer.createView();
-    renderer.renderBuffer();
+            renderer.createView();
+            renderer.renderBuffer();
+        }; break;
+        case RendererState::MENU_ITEM_SIZES:
+        case RendererState::MENU_ITEM_ADDONS: {
+            renderer.viewState = RendererState::MENU_ITEM;
+
+            renderer.createView();
+            renderer.renderBuffer();
+        }
+    }
 }
 
 void onSizesBtnClicked(unsigned int) {

@@ -142,24 +142,44 @@ void Node::updateChildrenDimensionsOnChange() {
     unsigned int currPosY = getPosY();
     unsigned int currPosX = getPosX();
 
-    for (auto& c : children) {
+    for (int i = 0, l = children.size(); i < l; ++i) {
+        auto& c = children.at(i);
+
         c->setPosY(currPosY);
         c->setPosX(currPosX);
 
-        // shit (doesnt take order and relativity into account, but whatever)
-        // and other stuff
-        switch (c->nodeRenderStyle()) {
-            case NodeRenderStyle::BLOCK: {
-                currPosY += c->getHeight();
-            }; break;
-            case NodeRenderStyle::INLINE: {
-                currPosX += c->getWidth();
-            }; break;
-        }
+        if (i < l - 1) {
+            auto& nextC = children.at(i + 1);
 
-        if (currPosX >= getWidth() + cachedInitialPosX) {
-            currPosX = cachedInitialPosX;
-            currPosY += c->getHeight();
+            // shit (doesnt take order and relativity into account, but
+            // whatever) and other stuff
+            switch (nextC->nodeRenderStyle()) {
+                case NodeRenderStyle::BLOCK: {
+                    currPosY += c->getHeight();
+                }; break;
+                case NodeRenderStyle::INLINE: {
+                    currPosX += c->getWidth();
+                }; break;
+            }
+
+            if (currPosX >= getWidth() + cachedInitialPosX) {
+                currPosX = cachedInitialPosX;
+                currPosY += c->getHeight();
+            }
+        } else {
+            switch (c->nodeRenderStyle()) {
+                case NodeRenderStyle::BLOCK: {
+                    currPosY += c->getHeight();
+                }; break;
+                case NodeRenderStyle::INLINE: {
+                    currPosX += c->getWidth();
+                }; break;
+            }
+
+            if (currPosX >= getWidth() + cachedInitialPosX) {
+                currPosX = cachedInitialPosX;
+                currPosY += c->getHeight();
+            }
         }
 
         c->updateChildrenDimensionsOnChange();
@@ -243,29 +263,28 @@ GridNode::GridNode() : colGap(4), rowGap(2), childWidth(0) {
     setWidth(getScreen().getWidth());
 }
 
-GridNode::GridNode(unsigned int width) : colGap(4), rowGap(2), childWidth(0) {
-    setWidth(width);
+GridNode::GridNode(unsigned int w) : colGap(4), rowGap(2), childWidth(0) {
+    setWidth(w);
 }
 
-GridNode::GridNode(unsigned int width, unsigned int childW)
+GridNode::GridNode(unsigned int w, unsigned int childW)
     : colGap(4), rowGap(2), childWidth(childW) {
-    setWidth(width);
+    setWidth(w);
     assert(childW <= getWidth() ||
            !"child width should be <= grid container's width.");
 }
 
-GridNode::GridNode(unsigned int width, unsigned int childW,
-                   unsigned int colGap)
+GridNode::GridNode(unsigned int w, unsigned int childW, unsigned int colGap)
     : colGap(colGap), rowGap(2), childWidth(childW) {
-    setWidth(width);
+    setWidth(w);
     assert(childW <= getWidth() ||
            !"child width should be <= grid container's width.");
 }
 
-GridNode::GridNode(unsigned int width, unsigned int childW,
-                   unsigned int colGap, unsigned int rowGap)
-    : colGap(colGap), rowGap(rowGap), childWidth(childWidth) {
-    setWidth(width);
+GridNode::GridNode(unsigned int w, unsigned int childW, unsigned int colGap,
+                   unsigned int rowGap)
+    : colGap(colGap), rowGap(rowGap), childWidth(childW) {
+    setWidth(w);
     assert(childW <= getWidth() ||
            !"child width should be <= grid container's width.");
 }
