@@ -35,6 +35,7 @@
 #define KEY_OPENING_BRACKET 91
 /** Carriage return */
 #define KEY_ENTER 13
+#define KEY_ENTER_LINUX 10
 
 // Special values for specfic platforms
 #ifdef WINDOWS_PLATFORM

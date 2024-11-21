@@ -383,7 +383,7 @@ void Renderer::createMenuFooter(bool isNew) {
     toolTipsContainer->setRowGap(1);
 
     shared_ptr<ButtonNode> enterBtn = make_shared<ButtonNode>(
-        "\u23CE", "enter", make_tuple(KEY_ENTER, KEY_ENTER), true);
+        "\u23CE", "enter", make_tuple(KEY_ENTER, KEY_ENTER_LINUX), true);
     // Just a text
     shared_ptr<ButtonNode> upDownBtn =
         make_shared<ButtonNode>("↑/↓", "up/down", make_tuple(0, 0), true);
