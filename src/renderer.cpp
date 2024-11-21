@@ -22,10 +22,10 @@ void Renderer::createView() {
         moveCursorTo(static_cast<unsigned int>(1), rootNode->getHeight());
         clearLinesFromCursorToEndOfLine(rootNode->getHeight());
 
+        rootNode.reset();
         header.reset();
         body.reset();
         footer.reset();
-        rootNode.reset();
 
         isNew = false;
     }
@@ -337,8 +337,8 @@ void Renderer::createMenuItemView(bool isNew) {
 void Renderer::createMenuItemSizesView(bool isNew) {
 	Screen& screen = getScreen();
 	State& state = getState();
-	
-	shared_ptr<SelectNode> itemSizesSelect = make_shared<SelectNode>();
+
+    shared_ptr<SelectNode> itemSizesSelect = make_shared<SelectNode>();
 }
 
 void Renderer::createMenuItemAddonsView(bool isNew) {}
