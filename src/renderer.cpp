@@ -19,7 +19,7 @@ void Renderer::createView() {
 
     // if exists, remove
     if (rootNode) {
-        moveCursorTo(static_cast<unsigned int>(1), rootNode->getHeight());
+        moveCursorTo(static_cast<unsigned int>(0), rootNode->getHeight());
         clearLinesFromCursorToEndOfLine(rootNode->getHeight());
 
         rootNode.reset();
