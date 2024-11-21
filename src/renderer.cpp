@@ -19,7 +19,7 @@ void Renderer::createView() {
 
     // if exists, remove
     if (rootNode) {
-        moveCursorTo(static_cast<unsigned int>(0), rootNode->getHeight());
+        moveCursorTo(static_cast<unsigned int>(1), rootNode->getHeight());
         clearLinesFromCursorToEndOfLine(rootNode->getHeight());
 
         header.reset();
@@ -58,6 +58,9 @@ void Renderer::createView() {
             createMenuItemFooter(isNew);
         }; break;
         case RendererState::MENU_ITEM_SIZES: {
+		createMenuItemSizesHeader(isNew);
+		createMenuItemSizesView(isNew);
+		createMenuItemSizesFooter(isNew);
         };
         case RendererState::MENU_ITEM_ADDONS: {
         }; break;
@@ -144,7 +147,32 @@ void Renderer::createMenuItemHeader(bool isNew) {
     header->appendChild(navHeader);
 }
 
-void Renderer::createMenuItemSizesHeader(bool isNew) {}
+void Renderer::createMenuItemSizesHeader(bool isNew) {
+	Screen& screen = getScreen();
+	State& state = getState();
+	shared_ptr<GridNode> navHeader = make_shared<GridNode>(screen.getWidth(), 0);
+
+    navHeader->setIsFlexible(false);
+    navHeader->setColGap(2);
+    navHeader->setRowGap(1);
+
+    shared_ptr<ButtonNode> backBtn =
+        make_shared<ButtonNode>("←", "esc", make_tuple(KEY_ESC, KEY_ESC));
+    shared_ptr<ButtonNode> sizesBtn =
+        make_shared<ButtonNode>("s", "sizes", make_tuple(KEY_S, KEY_s), true);
+    shared_ptr<ButtonNode> addonsBtn =
+        make_shared<ButtonNode>("a", "addons", make_tuple(KEY_A, KEY_a));
+
+	backBtn->subscribe(onEscBtnClickedOnMenuItem);
+    sizesBtn->subscribe(onSizesBtnClicked);
+    addonsBtn->subscribe(onAddonsBtnClicked);
+
+    navHeader->appendChild(backBtn);
+    navHeader->appendChild(sizesBtn);
+    navHeader->appendChild(addonsBtn);
+
+    header->appendChild(navHeader);
+}
 
 void Renderer::createMenuItemAddonsHeader(bool isNew) {}
 
@@ -306,7 +334,12 @@ void Renderer::createMenuItemView(bool isNew) {
     body->appendChild(menuItemDynamicMetadataContainer);
 }
 
-void Renderer::createMenuItemSizesView(bool isNew) {}
+void Renderer::createMenuItemSizesView(bool isNew) {
+	Screen& screen = getScreen();
+	State& state = getState();
+	
+	shared_ptr<SelectNode> itemSizesSelect = make_shared<SelectNode>();
+}
 
 void Renderer::createMenuItemAddonsView(bool isNew) {}
 
@@ -463,7 +496,7 @@ void onShopBtnClicked(unsigned int) {
 void onEscBtnClickedOnMenuItem(unsigned int) {
     Renderer& renderer = getRenderer();
 
-    if (renderer.viewState != RendererState::MENU_ITEM) {
+    if (renderer.viewState != RendererState::MENU_ITEM && renderer.viewState != RendererState::MENU_ITEM_SIZES) {
         return;
     }
 

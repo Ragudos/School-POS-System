@@ -21,6 +21,9 @@
 
 using namespace std;
 
+void initializeMenuItemSelectData();
+void initializeMenuItemSizesSelectData();
+
 class State {
    private:
     string selectedMenuItemDataName;
@@ -29,12 +32,18 @@ class State {
     string selectedMenuItemInCartUid;
     vector<MenuItem> cart;
 
+    string selectedMenuItemSizeName;
+    vector<MenuItemSizeData> menuItemSizesData;
+
    public:
     void appendMenuItemData(const MenuItemData&);
     void removeMenuItemDataWithName(const string&);
 
     void appendMenuItemToCart(const MenuItem&);
     void removeMenuItemFromCartWithUid(const string&);
+
+    void appendMenuItemSizeData(const MenuItemSizeData&);
+    void removeMenuItemSizeData(const MenuItemSizes&);
 
     optional<MenuItemData> getMenuItemDataWithName(const string&);
     optional<MenuItem*> getMenuItemWithUid(const string&);

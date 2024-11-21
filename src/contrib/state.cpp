@@ -9,6 +9,27 @@ void initializeState() {
 
     state = make_unique<State>();
 
+	initializeMenuItemSelectData();
+	initializeMenuItemSizesSelectData();
+}
+
+void initializeMenuItemSizesSelectData() {
+	State& state = getState();
+
+	MenuItemSizeData tall(MenuItemSizes::TALL, "A tall size");
+	MenuItemSizeData venti(MenuItemSizes::VENTI, "A venti size");
+	MenuItemSizeData grande(MenuItemSizes::GRANDE, "A grande size");
+	MenuItemSizeData trenta(MenuItemSizes::TRENTA, "A trenta size");
+
+	state.appendMenuItemSizeData(tall);
+	state.appendMenuItemSizeData(venti);
+	state.appendMenuItemSizeData(grande);
+	state.appendMenuItemSizeData(trenta);
+}
+
+void initializeMenuItemSelectData() {
+	State& state = getState();
+
     MenuItemData item1("cafe-americano", 90,
                        "A classic coffee made with rich espresso and hot "
                        "water, offering a bold and robust flavor.");
@@ -49,23 +70,21 @@ void initializeState() {
         "A delightful fusion of espresso, milk, chocolate, and crunchy "
         "coffee-infused chips, blended for a rich, textural experience.");
 
-    state->appendMenuItemData(item1);
-    state->appendMenuItemData(item2);
-    state->appendMenuItemData(item3);
-    state->appendMenuItemData(item4);
-    state->appendMenuItemData(item5);
-    state->appendMenuItemData(item6);
-    state->appendMenuItemData(item7);
-    state->appendMenuItemData(item8);
-    state->appendMenuItemData(item9);
-    state->appendMenuItemData(item10);
+    state.appendMenuItemData(item1);
+    state.appendMenuItemData(item2);
+    state.appendMenuItemData(item3);
+    state.appendMenuItemData(item4);
+    state.appendMenuItemData(item5);
+    state.appendMenuItemData(item6);
+    state.appendMenuItemData(item7);
+    state.appendMenuItemData(item8);
+    state.appendMenuItemData(item9);
+    state.appendMenuItemData(item10);
 }
 
 void State::appendMenuItemData(const MenuItemData& menuItem) {
     for (auto item : menuItemsData) {
-        if (item.getName() == menuItem.getName()) {
-            throw logic_error("menuItemData already exists.");
-        }
+        assert(item.getName() != menuItem.getName());
     }
 
     menuItemsData.push_back(menuItem);
@@ -81,9 +100,7 @@ void State::removeMenuItemDataWithName(const string& itemName) {
 
 void State::appendMenuItemToCart(const MenuItem& item) {
     for (auto product : cart) {
-        if (product.getUid() == item.getUid()) {
-            throw logic_error("item already exists");
-        }
+        assert(product.getUid() != item.getUid());
     }
 
     cart.push_back(item);
@@ -95,6 +112,22 @@ void State::removeMenuItemFromCartWithUid(const string& uid) {
                              return item.getUid() == uid;
                          }),
                cart.end());
+}
+
+void State::appendMenuItemSizeData(const MenuItemSizeData& sizeData) {
+	for (auto size : menuItemSizesData) {
+		assert(size.getSize() != sizeData.getSize());
+	}
+
+	menuItemSizesData.push_back(sizeData);
+}
+
+void State::removeMenuItemSizeData(const MenuItemSizes& size) {
+	menuItemSizesData.erase(remove_if(menuItemSizesData.begin(), menuItemSizesData.end(),
+                         [&size](const MenuItemSizeData& sizeData) {
+                             return sizeData.getSize() == size;
+                         }),
+               menuItemSizesData.end());
 }
 
 optional<MenuItemData> State::getMenuItemDataWithName(const string& itemName) {

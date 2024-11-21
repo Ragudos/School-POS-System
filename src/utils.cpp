@@ -94,19 +94,19 @@ size_t string_utils::numOfUtf8Chars(const string &str) {
 }
 
 void terminal::moveCursorTo(const unsigned int col) noexcept {
-    cout << ESC << (col + 1) << "G";
+    cout << ESC << (col) << "G";
 }
 void terminal::moveCursorTo(const unsigned int col,
                             const unsigned int row) noexcept {
-    cout << ESC << (row + 1) << SEP << (col + 1) << "H";
+    cout << ESC << (row) << SEP << (col + 1) << "H";
 }
 void terminal::moveCursorTo(ostringstream *buf,
                             const unsigned int col) noexcept {
-    *buf << ESC << (col + 1) << "G";
+    *buf << ESC << (col) << "G";
 }
 void terminal::moveCursorTo(ostringstream *buf, const unsigned int col,
                             const unsigned int row) noexcept {
-    *buf << ESC << (row + 1) << SEP << (col + 1) << "H";
+    *buf << ESC << (row) << SEP << (col + 1) << "H";
 }
 void terminal::moveCursor(const int cols) noexcept {
     if (cols < 0) {
