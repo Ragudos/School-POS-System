@@ -48,20 +48,65 @@ string string_utils::kebabToPascal(const string &str,
     return res.str();
 }
 
+// From ChatGPT
+string string_utils::genRandomID(size_t length) {
+    static const string characters =
+        "abcdefghijklmnopqrstuvwxyz"
+        "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+        "0123456789";
+    static int s = static_cast<int>(characters.size());
+    random_device rd;         // Seed for random number engine
+    mt19937 generator(rd());  // Mersenne Twister engine
+    uniform_int_distribution<> distribution(0, s - 1);
+
+    string randomString;
+
+    for (size_t i = 0; i < length; ++i) {
+        randomString += characters.at(distribution(generator));
+    }
+
+    return randomString;
+}
+
+// From ChatGPT
+size_t string_utils::numOfUtf8Chars(const string &str) {
+    size_t count = 0;
+
+    for (size_t i = 0, l = str.size(); i < l; ++i) {
+        unsigned char c = str.at(i);
+
+        if ((c & 0x80) == 0) {
+            ++i;
+        } else if ((c & 0xE0) == 0xC0) {
+            i += 2;
+        } else if ((c & 0xF0) == 0xE0) {
+            i += 3;
+        } else if ((c & 0xF8) == 0xF0) {
+            i += 4;
+        } else {
+            throw logic_error("Invalid UTF-8 encoding");
+        }
+
+        count += 1;
+    }
+
+    return count;
+}
+
 void terminal::moveCursorTo(const unsigned int col) noexcept {
-    cout << ESC << (col + 1) << "G";
+    cout << ESC << (col) << "G";
 }
 void terminal::moveCursorTo(const unsigned int col,
                             const unsigned int row) noexcept {
-    cout << ESC << (row + 1) << SEP << (col + 1) << "H";
+    cout << ESC << (row) << SEP << (col + 1) << "H";
 }
 void terminal::moveCursorTo(ostringstream *buf,
                             const unsigned int col) noexcept {
-    *buf << ESC << (col + 1) << "G";
+    *buf << ESC << (col) << "G";
 }
 void terminal::moveCursorTo(ostringstream *buf, const unsigned int col,
                             const unsigned int row) noexcept {
-    *buf << ESC << (row + 1) << SEP << (col + 1) << "H";
+    *buf << ESC << (row) << SEP << (col + 1) << "H";
 }
 void terminal::moveCursor(const int cols) noexcept {
     if (cols < 0) {

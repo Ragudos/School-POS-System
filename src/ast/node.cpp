@@ -121,14 +121,14 @@ void Node::onChildAppended() {
         }
     }
 
+    appendedChild->updateChildrenDimensionsOnChange();
+
     /** === Update the parents' and children's dimensions or something */
     NodePtr prnt = getParent();
 
     if (prnt) {
         prnt->updateParentDimensionsOnChildChange(shared_from_this());
     }
-
-    appendedChild->updateChildrenDimensionsOnChange();
 }
 
 void Node::updateChildrenDimensionsOnChange() {
@@ -138,22 +138,48 @@ void Node::updateChildrenDimensionsOnChange() {
      * a change in dimensions in any node that's related to the affected
      * node AND make it responsive if possible.
      */
+    const unsigned int cachedInitialPosX = getPosX();
     unsigned int currPosY = getPosY();
     unsigned int currPosX = getPosX();
 
-    for (auto& c : children) {
+    for (int i = 0, l = children.size(); i < l; ++i) {
+        auto& c = children.at(i);
+
         c->setPosY(currPosY);
         c->setPosX(currPosX);
 
-        // shit (doesnt take order and relativity into account, but whatever)
-        // and other stuff
-        switch (c->nodeRenderStyle()) {
-            case NodeRenderStyle::BLOCK: {
+        if (i < l - 1) {
+            auto& nextC = children.at(i + 1);
+
+            // shit (doesnt take order and relativity into account, but
+            // whatever) and other stuff
+            switch (nextC->nodeRenderStyle()) {
+                case NodeRenderStyle::BLOCK: {
+                    currPosY += c->getHeight();
+                }; break;
+                case NodeRenderStyle::INLINE: {
+                    currPosX += c->getWidth();
+                }; break;
+            }
+
+            if (currPosX >= getWidth() + cachedInitialPosX) {
+                currPosX = cachedInitialPosX;
                 currPosY += c->getHeight();
-            }; break;
-            case NodeRenderStyle::INLINE: {
-                currPosX += c->getWidth();
-            }; break;
+            }
+        } else {
+            switch (c->nodeRenderStyle()) {
+                case NodeRenderStyle::BLOCK: {
+                    currPosY += c->getHeight();
+                }; break;
+                case NodeRenderStyle::INLINE: {
+                    currPosX += c->getWidth();
+                }; break;
+            }
+
+            if (currPosX >= getWidth() + cachedInitialPosX) {
+                currPosX = cachedInitialPosX;
+                currPosY += c->getHeight();
+            }
         }
 
         c->updateChildrenDimensionsOnChange();
@@ -165,15 +191,14 @@ void Node::updateParentDimensionsOnChildChange(NodePtr childCaller) {
         childCaller->getPosY() + childCaller->getHeight();
 
     if (getHeight() < childCallerRealHeight) {
-        setHeight(getHeight() + (childCallerRealHeight - getHeight()) -
-                  getPosY());
+        setHeight(childCallerRealHeight);
     }
 
     unsigned int childCallerRealWidth =
         childCaller->getPosX() + childCaller->getWidth();
 
     if (getWidth() < childCallerRealWidth) {
-        setWidth(getWidth() + (childCallerRealWidth - getWidth()) - getPosX());
+        setWidth(childCallerRealWidth);
     }
 
     updateChildrenDimensionsOnChange();
@@ -238,31 +263,30 @@ GridNode::GridNode() : colGap(4), rowGap(2), childWidth(0) {
     setWidth(getScreen().getWidth());
 }
 
-GridNode::GridNode(unsigned int width) : colGap(4), rowGap(2), childWidth(0) {
-    setWidth(width);
+GridNode::GridNode(unsigned int w) : colGap(4), rowGap(2), childWidth(0) {
+    setWidth(w);
 }
 
-GridNode::GridNode(unsigned int width, unsigned int childWidth)
-    : colGap(4), rowGap(2), childWidth(childWidth) {
-    assert(childWidth > getWidth() ||
+GridNode::GridNode(unsigned int w, unsigned int childW)
+    : colGap(4), rowGap(2), childWidth(childW) {
+    setWidth(w);
+    assert(childW <= getWidth() ||
            !"child width should be <= grid container's width.");
-    setWidth(width);
 }
 
-GridNode::GridNode(unsigned int width, unsigned int childWidth,
-                   unsigned int colGap)
-    : colGap(colGap), rowGap(2), childWidth(childWidth) {
-    assert(childWidth > getWidth() ||
+GridNode::GridNode(unsigned int w, unsigned int childW, unsigned int colGap)
+    : colGap(colGap), rowGap(2), childWidth(childW) {
+    setWidth(w);
+    assert(childW <= getWidth() ||
            !"child width should be <= grid container's width.");
-    setWidth(width);
 }
 
-GridNode::GridNode(unsigned int width, unsigned int childWidth,
-                   unsigned int colGap, unsigned int rowGap)
-    : colGap(colGap), rowGap(rowGap), childWidth(childWidth) {
-    assert(childWidth > getWidth() ||
+GridNode::GridNode(unsigned int w, unsigned int childW, unsigned int colGap,
+                   unsigned int rowGap)
+    : colGap(colGap), rowGap(rowGap), childWidth(childW) {
+    setWidth(w);
+    assert(childW <= getWidth() ||
            !"child width should be <= grid container's width.");
-    setWidth(width);
 }
 
 void GridNode::removeAllChildren() noexcept {
@@ -297,15 +321,19 @@ void GridNode::onChildAppended() {
     NodePtr appendedChild = children.at(childrenSize - 1);
 
     if (!flexible) {
-        appendedChild->setWidth(childWidth == 0 ? getWidth() : childWidth);
+        unsigned int w = appendedChild->getWidth() == 0
+                             ? getWidth()
+                             : appendedChild->getWidth();
+
+        appendedChild->setWidth(childWidth == 0 ? w : childWidth);
     }
 
-    if (childrenSize == 1) {
-        appendedChild->setPosX(getPosX());
-        appendedChild->setPosY(getPosY());
+    appendedChild->setPosX(getPosX());
+    appendedChild->setPosY(getPosY());
 
-        if (!flexible && dynamic_pointer_cast<GridNode>(getParent())) {
-            appendedChild->setWidth(childWidth == 0 ? getWidth() : childWidth);
+    if (childrenSize == 1) {
+        if (appendedChild->getWidth() > getWidth()) {
+            appendedChild->setWidth(getWidth());
         }
 
         setHeight(appendedChild->getHeight());
@@ -315,9 +343,13 @@ void GridNode::onChildAppended() {
             prevSiblingOfAppendedChild->getPosX() +
             prevSiblingOfAppendedChild->getWidth() + colGap;
 
-        // have the appended child take the remaining width
+        // have the appended child take the remaining width if
+        // it has no defined width
         if (flexible && prevSiblingRealWidth < getWidth()) {
-            // appendedChild->setWidth(getWidth() - prevSiblingRealWidth);
+            if (appendedChild->getWidth() == 0 ||
+                prevSiblingRealWidth + appendedChild->getWidth() > getWidth()) {
+                appendedChild->setWidth(getWidth() - prevSiblingRealWidth);
+            }
         }
 
         // if overflow
@@ -338,7 +370,7 @@ void GridNode::onChildAppended() {
                                              ? prevSiblingHeight
                                              : appendedChildHeight;
 
-            for (size_t i = 0, l = childrenSize - 2; i < l; ++i) {
+            for (size_t i = 0, l = childrenSize - 1; i < l; ++i) {
                 NodePtr child = children.at(i);
                 unsigned int childHeight =
                     child->getPosY() + child->getHeight();
@@ -355,14 +387,47 @@ void GridNode::onChildAppended() {
         }
     }
 
+    appendedChild->updateChildrenDimensionsOnChange();
+
     /** === Update the parents' and children's dimensions or something */
     NodePtr prnt = getParent();
 
     if (prnt) {
         prnt->updateParentDimensionsOnChildChange(shared_from_this());
     }
+}
 
-    appendedChild->updateChildrenDimensionsOnChange();
+void GridNode::updateParentDimensionsOnChildChange(NodePtr childCaller) {
+    unsigned int childCallerRealWidth =
+        childCaller->getPosX() + childCaller->getWidth();
+
+    if (getWidth() < childCallerRealWidth) {
+        if (children.size() == 1 || !flexible) {
+            childCaller->setWidth(childWidth == 0
+                                      ? (childCallerRealWidth - getWidth())
+                                      : childWidth);
+        } else if (flexible && children.size() > 1) {
+            childCaller->setWidth(childCallerRealWidth - getWidth());
+        }
+    }
+
+    unsigned int childCallerRealHeight =
+        childCaller->getPosY() + childCaller->getHeight();
+
+    if (getHeight() < childCallerRealHeight) {
+        setHeight(childCallerRealHeight);
+    }
+
+    updateChildrenDimensionsOnChange();
+
+    NodePtr parent = getParent();
+
+    // Base case
+    if (parent == nullptr) {
+        return;
+    }
+
+    parent->updateParentDimensionsOnChildChange(shared_from_this());
 }
 
 void GridNode::updateChildrenDimensionsOnChange() {
@@ -382,15 +447,26 @@ void GridNode::updateChildrenDimensionsOnChange() {
         c->setPosY(currPosY);
         c->setPosX(currPosX);
 
-        if (!flexible) {
-            currPosX += childWidth == 0 ? getWidth() : childWidth + colGap;
-        } else if (currPosX < getWidth()) {
-            currPosX += c->getWidth() + colGap;
-        }
+        if (i == l - 1) {
+            if (!flexible) {
+                currPosX += childWidth == 0 ? c->getWidth() : childWidth;
+            } else if (currPosX < getWidth() + cachedInitialPosX) {
+                currPosX += c->getWidth();
+            }
+        } else {
+            auto& nextC = children.at(i + 1);
 
-        if (currPosX > getWidth()) {
-            currPosX = cachedInitialPosX;
-            currPosY += c->getHeight() + rowGap;
+            if (!flexible) {
+                currPosX += childWidth == 0 ? c->getWidth() + colGap
+                                            : childWidth + colGap;
+            } else if (currPosX < getWidth() + cachedInitialPosX) {
+                currPosX += c->getWidth() + colGap;
+            }
+
+            if (currPosX + nextC->getWidth() > getWidth() + cachedInitialPosX) {
+                currPosX = cachedInitialPosX;
+                currPosY += c->getHeight() + rowGap;
+            }
         }
 
         c->updateChildrenDimensionsOnChange();
@@ -491,23 +567,18 @@ void TextNode::render(ostringstream* buf) const {
         size_t currLine = 0;
 
         while (currLine < currHeight) {
-            size_t start = currLine * currWidth;
-            size_t end = currWidth * (currLine + 1);
+            size_t start = currWidth * currLine;
 
             if (start >= len) {
                 break;
             }
 
-            string str =
-                end >= len ? text.substr(start) : text.substr(start, end);
+            string str = text.substr(start, currWidth);
 
             *buf << str;
 
-            moveCursorTo(buf, getPosX());
-            moveCursorDown(buf, 1);
-
-            currLine += 1;
-            start = end;
+            moveCursorTo(buf, getPosX(),
+                         getPosY() + static_cast<unsigned int>(++currLine));
         }
     } else {
         *buf << text;
@@ -688,12 +759,7 @@ LineBreakNode::LineBreakNode(unsigned int height, unsigned int posX,
     setPosY(posY);
 }
 
-void LineBreakNode::render(ostringstream* buf) const {
-    for (unsigned int i = 0; i < height; ++i) {
-        moveCursorTo(buf, getPosX(), getPosY() + i);
-        *buf << endl;
-    }
-}
+void LineBreakNode::render(ostringstream* buf) const {}
 
 SelectOptionNode::SelectOptionNode(string value)
     : TextNode(kebabToPascal(value)), value(value) {}
@@ -756,7 +822,7 @@ void SelectNode::selectPrevious() noexcept {
 void SelectNode::notify() {
     optional<string> activeValId = getValueOfSelectedOption();
 
-    for (SelectNode::SubscriberCallback subscriber : subscribers) {
+    for (SubscriberCallback subscriber : subscribers) {
         subscriber(activeValId);
     }
 }
@@ -894,3 +960,100 @@ bool SelectNode::onKeyPressed(unsigned int keyCode) {
             return false;
     }
 }
+
+ButtonNode::ButtonNode(string icon, string text,
+                       tuple<unsigned int, unsigned int> keyCode)
+    : icon(icon), text(text), keyCode(keyCode), isPressed(false) {
+    height = 1;
+    setWidth(static_cast<unsigned int>(numOfUtf8Chars(icon)) + 1 +
+             static_cast<unsigned int>(text.size()));
+}
+
+ButtonNode::ButtonNode(string icon, string text,
+                       tuple<unsigned int, unsigned int> keyCode,
+                       bool isPressed)
+    : icon(icon), text(text), keyCode(keyCode), isPressed(isPressed) {
+    height = 1;
+    setWidth(static_cast<unsigned int>(numOfUtf8Chars(icon)) + 1 +
+             static_cast<unsigned int>(text.size()));
+}
+
+void ButtonNode::setWidth(unsigned int w) {
+    assert(w > 0 || !"TextNode::setWidth() received a width that's not > 0");
+
+    unsigned int textSize = static_cast<unsigned int>(text.size());
+
+    if (w < textSize) {
+        height = static_cast<unsigned int>(
+            ceil(static_cast<float>(textSize) / static_cast<float>(w)));
+
+        if (height == 0) {
+            height = 1;
+        }
+    }
+
+    width = w;
+}
+
+void ButtonNode::setHeight(unsigned int h) {
+    assert(h > 0 || !"TextNode::setHeight() received a height that's not > 0");
+
+    size_t textSize = text.size();
+
+    if (width < textSize) {
+        assert(h < static_cast<unsigned int>(ceil(static_cast<float>(textSize) / static_cast<float>(width))) || !"TextNode::setHeight() received insufficient height to accommodate the wrapping of its text contents.");
+    }
+
+    height = h;
+}
+
+void ButtonNode::render(ostringstream* buf) const {
+    moveCursorTo(buf, getPosX(), getPosY());
+
+    textBold(buf);
+
+    *buf << icon << " ";
+
+    if (!isPressed) {
+        textNormal(buf);
+        textDim(buf);
+    }
+
+    *buf << text;
+
+    textReset(buf);
+}
+
+void ButtonNode::notify(unsigned int keyCode) {
+    for (SubscriberCallback subscriber : subscribers) {
+        subscriber(keyCode);
+    }
+}
+
+void ButtonNode::subscribe(SubscriberCallback cb) { subscribers.push_back(cb); }
+
+void ButtonNode::unsubscribe(SubscriberCallback cb) {
+    subscribers.erase(
+        remove_if(subscribers.begin(), subscribers.end(),
+                  [&cb](const ButtonNode::SubscriberCallback currCb) {
+                      return currCb.target_type() == cb.target_type();
+                  }),
+        subscribers.end());
+}
+
+bool ButtonNode::onKeyPressed(unsigned int pressedKeyCode) {
+    if (get<0>(keyCode) == pressedKeyCode ||
+        get<1>(keyCode) == pressedKeyCode) {
+        isPressed = true;
+
+        notify(pressedKeyCode);
+
+        return true;
+    }
+
+    isPressed = false;
+
+    return false;
+}
+
+bool ButtonNode::canHaveChildren() const noexcept { return false; }

@@ -13,13 +13,16 @@
 
 #endif
 
+#include <algorithm>
 #include <cassert>
 #include <constants/utils.hpp>
 #include <cstdint>
 #include <cstdlib>
 #include <iostream>
 #include <keyboard.hpp>
+#include <random>
 #include <sstream>
+#include <string>
 #include <tuple>
 
 using namespace std;
@@ -33,6 +36,13 @@ namespace miscellaneous {
 namespace string_utils {
 string kebabToPascal(const string &) noexcept;
 string kebabToPascal(const string &, const bool) noexcept;
+string genRandomID(size_t);
+/**
+ *
+ * Since we're dealing with UTF-8 characters,
+ * we need this
+ */
+size_t numOfUtf8Chars(const string &);
 }
 
 namespace terminal {

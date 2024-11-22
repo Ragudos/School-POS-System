@@ -31,9 +31,7 @@ using namespace string_utils;
 using namespace terminal;
 
 enum NodeTypes { CONTAINER, INTERACTABLE, LEAF };
-
 enum NodeRenderStyle { BLOCK, INLINE };
-
 enum TextNodeFormats { BOLD, ITALIC, UNDERLINE, STRIKETHROUGH, DIM };
 
 class Node : public enable_shared_from_this<Node> {
@@ -153,6 +151,8 @@ class GridNode : public ContainerNode {
     virtual void onChildRemoved(size_t, NodePtr) override;
 
     virtual void updateChildrenDimensionsOnChange() override;
+    virtual void updateParentDimensionsOnChildChange(
+        NodePtr childCaller) override;
 
     unsigned int getColGap() const noexcept;
     void setColGap(unsigned int);
@@ -312,4 +312,47 @@ class SelectNode : public InteractableNode {
      * Throws an error if not found as child.
      */
     void setActiveChildWithValue(string);
+};
+
+class ButtonNode : public InteractableNode {
+   public:
+    using SubscriberCallback = function<void(unsigned int)>;
+
+   private:
+    /** utf-8 string */
+    string icon;
+    string text;
+    /**
+     *
+     * A {lowercase, uppercase} keyCode tuple
+     */
+    tuple<unsigned int, unsigned int> keyCode;
+    bool isPressed;
+
+    vector<SubscriberCallback> subscribers;
+
+   public:
+    ButtonNode(string, string, tuple<unsigned int, unsigned int>);
+    ButtonNode(string, string, tuple<unsigned int, unsigned int>, bool);
+
+   private:
+    void notify(unsigned int);
+
+   public:
+    virtual void render(ostringstream *) const override;
+    void subscribe(SubscriberCallback);
+    void unsubscribe(SubscriberCallback);
+
+   public:
+    virtual void setWidth(unsigned int w) override;
+    virtual void setHeight(unsigned int h) override;
+
+   public:
+    /**
+     *
+     * Returns false if `keyCode` is not this node's
+     * trigger.
+     */
+    virtual bool onKeyPressed(unsigned int) override;
+    virtual bool canHaveChildren() const noexcept override;
 };
