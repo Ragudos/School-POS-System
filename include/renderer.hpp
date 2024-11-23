@@ -34,6 +34,7 @@ void onCheckoutBtnClicked(unsigned int);
 enum RendererState {
     MENU,
     MENU_ITEM,
+    MENU_ITEM_CONFIRM,
     MENU_ITEM_SIZES,
     MENU_ITEM_ADDONS,
     ORDER_CONFIRMATION,
@@ -57,6 +58,7 @@ class Renderer {
     // header
     void createMenuHeader(bool);
     void createMenuItemHeader(bool);
+    void createMenuItemConfirmHeader(bool);
     void createMenuItemSizesHeader(bool);
     void createMenuItemAddonsHeader(bool);
     void createOrderConfirmationHeader(bool);
@@ -65,6 +67,7 @@ class Renderer {
     // body
     void createMenuView(bool);
     void createMenuItemView(bool);
+    void createMenuItemConfirmView(bool);
     void createMenuItemSizesView(bool);
     void createMenuItemAddonsView(bool);
     void createOrderConfirmationView(bool);
@@ -73,6 +76,7 @@ class Renderer {
     // footer
     void createMenuFooter(bool);
     void createMenuItemFooter(bool);
+    void createMenuItemConfirmFooter(bool);
     void createMenuItemSizesFooter(bool);
     void createMenuItemAddonsFooter(bool);
     void createOrderConfirmationFooter(bool);
