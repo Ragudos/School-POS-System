@@ -138,6 +138,9 @@ void State::removeMenuItemSizeData(const MenuItemSizes& size) {
                menuItemSizesData.end());
 }
 
+void State::appendMenuItemAddonData(const MenuItemAddonData& n)
+void removeMenuItemAddonData(const string& n);
+
 optional<MenuItemData> State::getMenuItemDataWithName(const string& itemName) {
     for (auto item : menuItemsData) {
         if (item.getName() == itemName) {
@@ -226,6 +229,26 @@ void State::setSelectedMenuItemSizeName(const string& s) {
     assert(false ||
            "State::setSelectedMenuItemSizeName() received a name that's not in "
            "menuItemSizesData");
+}
+
+string State::getselectedMenuItemAddonData() const noexcept
+{
+    return selectedMenuItemAddonData;
+}
+void setselectedMenuItemAddonData(const string& n);
+{
+for (const auto& name : menuItemAddonData) {
+        if (name.getName() == n) {
+            selectedMenuItemAddonData = n;
+
+            return;
+        }
+    }
+
+    assert(false ||
+           "State::getselectedMenuItemAddonData() received a name that's not in "
+           "menuItemAddonData");
+}
 }
 
 const vector<MenuItemData>& State::getMenuItemsData() const noexcept {
