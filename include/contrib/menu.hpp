@@ -25,18 +25,22 @@ enum MenuItemSizes { TALL, GRANDE, VENTI, TRENTA };
 
 class MenuItemSizeData {
    private:
-    string description;
     MenuItemSizes size;
+    string description;
+    double additionalPrice;
 
    public:
-    MenuItemSizeData(const MenuItemSizes&, const string&);
+    MenuItemSizeData(const MenuItemSizes&, const string&, const double&);
 
     MenuItemSizes getSize() const noexcept;
 
     string getDescription() const noexcept;
+    double getAdditionalPrice() const noexcept;
 };
 
-string toString(MenuItemSizes) noexcept;
+string toString(const MenuItemSizes&) noexcept;
+MenuItemSizes fromString(const string&);
+double getAdditionalPriceForMenuItemSize(const MenuItemSizes&) noexcept;
 
 class MenuItemAddonData {
    private:

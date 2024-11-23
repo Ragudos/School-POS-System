@@ -18,6 +18,7 @@
 #include <constants/utils.hpp>
 #include <cstdint>
 #include <cstdlib>
+#include <cwctype>
 #include <iostream>
 #include <keyboard.hpp>
 #include <random>

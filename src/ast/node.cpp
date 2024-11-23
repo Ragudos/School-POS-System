@@ -142,7 +142,7 @@ void Node::updateChildrenDimensionsOnChange() {
     unsigned int currPosY = getPosY();
     unsigned int currPosX = getPosX();
 
-    for (int i = 0, l = children.size(); i < l; ++i) {
+    for (size_t i = 0, l = children.size(); i < l; ++i) {
         auto& c = children.at(i);
 
         c->setPosY(currPosY);
@@ -960,6 +960,7 @@ bool SelectNode::onKeyPressed(unsigned int keyCode) {
             return false;
     }
 }
+int pos = 26;
 
 ButtonNode::ButtonNode(string icon, string text,
                        tuple<unsigned int, unsigned int> keyCode)
