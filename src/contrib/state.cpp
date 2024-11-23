@@ -207,7 +207,26 @@ void State::setSelectedMenuItemInCartUid(const string& uid) {
            "cart");
 }
 
-void State::resetSelectedMenuItemInCardUid() { selectedMenuItemInCartUid = ""; }
+void State::resetSelectedMenuItemInCartUid() { selectedMenuItemInCartUid = ""; }
+
+string State::getSelectedMenuItemSizeName() const noexcept
+{
+    return selectedMenuItemSizeName;
+}
+
+void State::setSelectedMenuItemSizeName(const string& s) {
+    for (const auto& size : menuItemSizesData) {
+        if (size.getSize() == fromString(s)) {
+            selectedMenuItemSizeName = s;
+
+            return;
+        }
+    }
+
+    assert(false ||
+           "State::setSelectedMenuItemSizeName() received a name that's not in "
+           "menuItemSizesData");
+}
 
 const vector<MenuItemData>& State::getMenuItemsData() const noexcept {
     return menuItemsData;

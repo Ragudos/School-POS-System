@@ -53,7 +53,7 @@ class State {
     void setSelectedMenuItemDataName(const string&);
     string getSelectedMenuItemInCartUid() const noexcept;
     void setSelectedMenuItemInCartUid(const string&);
-    void resetSelectedMenuItemInCardUid();
+    void resetSelectedMenuItemInCartUid();
     string getSelectedMenuItemSizeName() const noexcept;
     void setSelectedMenuItemSizeName(const string&);
 
