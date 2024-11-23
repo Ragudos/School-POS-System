@@ -659,7 +659,7 @@ void onEscBtnClickedOnMenuItem(unsigned int) {
             // for confirmation
             state.removeMenuItemFromCartWithUid(
                 state.getSelectedMenuItemInCartUid());
-            state.resetSelectedMenuItemInCardUid();
+            state.resetSelectedMenuItemInCartUid();
 
             renderer.viewState = RendererState::MENU;
 

@@ -207,7 +207,7 @@ void State::setSelectedMenuItemInCartUid(const string& uid) {
            "cart");
 }
 
-void State::resetSelectedMenuItemInCardUid() { selectedMenuItemInCartUid = ""; }
+void State::resetSelectedMenuItemInCartUid() { selectedMenuItemInCartUid = ""; }
 
 string State::getSelectedMenuItemSizeName() const noexcept
 {
