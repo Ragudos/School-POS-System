@@ -289,8 +289,8 @@ void Renderer::createMenuView(bool isNew) {
     shared_ptr<GridNode> itemDisplay = make_shared<GridNode>();
     shared_ptr<TextNode> itemDescription =
         make_shared<TextNode>(item.getDescription());
-    shared_ptr<TextNode> itemPrice =
-        make_shared<TextNode>(formatNumber(item.getBasePrice()));
+    shared_ptr<TextNode> itemPrice = make_shared<TextNode>(
+        "Base price: ₱" + formatNumber(item.getBasePrice()));
 
     itemDisplay->setRowGap(1);
     itemDisplay->setIsFlexible(false);
@@ -339,8 +339,15 @@ void Renderer::createMenuItemView(bool isNew) {
         state.getMenuItemDataWithName(currMenuItem->getName())
             .value()
             .getDescription());
-    shared_ptr<TextNode> menuItemPrice =
-        make_shared<TextNode>(formatNumber(currMenuItem->getBasePrice()));
+
+    // TODO: Add add-ons to subtotal
+    shared_ptr<TextNode> menuItemPrice = make_shared<TextNode>(
+        "Base price: ₱" + formatNumber(currMenuItem->getBasePrice()) +
+        ", Subtotal: ₱" +
+        formatNumber(
+            (currMenuItem->getBasePrice() +
+             getAdditionalPriceForMenuItemSize(currMenuItem->getSize())) *
+            currMenuItem->getQty()));
 
     menuItemMetadataContainer->appendChild(menuItemName);
     menuItemMetadataContainer->appendChild(menuItemDescription);
@@ -375,14 +382,14 @@ void Renderer::createMenuItemSizesView(bool isNew) {
         menuSelect->appendChild(optionNode);
     }
 
-    if (!isNew) {
+    if (!state.getSelectedMenuItemSizeName().empty()) {
         menuSelect->setActiveChildWithValue(
             state.getSelectedMenuItemSizeName());
     } else {
         state.setSelectedMenuItemSizeName(
-            state.getMenuItemSizesData()
-                .at(menuSelect->getActiveOptionIdx())
-                .getSize());
+            toString(state.getMenuItemSizesData()
+                         .at(menuSelect->getActiveOptionIdx())
+                         .getSize()));
     }
 
     optional<MenuItemSizeData> maybeItem = state.getSelectedMenuItemSizeName(
@@ -398,8 +405,10 @@ void Renderer::createMenuItemSizesView(bool isNew) {
     const MenuItemSizeData item = maybeItem.value();
 
     shared_ptr<GridNode> itemDisplay = make_shared<GridNode>();
-    shared_ptr<TextNode> itemDescription = 
+    shared_ptr<TextNode> itemDescription =
         make_shared<TextNode>(item.getDescription());
+    shared_ptr<TextNode> itemPrice = make_shared<TextNode>(
+        "Additional price: ₱" + formatNumber(item.getAdditionalPrice()));
 
     itemDisplay->setRowGap(1);
     itemDisplay->setIsFlexible(false);
@@ -416,6 +425,7 @@ void Renderer::createMenuItemSizesView(bool isNew) {
      * DO NOT MOVE THIS.
      */
     itemDisplay->appendChild(itemDescription);
+    itemDisplay->appendChild(itemPrice);
 
     body->appendChild(menuGrid);
 }
@@ -439,11 +449,14 @@ void Renderer::createMenuFooter(bool isNew) {
     // Just a text
     shared_ptr<ButtonNode> upDownBtn =
         make_shared<ButtonNode>("↑/↓", "up/down", make_tuple(0, 0), true);
+    shared_ptr<ButtonNode> quitBtn =
+        make_shared<ButtonNode>("q", "quit", make_tuple(0, 0), true);
 
     enterBtn->subscribe(onEnterBtnClickedMenuSelect);
 
     toolTipsContainer->appendChild(enterBtn);
     toolTipsContainer->appendChild(upDownBtn);
+    toolTipsContainer->appendChild(quitBtn);
 
     shared_ptr<TextNode> lineSeparatorUp =
         make_shared<TextNode>(string(toolTipsContainer->getWidth(), '-'));
@@ -463,10 +476,14 @@ void Renderer::createMenuItemFooter(bool isNew) {
 
     shared_ptr<ButtonNode> upDownBtn = make_shared<ButtonNode>(
         "-/+", "add/minus", make_tuple(KEY_HYPHEN_MINUS, KEY_PLUS), true);
+    // just a text
+    shared_ptr<ButtonNode> quitBtn =
+        make_shared<ButtonNode>("q", "quit", make_tuple(0, 0), true);
 
     upDownBtn->subscribe(onAddMinusBtnClicked);
 
     toolTipsContainer->appendChild(upDownBtn);
+    toolTipsContainer->appendChild(quitBtn);
 
     shared_ptr<TextNode> lineSeparatorUp =
         make_shared<TextNode>(string(toolTipsContainer->getWidth(), '-'));
@@ -478,7 +495,35 @@ void Renderer::createMenuItemFooter(bool isNew) {
     footer->appendChild(lineSeparatorBottom);
 }
 
-void Renderer::createMenuItemSizesFooter(bool isNew) {}
+void Renderer::createMenuItemSizesFooter(bool isNew) {
+    shared_ptr<GridNode> toolTipsContainer = make_shared<GridNode>();
+
+    toolTipsContainer->setColGap(2);
+    toolTipsContainer->setRowGap(1);
+
+    shared_ptr<ButtonNode> enterBtn = make_shared<ButtonNode>(
+        "\u23CE", "enter", make_tuple(KEY_ENTER, KEY_ENTER_LINUX), true);
+    // Just a text
+    shared_ptr<ButtonNode> upDownBtn =
+        make_shared<ButtonNode>("↑/↓", "up/down", make_tuple(0, 0), true);
+    shared_ptr<ButtonNode> quitBtn =
+        make_shared<ButtonNode>("q", "quit", make_tuple(0, 0), true);
+
+    enterBtn->subscribe(onEnterBtnClickedMenuSelect);
+
+    toolTipsContainer->appendChild(enterBtn);
+    toolTipsContainer->appendChild(upDownBtn);
+    toolTipsContainer->appendChild(quitBtn);
+
+    shared_ptr<TextNode> lineSeparatorUp =
+        make_shared<TextNode>(string(toolTipsContainer->getWidth(), '-'));
+    shared_ptr<TextNode> lineSeparatorBottom =
+        make_shared<TextNode>(string(toolTipsContainer->getWidth(), '-'));
+
+    footer->appendChild(lineSeparatorUp);
+    footer->appendChild(toolTipsContainer);
+    footer->appendChild(lineSeparatorBottom);
+}
 
 void Renderer::createMenuItemAddonsFooter(bool isNew) {}
 
@@ -515,15 +560,22 @@ void Renderer::onKeyPressed(unsigned int keyCode, Node::NodePtr currNode) {
     }
 }
 
-void onMenuSelectUpdated(optional<string> selectedMenuItemDataName) {
-    if (!selectedMenuItemDataName.has_value()) {
+void onMenuSelectUpdated(optional<string> selectedMenuSelectName) {
+    if (!selectedMenuSelectName.has_value()) {
         return;
     }
 
     State& state = getState();
     Renderer& renderer = getRenderer();
 
-    state.setSelectedMenuItemDataName(selectedMenuItemDataName.value());
+    switch (renderer.viewState) {
+        case RendererState::MENU: {
+            state.setSelectedMenuItemDataName(selectedMenuSelectName.value());
+        }; break;
+        case RendererState::MENU_ITEM_SIZES: {
+            state.setSelectedMenuItemSizeName(selectedMenuSelectName.value());
+        }
+    }
 
     /**
      *
@@ -539,21 +591,46 @@ void onEnterBtnClickedMenuSelect(unsigned int) {
     Renderer& renderer = getRenderer();
     State& state = getState();
 
-    if (renderer.viewState == RendererState::MENU_ITEM) {
-        return;
+    switch (renderer.viewState) {
+        case RendererState::MENU: {
+            optional<MenuItemData> maybeSelectedMenuItemData =
+                state.getMenuItemDataWithName(
+                    state.getSelectedMenuItemDataName());
+
+            assert(maybeSelectedMenuItemData.has_value());
+
+            MenuItem menuItem(maybeSelectedMenuItemData.value());
+
+            state.appendMenuItemToCart(menuItem);
+            state.setSelectedMenuItemInCartUid(menuItem.getUid());
+
+            renderer.viewState = RendererState::MENU_ITEM;
+        }; break;
+        case RendererState::MENU_ITEM: {
+        }; break;
+        case RendererState::MENU_ITEM_SIZES: {
+            optional<MenuItemSizeData> maybeSelectedMenuItemSizeData =
+                state.getSelectedMenuItemSizeName(
+                    state.getSelectedMenuItemSizeName());
+
+            assert(maybeSelectedMenuItemSizeData.has_value());
+
+            MenuItemSizeData selectedMenuItemSizeData =
+                maybeSelectedMenuItemSizeData.value();
+
+            optional<MenuItem*> maybeSelectedMenuItemInCart =
+                state.getMenuItemWithUid(state.getSelectedMenuItemInCartUid());
+
+            assert(maybeSelectedMenuItemInCart.has_value());
+
+            MenuItem* selectedMenuItemInCart =
+                maybeSelectedMenuItemInCart.value();
+
+            selectedMenuItemInCart->setSize(selectedMenuItemSizeData.getSize());
+
+            renderer.viewState = RendererState::MENU_ITEM;
+        }; break;
     }
-
-    optional<MenuItemData> maybeSelectedMenuItemData =
-        state.getMenuItemDataWithName(state.getSelectedMenuItemDataName());
-
-    assert(maybeSelectedMenuItemData.has_value());
-
-    MenuItem menuItem(maybeSelectedMenuItemData.value());
-
-    state.appendMenuItemToCart(menuItem);
-    state.setSelectedMenuItemInCartUid(menuItem.getUid());
-
-    renderer.viewState = RendererState::MENU_ITEM;
 
     renderer.createView();
     renderer.renderBuffer();

@@ -14,10 +14,20 @@
 #include <cassert>
 #include <contrib/menu.hpp>
 #include <cstdint>
+#include <iomanip>
+#include <iostream>
+#include <locale>
+#include <sstream>
 #include <string>
 #include <vector>
 
 using namespace std;
+
+class MoneyPunct : public numpunct<char> {
+   protected:
+    char do_thousands_sep() const override;
+    string do_grouping() const override;
+};
 
 double calculateChange(const double&, const double&);
 double calculateTotalOfChosenMenuItems();

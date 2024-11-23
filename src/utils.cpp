@@ -72,7 +72,7 @@ string string_utils::genRandomID(size_t length) {
 size_t string_utils::numOfUtf8Chars(const string &str) {
     size_t count = 0;
 
-    for (size_t i = 0, l = str.size(); i < l; ++i) {
+    for (size_t i = 0, l = str.size(); i < l;) {
         unsigned char c = str.at(i);
 
         if ((c & 0x80) == 0) {

@@ -16,13 +16,21 @@ void initializeState() {
 void initializeMenuItemSizesSelectData() {
 	State& state = getState();
 
-	MenuItemSizeData tall(MenuItemSizes::TALL, "A tall size");
-	MenuItemSizeData venti(MenuItemSizes::VENTI, "A venti size");
-	MenuItemSizeData grande(MenuItemSizes::GRANDE, "A grande size");
-	MenuItemSizeData trenta(MenuItemSizes::TRENTA, "A trenta size");
+    MenuItemSizeData tall(
+        MenuItemSizes::TALL, "A tall size",
+        getAdditionalPriceForMenuItemSize(MenuItemSizes::TALL));
+    MenuItemSizeData venti(
+        MenuItemSizes::VENTI, "A venti size",
+        getAdditionalPriceForMenuItemSize(MenuItemSizes::GRANDE));
+    MenuItemSizeData grande(
+        MenuItemSizes::GRANDE, "A grande size",
+        getAdditionalPriceForMenuItemSize(MenuItemSizes::VENTI));
+    MenuItemSizeData trenta(
+        MenuItemSizes::TRENTA, "A trenta size",
+        getAdditionalPriceForMenuItemSize(MenuItemSizes::TRENTA));
 
-	state.appendMenuItemSizeData(tall);
-	state.appendMenuItemSizeData(venti);
+    state.appendMenuItemSizeData(tall);
+    state.appendMenuItemSizeData(venti);
 	state.appendMenuItemSizeData(grande);
 	state.appendMenuItemSizeData(trenta);
 }
@@ -154,9 +162,9 @@ optional<MenuItem*> State::getMenuItemWithUid(const string& uid) {
 
 optional<MenuItemSizeData> State::getSelectedMenuItemSizeName(const string& sizeName) {
   for (auto item : menuItemSizesData) {
-        if (toString(item.getSize()) == sizeName) {
-            return item;
-        }
+      if (item.getSize() == fromString(sizeName)) {
+          return item;
+      }
     }
 
     return nullopt;
@@ -201,24 +209,6 @@ void State::setSelectedMenuItemInCartUid(const string& uid) {
 
 void State::resetSelectedMenuItemInCardUid() { selectedMenuItemInCartUid = ""; }
 
-string State::getSelectedMenuItemSizeName() const noexcept
-{
-    return selectedMenuItemSizeName;
-}
-void State::setSelectedMenuItemSizeName(const MenuItemSizes& s)
-{
-    for (const auto& size : menuItemSizesData) { 
-        if (size.getSize() == s) {
-            selectedMenuItemSizeName = s;
-
-            return;
-        }
-    }
-
-    assert(false ||
-           "State::setSelectedMenuItemSizeName() received a name that's not in "
-           "menuItemSizesData");
-}
 const vector<MenuItemData>& State::getMenuItemsData() const noexcept {
     return menuItemsData;
 }

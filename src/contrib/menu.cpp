@@ -1,15 +1,19 @@
 #include <contrib/menu.hpp>
 
-MenuItemSizeData::MenuItemSizeData(const MenuItemSizes& s, const string& desc) {
-    size = s;
-    description = desc;
-}
+MenuItemSizeData::MenuItemSizeData(const MenuItemSizes& s, const string& desc,
+                                   const double& additionalP)
+    : size(s), description(desc), additionalPrice(additionalP) {}
 
 MenuItemSizes MenuItemSizeData::getSize() const noexcept { return size; }
 
+
 string MenuItemSizeData::getDescription() const noexcept {return description; }
 
-string toString(MenuItemSizes size) noexcept {
+double MenuItemSizeData::getAdditionalPrice() const noexcept {
+    return additionalPrice;
+}
+
+string toString(const MenuItemSizes& size) noexcept {
     switch (size) {
         case MenuItemSizes::TALL:
             return "TALL";
@@ -22,6 +26,41 @@ string toString(MenuItemSizes size) noexcept {
     }
 
     return "";
+}
+
+MenuItemSizes fromString(const string& stringifiedSize) {
+    if (stringifiedSize == "TALL") {
+        return MenuItemSizes::TALL;
+    }
+
+    if (stringifiedSize == "GRANDE") {
+        return MenuItemSizes::GRANDE;
+    }
+
+    if (stringifiedSize == "VENTI") {
+        return MenuItemSizes::VENTI;
+    }
+
+    if (stringifiedSize == "TRENTA") {
+        return MenuItemSizes::TRENTA;
+    }
+
+    assert(false);
+}
+
+double getAdditionalPriceForMenuItemSize(const MenuItemSizes& size) noexcept {
+    switch (size) {
+        case MenuItemSizes::TALL:
+            return 0;
+        case MenuItemSizes::GRANDE:
+            return 10;
+        case MenuItemSizes::VENTI:
+            return 20;
+        case MenuItemSizes::TRENTA:
+            return 30;
+    }
+
+    return 0;
 }
 
 MenuItemAddonData::MenuItemAddonData(const string& n, const double& p)
