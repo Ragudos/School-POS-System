@@ -47,15 +47,19 @@ class State {
 
     optional<MenuItemData> getMenuItemDataWithName(const string&);
     optional<MenuItem*> getMenuItemWithUid(const string&);
-
+    optional<MenuItemSizeData> getSelectedMenuItemSizeName(const string&);
+    
     string getSelectedMenuItemDataName() const noexcept;
     void setSelectedMenuItemDataName(const string&);
     string getSelectedMenuItemInCartUid() const noexcept;
     void setSelectedMenuItemInCartUid(const string&);
     void resetSelectedMenuItemInCardUid();
+    string getSelectedMenuItemSizeName() const noexcept;
+    void setSelectedMenuItemSizeName(const MenuItemSizes&);
 
     const vector<MenuItemData>& getMenuItemsData() const noexcept;
     const vector<MenuItem>& getMenuItemsInCart() const noexcept;
+    const vector<MenuItemSizeData>& getMenuItemSizesData() const noexcept;
 };
 
 State& getState() noexcept;

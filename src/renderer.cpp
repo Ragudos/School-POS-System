@@ -133,11 +133,11 @@ void Renderer::createMenuItemHeader(bool isNew) {
     navHeader->setRowGap(1);
 
     shared_ptr<ButtonNode> backBtn =
-        make_shared<ButtonNode>("←", "esc", make_tuple(KEY_ESC, KEY_ESC));
+        make_shared<ButtonNode>("←(esc)", "BACK", make_tuple(KEY_ESC, KEY_ESC));
     shared_ptr<ButtonNode> sizesBtn =
-        make_shared<ButtonNode>("s", "sizes", make_tuple(KEY_S, KEY_s));
+        make_shared<ButtonNode>("s", "SIZES", make_tuple(KEY_S, KEY_s));
     shared_ptr<ButtonNode> addonsBtn =
-        make_shared<ButtonNode>("a", "addons", make_tuple(KEY_A, KEY_a));
+        make_shared<ButtonNode>("a", "ADD-ONS", make_tuple(KEY_A, KEY_a));
 
     backBtn->subscribe(onEscBtnClickedOnMenuItem);
     sizesBtn->subscribe(onSizesBtnClicked);
@@ -160,11 +160,11 @@ void Renderer::createMenuItemSizesHeader(bool isNew) {
     navHeader->setRowGap(1);
 
     shared_ptr<ButtonNode> backBtn =
-        make_shared<ButtonNode>("←", "esc", make_tuple(KEY_ESC, KEY_ESC));
+        make_shared<ButtonNode>("←(esc)", "BACK", make_tuple(KEY_ESC, KEY_ESC));
     shared_ptr<ButtonNode> sizesBtn =
-        make_shared<ButtonNode>("s", "sizes", make_tuple(KEY_S, KEY_s), true);
+        make_shared<ButtonNode>("s", "SIZES", make_tuple(KEY_S, KEY_s), true);
     shared_ptr<ButtonNode> addonsBtn =
-        make_shared<ButtonNode>("a", "addons", make_tuple(KEY_A, KEY_a));
+        make_shared<ButtonNode>("a", "ADD-ONS", make_tuple(KEY_A, KEY_a));
 
     backBtn->subscribe(onEscBtnClickedOnMenuItem);
     addonsBtn->subscribe(onAddonsBtnClicked);
@@ -187,11 +187,11 @@ void Renderer::createMenuItemAddonsHeader(bool isNew) {
     navHeader->setRowGap(1);
 
     shared_ptr<ButtonNode> backBtn =
-        make_shared<ButtonNode>("←", "esc", make_tuple(KEY_ESC, KEY_ESC));
+        make_shared<ButtonNode>("←(esc)", "BACK", make_tuple(KEY_ESC, KEY_ESC));
     shared_ptr<ButtonNode> sizesBtn =
-        make_shared<ButtonNode>("s", "sizes", make_tuple(KEY_S, KEY_s));
+        make_shared<ButtonNode>("s", "SIZES", make_tuple(KEY_S, KEY_s));
     shared_ptr<ButtonNode> addonsBtn =
-        make_shared<ButtonNode>("a", "addons", make_tuple(KEY_A, KEY_a), true);
+        make_shared<ButtonNode>("a", "ADD-ONS", make_tuple(KEY_A, KEY_a), true);
 
     backBtn->subscribe(onEscBtnClickedOnMenuItem);
     sizesBtn->subscribe(onSizesBtnClicked);
@@ -362,10 +362,62 @@ void Renderer::createMenuItemView(bool isNew) {
 }
 
 void Renderer::createMenuItemSizesView(bool isNew) {
-	Screen& screen = getScreen();
 	State& state = getState();
+    shared_ptr<GridNode> menuGrid = make_shared<GridNode>();
+    shared_ptr<SelectNode> menuSelect = make_shared<SelectNode>();
 
-    shared_ptr<SelectNode> itemSizesSelect = make_shared<SelectNode>();
+    menuGrid->setIsFlexible(true);
+
+    for (const auto item : state.getMenuItemSizesData()) {
+        shared_ptr<SelectOptionNode> optionNode =
+            make_shared<SelectOptionNode>(toString(item.getSize()));
+
+        menuSelect->appendChild(optionNode);
+    }
+
+    if (!isNew) {
+        menuSelect->setActiveChildWithValue(
+            state.getSelectedMenuItemSizeName());
+    } else {
+        state.setSelectedMenuItemSizeName(
+            state.getMenuItemSizesData()
+                .at(menuSelect->getActiveOptionIdx())
+                .getSize());
+    }
+
+    optional<MenuItemSizeData> maybeItem = state.getSelectedMenuItemSizeName(
+        menuSelect->getValueOfSelectedOption().value());
+
+    assert(
+        maybeItem != nullopt);
+
+    shared_ptr<ContainerNode> activeMenuItemNode = make_shared<ContainerNode>();
+
+    menuSelect->subscribe(onMenuSelectUpdated);
+
+    const MenuItemSizeData item = maybeItem.value();
+
+    shared_ptr<GridNode> itemDisplay = make_shared<GridNode>();
+    shared_ptr<TextNode> itemDescription = 
+        make_shared<TextNode>(item.getDescription());
+
+    itemDisplay->setRowGap(1);
+    itemDisplay->setIsFlexible(false);
+
+    /**
+     * TODO: fix bug when order of appending is
+     * reversed below.
+     */
+    menuGrid->appendChild(menuSelect);
+    menuGrid->appendChild(itemDisplay);
+
+    /**
+     *
+     * DO NOT MOVE THIS.
+     */
+    itemDisplay->appendChild(itemDescription);
+
+    body->appendChild(menuGrid);
 }
 
 void Renderer::createMenuItemAddonsView(bool isNew) {}

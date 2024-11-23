@@ -7,6 +7,8 @@ MenuItemSizeData::MenuItemSizeData(const MenuItemSizes& s, const string& desc) {
 
 MenuItemSizes MenuItemSizeData::getSize() const noexcept { return size; }
 
+string MenuItemSizeData::getDescription() const noexcept {return description; }
+
 string toString(MenuItemSizes size) noexcept {
     switch (size) {
         case MenuItemSizes::TALL:

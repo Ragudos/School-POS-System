@@ -32,6 +32,8 @@ class MenuItemSizeData {
     MenuItemSizeData(const MenuItemSizes&, const string&);
 
     MenuItemSizes getSize() const noexcept;
+
+    string getDescription() const noexcept;
 };
 
 string toString(MenuItemSizes) noexcept;

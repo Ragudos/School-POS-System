@@ -152,6 +152,17 @@ optional<MenuItem*> State::getMenuItemWithUid(const string& uid) {
     return nullopt;
 }
 
+optional<MenuItemSizeData> State::getSelectedMenuItemSizeName(const string& sizeName) {
+  for (auto item : menuItemSizesData) {
+        if (toString(item.getSize()) == sizeName) {
+            return item;
+        }
+    }
+
+    return nullopt;
+}
+
+
 string State::getSelectedMenuItemDataName() const noexcept {
     return selectedMenuItemDataName;
 }
@@ -190,10 +201,32 @@ void State::setSelectedMenuItemInCartUid(const string& uid) {
 
 void State::resetSelectedMenuItemInCardUid() { selectedMenuItemInCartUid = ""; }
 
+string State::getSelectedMenuItemSizeName() const noexcept
+{
+    return selectedMenuItemSizeName;
+}
+void State::setSelectedMenuItemSizeName(const MenuItemSizes& s)
+{
+    for (const auto& size : menuItemSizesData) { 
+        if (size.getSize() == s) {
+            selectedMenuItemSizeName = s;
+
+            return;
+        }
+    }
+
+    assert(false ||
+           "State::setSelectedMenuItemSizeName() received a name that's not in "
+           "menuItemSizesData");
+}
 const vector<MenuItemData>& State::getMenuItemsData() const noexcept {
     return menuItemsData;
 }
 
 const vector<MenuItem>& State::getMenuItemsInCart() const noexcept {
     return cart;
+}
+
+const vector<MenuItemSizeData>& State::getMenuItemSizesData() const noexcept {
+    return menuItemSizesData;
 }
