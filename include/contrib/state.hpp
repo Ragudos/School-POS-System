@@ -23,6 +23,7 @@ using namespace std;
 
 void initializeMenuItemSelectData();
 void initializeMenuItemSizesSelectData();
+void initializeMenuItemAddonSelectData();
 
 class State {
    private:

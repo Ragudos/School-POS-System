@@ -90,6 +90,28 @@ void initializeMenuItemSelectData() {
     state.appendMenuItemData(item10);
 }
 
+void initializeMenuItemAddonSelectData()
+{
+    State& state = getState(); 
+   
+    MenuItemAddonData addon1(
+        "EXPRESSO SHOT", 30);
+    MenuItemAddonData addon2(
+        "WHIPPED CREAM", 25);
+    MenuItemAddonData addon3(
+        "MILK", 25);
+    MenuItemAddonData addon4(
+        "CHOCOLATE SYRUP", 25);
+    MenuItemAddonData addon5(
+        "CARAMEL DRIZZLE", 25);
+    
+    state.appendMenuItemAddonData(addon1);
+    state.appendMenuItemAddonData(addon2);
+	state.appendMenuItemAddonData(addon3);
+	state.appendMenuItemAddonData(addon4);
+    state.appendMenuItemAddonData(addon5);
+}
+
 void State::appendMenuItemData(const MenuItemData& menuItem) {
     for (auto item : menuItemsData) {
         assert(item.getName() != menuItem.getName());
@@ -139,7 +161,22 @@ void State::removeMenuItemSizeData(const MenuItemSizes& size) {
 }
 
 void State::appendMenuItemAddonData(const MenuItemAddonData& n)
-void removeMenuItemAddonData(const string& n);
+{
+    for (auto name : menuItemAddonData) {
+        assert(name.getName() != n.getName());
+    }
+
+    menuItemAddonData.push_back(n);
+}
+
+void State::removeMenuItemAddonData(const string& n)
+{
+    menuItemAddonData.erase(remove_if(menuItemAddonData.begin(), menuItemAddonData.end(),
+                                  [&n](const MenuItemAddonData& item) {  
+                                      return item.getName() == n;
+                                  }),
+                        menuItemAddonData.end());
+}
 
 optional<MenuItemData> State::getMenuItemDataWithName(const string& itemName) {
     for (auto item : menuItemsData) {
@@ -235,7 +272,7 @@ string State::getselectedMenuItemAddonData() const noexcept
 {
     return selectedMenuItemAddonData;
 }
-void setselectedMenuItemAddonData(const string& n);
+void State::setselectedMenuItemAddonData(const string& n)
 {
 for (const auto& name : menuItemAddonData) {
         if (name.getName() == n) {
@@ -248,7 +285,6 @@ for (const auto& name : menuItemAddonData) {
     assert(false ||
            "State::getselectedMenuItemAddonData() received a name that's not in "
            "menuItemAddonData");
-}
 }
 
 const vector<MenuItemData>& State::getMenuItemsData() const noexcept {
