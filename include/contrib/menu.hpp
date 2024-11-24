@@ -129,4 +129,6 @@ class MenuItem {
 
     optional<string> getRemarks() const noexcept;
     void setRemarks(const string&);
+
+    double calculateSubtotal() const noexcept;
 };

@@ -368,11 +368,7 @@ void Renderer::createMenuItemView(bool isNew) {
     // TODO: Add add-ons to subtotal
     shared_ptr<TextNode> menuItemPrice = make_shared<TextNode>(
         "Base price: ₱" + formatNumber(currMenuItem->getBasePrice()) +
-        ", Subtotal: ₱" +
-        formatNumber(
-            (currMenuItem->getBasePrice() +
-             getAdditionalPriceForMenuItemSize(currMenuItem->getSize())) *
-            currMenuItem->getQty()));
+        ", Subtotal: ₱" + formatNumber(currMenuItem->calculateSubtotal()));
 
     menuItemMetadataContainer->appendChild(menuItemName);
     menuItemMetadataContainer->appendChild(menuItemDescription);
@@ -418,10 +414,7 @@ void Renderer::createMenuItemConfirmView(bool isNew) {
     shared_ptr<TextNode> qtyText =
         make_shared<TextNode>("Quantity: " + formatNumber(menuItem->getQty()));
     shared_ptr<TextNode> subtotalText = make_shared<TextNode>(
-        "Subtotal: ₱" +
-        formatNumber((menuItem->getBasePrice() +
-                      getAdditionalPriceForMenuItemSize(menuItem->getSize())) *
-                     menuItem->getQty()));
+        "Subtotal: ₱" + formatNumber(menuItem->calculateSubtotal()));
     shared_ptr<LineBreakNode> secondBr = make_shared<LineBreakNode>(2);
     shared_ptr<TextNode> confirmationText =
         make_shared<TextNode>("Press enter to confirm...");
@@ -501,7 +494,74 @@ void Renderer::createMenuItemSizesView(bool isNew) {
 
 void Renderer::createMenuItemAddonsView(bool isNew) {}
 
-void Renderer::createOrderConfirmationView(bool isNew) {}
+void Renderer::createOrderConfirmationView(bool isNew) {
+    Screen& screen = getScreen();
+    State& state = getState();
+    shared_ptr<GridNode> container =
+        make_shared<GridNode>(screen.getWidth(), screen.getWidth());
+    const vector<MenuItem> cartItems = state.getMenuItemsInCart();
+
+    container->setIsFlexible(false);
+    container->setRowGap(2);
+
+    if (cartItems.empty()) {
+        shared_ptr<TextNode> emptyText =
+            make_shared<TextNode>("There are no items in cart yet :(.");
+
+        container->appendChild(emptyText);
+    } else {
+        shared_ptr<GridNode> cartGrid =
+            make_shared<GridNode>(screen.getWidth(), screen.getWidth() / 7);
+
+        cartGrid->setColGap(1);
+        cartGrid->setRowGap(1);
+
+        shared_ptr<TextNode> title =
+            make_shared<TextNode>("The ordered items are:");
+
+        container->appendChild(title);
+
+        double total = 0;
+
+        for (auto& item : cartItems) {
+            double subTotal = item.calculateSubtotal();
+            total += subTotal;
+
+            shared_ptr<GridNode> cartItemGrid = make_shared<GridNode>(
+                screen.getWidth() / 7, screen.getWidth() / 7);
+
+            cartItemGrid->setRowGap(0);
+            cartItemGrid->setIsFlexible(false);
+
+            shared_ptr<TextNode> itemName =
+                make_shared<TextNode>(item.getName() + " " + item.getUid());
+            shared_ptr<LineBreakNode> br = make_shared<LineBreakNode>(1);
+            shared_ptr<TextNode> itemQty =
+                make_shared<TextNode>("Quantity: " + to_string(item.getQty()));
+            shared_ptr<TextNode> itemSize =
+                make_shared<TextNode>("Size: " + toString(item.getSize()));
+            shared_ptr<TextNode> itemPrice =
+                make_shared<TextNode>("Subtotal: ₱" + formatNumber(subTotal));
+
+            cartItemGrid->appendChild(itemName);
+            cartItemGrid->appendChild(br);
+            cartItemGrid->appendChild(itemQty);
+            cartItemGrid->appendChild(itemSize);
+            cartItemGrid->appendChild(itemPrice);
+
+            cartGrid->appendChild(cartItemGrid);
+        }
+
+        container->appendChild(cartGrid);
+
+        shared_ptr<TextNode> subMetadata =
+            make_shared<TextNode>("Total: ₱" + formatNumber(total));
+
+        container->appendChild(subMetadata);
+    }
+
+    body->appendChild(container);
+}
 
 void Renderer::createOrderResultsView(bool isNew) {}
 
@@ -629,21 +689,27 @@ void Renderer::createMenuItemSizesFooter(bool isNew) {
 void Renderer::createMenuItemAddonsFooter(bool isNew) {}
 
 void Renderer::createOrderConfirmationFooter(bool isNew) {
+    State& state = getState();
+
     shared_ptr<GridNode> toolTipsContainer = make_shared<GridNode>();
 
     toolTipsContainer->setColGap(2);
     toolTipsContainer->setRowGap(1);
 
-    shared_ptr<ButtonNode> enterBtn =
-        make_shared<ButtonNode>("\u23CE(enter)", "confirm",
-                                make_tuple(KEY_ENTER, KEY_ENTER_LINUX), true);
+    if (!state.getMenuItemsInCart().empty()) {
+        shared_ptr<ButtonNode> enterBtn = make_shared<ButtonNode>(
+            "\u23CE(enter)", "confirm", make_tuple(KEY_ENTER, KEY_ENTER_LINUX),
+            true);
+
+        enterBtn->subscribe(onEnterBtnClickedMenuSelect);
+
+        toolTipsContainer->appendChild(enterBtn);
+    }
+
     // Just a text
     shared_ptr<ButtonNode> quitBtn =
         make_shared<ButtonNode>("q", "quit", make_tuple(0, 0), true);
 
-    enterBtn->subscribe(onEnterBtnClickedMenuSelect);
-
-    toolTipsContainer->appendChild(enterBtn);
     toolTipsContainer->appendChild(quitBtn);
 
     shared_ptr<TextNode> lineSeparatorUp =
@@ -762,6 +828,13 @@ void onEnterBtnClickedMenuSelect(unsigned int) {
 
             renderer.viewState = RendererState::MENU_ITEM;
         }; break;
+        case RendererState::ORDER_CONFIRMATION: {
+            Order order(state.getMenuItemsInCart());
+
+            saveOrder(order);
+
+            renderer.viewState = ORDER_RESULTS;
+        }; break;
     }
 
     renderer.createView();
@@ -792,6 +865,7 @@ void onEscBtnClickedOnMenuItem(unsigned int) {
             state.removeMenuItemFromCartWithUid(
                 state.getSelectedMenuItemInCartUid());
             state.resetSelectedMenuItemInCartUid();
+            state.resetSelectedMenuItemSizeName();
 
             renderer.viewState = RendererState::MENU;
 

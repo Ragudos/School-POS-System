@@ -60,6 +60,7 @@ set(INCLUDE_DEFINITION_SRCS
     ${SRC_DIR}/contrib/menu.cpp
     ${SRC_DIR}/contrib/state.cpp
     ${SRC_DIR}/contrib/utils.cpp
+    ${SRC_DIR}/contrib/storage.cpp
 )
 set(TEST_SRCS ${TEST_DIR}/main_test.cpp)
 

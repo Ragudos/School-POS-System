@@ -39,6 +39,8 @@ class State {
     string selectedMenuItemAddonData;
     vector<MenuItemAddonData> menuItemAddonData;
 
+    string selectedCartMenuItemInOrderConfirmation;
+
    public:
     void appendMenuItemData(const MenuItemData&);
     void removeMenuItemDataWithName(const string&);
@@ -58,16 +60,21 @@ class State {
 
     string getSelectedMenuItemDataName() const noexcept;
     void setSelectedMenuItemDataName(const string&);
+
     string getSelectedMenuItemInCartUid() const noexcept;
     void setSelectedMenuItemInCartUid(const string&);
     void resetSelectedMenuItemInCartUid();
+
     string getSelectedMenuItemSizeName() const noexcept;
     void setSelectedMenuItemSizeName(const string&);
+    void resetSelectedMenuItemSizeName();
+
     string getselectedMenuItemAddonData() const noexcept;
     void setselectedMenuItemAddonData(const string&);
 
     const vector<MenuItemData>& getMenuItemsData() const noexcept;
     const vector<MenuItem>& getMenuItemsInCart() const noexcept;
+    void clearMenuItemsInCart() noexcept;
     const vector<MenuItemSizeData>& getMenuItemSizesData() const noexcept;
 };
 

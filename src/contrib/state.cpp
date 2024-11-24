@@ -92,8 +92,8 @@ void initializeMenuItemSelectData() {
 
 void initializeMenuItemAddonSelectData()
 {
-    State& state = getState(); 
-   
+    State& state = getState();
+
     MenuItemAddonData addon1(
         "EXPRESSO SHOT", 30);
     MenuItemAddonData addon2(
@@ -104,7 +104,7 @@ void initializeMenuItemAddonSelectData()
         "CHOCOLATE SYRUP", 25);
     MenuItemAddonData addon5(
         "CARAMEL DRIZZLE", 25);
-    
+
     state.appendMenuItemAddonData(addon1);
     state.appendMenuItemAddonData(addon2);
 	state.appendMenuItemAddonData(addon3);
@@ -171,11 +171,12 @@ void State::appendMenuItemAddonData(const MenuItemAddonData& n)
 
 void State::removeMenuItemAddonData(const string& n)
 {
-    menuItemAddonData.erase(remove_if(menuItemAddonData.begin(), menuItemAddonData.end(),
-                                  [&n](const MenuItemAddonData& item) {  
-                                      return item.getName() == n;
-                                  }),
-                        menuItemAddonData.end());
+    menuItemAddonData.erase(
+        remove_if(menuItemAddonData.begin(), menuItemAddonData.end(),
+                  [&n](const MenuItemAddonData& item) {
+                      return item.getName() == n;
+                  }),
+        menuItemAddonData.end());
 }
 
 optional<MenuItemData> State::getMenuItemDataWithName(const string& itemName) {
@@ -268,6 +269,8 @@ void State::setSelectedMenuItemSizeName(const string& s) {
            "menuItemSizesData");
 }
 
+void State::resetSelectedMenuItemSizeName() { selectedMenuItemSizeName = ""; }
+
 string State::getselectedMenuItemAddonData() const noexcept
 {
     return selectedMenuItemAddonData;
@@ -293,6 +296,11 @@ const vector<MenuItemData>& State::getMenuItemsData() const noexcept {
 
 const vector<MenuItem>& State::getMenuItemsInCart() const noexcept {
     return cart;
+}
+
+void State::clearMenuItemsInCart() noexcept {
+    cart.clear();
+    resetSelectedMenuItemInCartUid();
 }
 
 const vector<MenuItemSizeData>& State::getMenuItemSizesData() const noexcept {

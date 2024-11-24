@@ -12,6 +12,7 @@
 #endif
 
 #include <cassert>
+#include <chrono>
 #include <contrib/menu.hpp>
 #include <cstdint>
 #include <iomanip>
@@ -22,6 +23,7 @@
 #include <vector>
 
 using namespace std;
+using namespace chrono;
 
 class MoneyPunct : public numpunct<char> {
    protected:
@@ -29,9 +31,12 @@ class MoneyPunct : public numpunct<char> {
     string do_grouping() const override;
 };
 
+string getCurrentDate();
 double calculateChange(const double&, const double&);
 double calculateTotalOfChosenMenuItems();
 
 string formatNumber(const int&);
 string formatNumber(const double&);
 string formatNumber(const double&, const int&);
+string formatDoublePrecision(const double&);
+string formatDoublePrecision(const double&, const int&);

@@ -164,3 +164,7 @@ void MenuItem::setRemarks(const string& remark) {
 
     remarks = remark;
 }
+
+double MenuItem::calculateSubtotal() const noexcept {
+    return (basePrice + getAdditionalPriceForMenuItemSize(size)) * qty;
+}
