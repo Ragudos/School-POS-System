@@ -585,6 +585,56 @@ void Renderer::createOrderConfirmationView(bool isNew) {
 
 void Renderer::createOrderResultsView(bool isNew) {
     Screen& screen = getScreen();
+    State& state = getState();
+
+    optional<Order> maybeOrder = state.getOrderInfo();
+
+    assert(maybeOrder.has_value());
+
+    Order order = maybeOrder.value();
+
+    shared_ptr<GridNode> viewContainer =
+        make_shared<GridNode>(screen.getWidth(), screen.getWidth() / 7);
+
+    viewContainer->setIsFlexible(false);
+
+    for (auto& item : order.getItems()) {
+        shared_ptr<GridNode> itemCard = make_shared<GridNode>(
+            screen.getWidth() / 7, screen.getWidth() / 7, 1, 0);
+
+        itemCard->setIsFlexible(false);
+
+        shared_ptr<TextNode> itemName =
+            make_shared<TextNode>(item.getName() + " " + item.getUid());
+        shared_ptr<TextNode> itemSubtotal =
+            make_shared<TextNode>("₱" + formatNumber(item.calculateSubtotal()));
+
+        itemCard->appendChild(itemName);
+        itemCard->appendChild(itemSubtotal);
+
+        viewContainer->appendChild(itemCard);
+    }
+
+    shared_ptr<LineBreakNode> br = make_shared<LineBreakNode>(1);
+    shared_ptr<GridNode> orderMetadata =
+        make_shared<GridNode>(screen.getWidth(), 0, 2, 1);
+
+    shared_ptr<TextNode> vatNode =
+        make_shared<TextNode>("VAT: " + formatNumber(order.getVAT()));
+    shared_ptr<TextNode> totalPriceNode =
+        make_shared<TextNode>("Total: " + formatNumber(order.getTotalPrice()));
+    shared_ptr<TextNode> orderStateNode = make_shared<TextNode>(
+        "Status: " + orderStateToString(order.getOrderState()));
+
+    orderMetadata->setIsFlexible(false);
+
+    orderMetadata->appendChild(vatNode);
+    orderMetadata->appendChild(totalPriceNode);
+    orderMetadata->appendChild(orderStateNode);
+
+    body->appendChild(viewContainer);
+    body->appendChild(br);
+    body->appendChild(orderMetadata);
 }
 
 void Renderer::createAdminMenuView(bool isNew) {}
@@ -708,7 +758,27 @@ void Renderer::createMenuItemSizesFooter(bool isNew) {
     footer->appendChild(lineSeparatorBottom);
 }
 
-void Renderer::createMenuItemAddonsFooter(bool isNew) {}
+void Renderer::createMenuItemAddonsFooter(bool isNew) {
+    shared_ptr<GridNode> toolTipsContainer = make_shared<GridNode>();
+
+    toolTipsContainer->setColGap(2);
+    toolTipsContainer->setRowGap(1);
+
+    // Just a text
+    shared_ptr<ButtonNode> quitBtn =
+        make_shared<ButtonNode>("q", "quit", make_tuple(0, 0), true);
+
+    toolTipsContainer->appendChild(quitBtn);
+
+    shared_ptr<TextNode> lineSeparatorUp =
+        make_shared<TextNode>(string(toolTipsContainer->getWidth(), '-'));
+    shared_ptr<TextNode> lineSeparatorBottom =
+        make_shared<TextNode>(string(toolTipsContainer->getWidth(), '-'));
+
+    footer->appendChild(lineSeparatorUp);
+    footer->appendChild(toolTipsContainer);
+    footer->appendChild(lineSeparatorBottom);
+}
 
 void Renderer::createOrderConfirmationFooter(bool isNew) {
     State& state = getState();
@@ -719,12 +789,16 @@ void Renderer::createOrderConfirmationFooter(bool isNew) {
     toolTipsContainer->setRowGap(1);
 
     if (!state.getMenuItemsInCart().empty()) {
+        shared_ptr<ButtonNode> backBtn = make_shared<ButtonNode>(
+            "←(esc)", "clear", make_tuple(KEY_ESC, KEY_ESC), true);
         shared_ptr<ButtonNode> enterBtn = make_shared<ButtonNode>(
             "\u23CE(enter)", "confirm", make_tuple(KEY_ENTER, KEY_ENTER_LINUX),
             true);
 
+        backBtn->subscribe(onEscBtnClickedOnMenuItem);
         enterBtn->subscribe(onEnterBtnClickedMenuSelect);
 
+        toolTipsContainer->appendChild(backBtn);
         toolTipsContainer->appendChild(enterBtn);
     }
 
@@ -744,9 +818,53 @@ void Renderer::createOrderConfirmationFooter(bool isNew) {
     footer->appendChild(lineSeparatorBottom);
 }
 
-void Renderer::createOrderResultsFooter(bool isNew) {}
+void Renderer::createOrderResultsFooter(bool isNew) {
+    shared_ptr<GridNode> toolTipsContainer = make_shared<GridNode>();
 
-void Renderer::createAdminMenuFooter(bool isNew) {}
+    toolTipsContainer->setColGap(2);
+    toolTipsContainer->setRowGap(1);
+
+    shared_ptr<ButtonNode> backBtn = make_shared<ButtonNode>(
+        "←(esc)", "BACK", make_tuple(KEY_ESC, KEY_ESC), true);
+    // Just a text
+    shared_ptr<ButtonNode> quitBtn =
+        make_shared<ButtonNode>("q", "quit", make_tuple(0, 0), true);
+
+    backBtn->subscribe(onEscBtnClickedOnMenuItem);
+
+    toolTipsContainer->appendChild(backBtn);
+    toolTipsContainer->appendChild(quitBtn);
+
+    shared_ptr<TextNode> lineSeparatorUp =
+        make_shared<TextNode>(string(toolTipsContainer->getWidth(), '-'));
+    shared_ptr<TextNode> lineSeparatorBottom =
+        make_shared<TextNode>(string(toolTipsContainer->getWidth(), '-'));
+
+    footer->appendChild(lineSeparatorUp);
+    footer->appendChild(toolTipsContainer);
+    footer->appendChild(lineSeparatorBottom);
+}
+
+void Renderer::createAdminMenuFooter(bool isNew) {
+    shared_ptr<GridNode> toolTipsContainer = make_shared<GridNode>();
+
+    toolTipsContainer->setColGap(2);
+    toolTipsContainer->setRowGap(1);
+
+    shared_ptr<ButtonNode> quitBtn =
+        make_shared<ButtonNode>("q", "quit", make_tuple(0, 0), true);
+
+    toolTipsContainer->appendChild(quitBtn);
+
+    shared_ptr<TextNode> lineSeparatorUp =
+        make_shared<TextNode>(string(toolTipsContainer->getWidth(), '-'));
+    shared_ptr<TextNode> lineSeparatorBottom =
+        make_shared<TextNode>(string(toolTipsContainer->getWidth(), '-'));
+
+    footer->appendChild(lineSeparatorUp);
+    footer->appendChild(toolTipsContainer);
+    footer->appendChild(lineSeparatorBottom);
+}
 
 void Renderer::renderBuffer() noexcept {
     cout << buf.str();
@@ -902,7 +1020,26 @@ void onEscBtnClickedOnMenuItem(unsigned int) {
 
             renderer.createView();
             renderer.renderBuffer();
-        }
+        }; break;
+        case RendererState::ORDER_CONFIRMATION: {
+            if (state.getMenuItemsInCart().empty()) {
+                return;
+            }
+
+            state.clearMenuItemsInCart();
+
+            renderer.createView();
+            renderer.renderBuffer();
+        }; break;
+        case RendererState::ORDER_RESULTS: {
+            state.clearMenuItemsInCart();
+            state.resetOrderInfo();
+
+            renderer.viewState = RendererState::MENU;
+
+            renderer.createView();
+            renderer.renderBuffer();
+        }; break;
     }
 }
 

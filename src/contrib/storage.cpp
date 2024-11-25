@@ -33,12 +33,14 @@ Order::Order(const vector<MenuItem>& menuItems, const string& uid,
 };
 
 Order::Order(const vector<MenuItem>& menuItems, const string& uid,
-             const tm& cat, const OrderState& orderS, const double& totalP)
+             const tm& cat, const OrderState& orderS, const double& totalP,
+             const double& vat)
     : items(menuItems),
       orderUid(uid),
       dateCreated(cat),
       orderState(orderS),
-      totalPrice(totalP){};
+      totalPrice(totalP),
+      VAT(vat){};
 
 // TODO: include add-ons price
 double Order::calculateTotalPrice() {
@@ -49,6 +51,9 @@ double Order::calculateTotalPrice() {
                   getAdditionalPriceForMenuItemSize(item.getSize())) *
                  item.getQty();
     }
+
+    VAT = TAX * total;
+    total += VAT;
 
     return total;
 }
@@ -68,6 +73,8 @@ string Order::getOrderStateString() const noexcept {
 void Order::updateOrderState(const OrderState& orderS) noexcept {
     orderState = orderS;
 }
+
+double Order::getVAT() const noexcept { return VAT; }
 
 string orderStateToString(const OrderState& orderState) noexcept {
     switch (orderState) {
@@ -103,6 +110,7 @@ optional<Order> getOrder(const string& orderUid) {
     OrderState orderState = OrderState::PENDING;
     tm dateCreated = {};
     double totalPrice = 0;
+    double VAT = 0;
 
     ifstream file("../storage/orders.csv");
 
@@ -139,13 +147,14 @@ optional<Order> getOrder(const string& orderUid) {
         MenuItemSizes itemSize = fromString(row.at(5));
         uint8_t itemQty = stoul(row.at(6));
         optional<string> remarks =
-            row.at(9).empty() ? nullopt : optional(row.at(9));
+            row.at(10).empty() ? nullopt : optional(row.at(9));
 
         // if first time appending
         if (menuItems.empty()) {
             orderState = orderStateFromString(row.at(10));
             dateCreated = parseDate(row.at(2));
             totalPrice = stod(row.at(8));
+            VAT = stod(row.at(9));
         }
 
         MenuItem item(itemId, itemName, basePrice, itemSize, itemQty, remarks);
@@ -157,7 +166,7 @@ optional<Order> getOrder(const string& orderUid) {
         return nullopt;
     }
 
-    Order order(menuItems, orderUid, dateCreated, orderState, totalPrice);
+    Order order(menuItems, orderUid, dateCreated, orderState, totalPrice, VAT);
 
     return order;
 }
@@ -174,9 +183,10 @@ void saveOrder(const Order& order) {
     assert(file.is_open());
 
     if (!fileExists) {
-        file << "Order Uid,Item Uid,Date Created,"
-                "Name,Base Price,Size,Quantity,Subtotal,Total,Remarks,Order "
-                "State\n";
+        file
+            << "Order Uid,Item Uid,Date Created,"
+               "Name,Base Price,Size,Quantity,Subtotal,Total,VAT,Remarks,Order "
+               "State\n";
     }
 
     for (auto& item : order.getItems()) {
@@ -185,7 +195,8 @@ void saveOrder(const Order& order) {
              << formatDoublePrecision(item.getBasePrice()) << ","
              << toString(item.getSize()) << "," << formatNumber(item.getQty())
              << "," << formatDoublePrecision(item.calculateSubtotal()) << ","
-             << formatDoublePrecision(order.getTotalPrice()) << ",";
+             << formatDoublePrecision(order.getTotalPrice()) << ","
+             << formatDoublePrecision(order.getVAT()) << ",";
 
         if (item.getRemarks().has_value()) {
             file << item.getRemarks().value();

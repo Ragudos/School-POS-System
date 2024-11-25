@@ -26,6 +26,8 @@ using namespace std;
 using namespace filesystem;
 using namespace string_utils;
 
+const double TAX = 0.12;
+
 enum OrderState { PENDING, FINISHED, CANCELLED };
 
 class Order {
@@ -35,6 +37,7 @@ class Order {
     tm dateCreated;
     OrderState orderState;
     double totalPrice;
+    double VAT;
 
     double calculateTotalPrice();
 
@@ -44,7 +47,7 @@ class Order {
     Order(const vector<MenuItem>&, const string&, const tm&);
     Order(const vector<MenuItem>&, const string&, const tm&, const OrderState&);
     Order(const vector<MenuItem>&, const string&, const tm&, const OrderState&,
-          const double&);
+          const double&, const double&);
 
     const vector<MenuItem>& getItems() const noexcept;
 
@@ -57,6 +60,8 @@ class Order {
     OrderState getOrderState() const noexcept;
     string getOrderStateString() const noexcept;
     void updateOrderState(const OrderState&) noexcept;
+
+    double getVAT() const noexcept;
 };
 
 string orderStateToString(const OrderState&) noexcept;
