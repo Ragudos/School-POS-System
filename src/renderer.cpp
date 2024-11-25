@@ -250,7 +250,27 @@ void Renderer::createOrderConfirmationHeader(bool isNew) {
     header->appendChild(navHeader);
 }
 
-void Renderer::createOrderResultsHeader(bool isNew) {}
+void Renderer::createOrderResultsHeader(bool isNew) {
+    Screen& screen = getScreen();
+    State& state = getState();
+    optional<Order> maybeOrder = state.getOrderInfo();
+
+    assert(maybeOrder.has_value());
+
+    Order order = maybeOrder.value();
+
+    shared_ptr<GridNode> navHeader =
+        make_shared<GridNode>(screen.getWidth(), 0, 2);
+
+    navHeader->setIsFlexible(false);
+
+    shared_ptr<TextNode> thankYouText = make_shared<TextNode>(
+        "The order has been confirmed. Its ID is " + order.getOrderUid());
+
+    navHeader->appendChild(thankYouText);
+
+    header->appendChild(navHeader);
+}
 
 void Renderer::createAdminMenuHeader(bool isNew) {
     Screen& screen = getScreen();
@@ -563,7 +583,9 @@ void Renderer::createOrderConfirmationView(bool isNew) {
     body->appendChild(container);
 }
 
-void Renderer::createOrderResultsView(bool isNew) {}
+void Renderer::createOrderResultsView(bool isNew) {
+    Screen& screen = getScreen();
+}
 
 void Renderer::createAdminMenuView(bool isNew) {}
 
@@ -832,6 +854,7 @@ void onEnterBtnClickedMenuSelect(unsigned int) {
             Order order(state.getMenuItemsInCart());
 
             saveOrder(order);
+            state.setOrderInfo(order);
 
             renderer.viewState = ORDER_RESULTS;
         }; break;

@@ -13,6 +13,7 @@
 
 #include <algorithm>
 #include <contrib/menu.hpp>
+#include <contrib/storage.hpp>
 #include <iostream>
 #include <memory>
 #include <optional>
@@ -40,6 +41,8 @@ class State {
     vector<MenuItemAddonData> menuItemAddonData;
 
     string selectedCartMenuItemInOrderConfirmation;
+
+    optional<Order> orderInfo;
 
    public:
     void appendMenuItemData(const MenuItemData&);
@@ -71,6 +74,10 @@ class State {
 
     string getselectedMenuItemAddonData() const noexcept;
     void setselectedMenuItemAddonData(const string&);
+
+    optional<Order> getOrderInfo() const noexcept;
+    void setOrderInfo(const Order&) noexcept;
+    void resetOrderInfo() noexcept;
 
     const vector<MenuItemData>& getMenuItemsData() const noexcept;
     const vector<MenuItem>& getMenuItemsInCart() const noexcept;

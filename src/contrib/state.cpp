@@ -290,6 +290,12 @@ for (const auto& name : menuItemAddonData) {
            "menuItemAddonData");
 }
 
+optional<Order> State::getOrderInfo() const noexcept { return orderInfo; }
+
+void State::setOrderInfo(const Order& orderI) noexcept { orderInfo = orderI; }
+
+void State::resetOrderInfo() noexcept { orderInfo = nullopt; }
+
 const vector<MenuItemData>& State::getMenuItemsData() const noexcept {
     return menuItemsData;
 }
