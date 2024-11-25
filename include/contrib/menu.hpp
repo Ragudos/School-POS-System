@@ -110,6 +110,8 @@ class MenuItem {
     optional<string> remarks;
 
    public:
+    MenuItem(const string&, const string&, const double&, const MenuItemSizes&,
+             const uint8_t&, const optional<string>&);
     MenuItem(const MenuItemData&);
     MenuItem(const MenuItemData&, const MenuItemSizes&);
 

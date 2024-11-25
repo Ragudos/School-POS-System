@@ -1,0 +1,4 @@
+Order Uid,Item Uid,Date Created,Name,Base Price,Size,Quantity,Subtotal,Total,Remarks,Order State
+oVW4rUb1,RclEqL8v,2024-11-25,Cafe Latte,110.00,TALL,1,110.00,2640.00,,PENDING
+oVW4rUb1,Mw8t7oa6,2024-11-25,Cappucino,110.00,TALL,9,990.00,2640.00,,PENDING
+oVW4rUb1,nbuXmLcZ,2024-11-25,Iced Spanish Latte,130.00,GRANDE,11,1540.00,2640.00,,PENDING

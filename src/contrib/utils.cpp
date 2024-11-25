@@ -46,3 +46,24 @@ string getCurrentDate() {
 
     return dateStream.str();
 }
+
+string parseDate(const tm& date) {
+    ostringstream dateStream;
+
+    dateStream << put_time(&date, "%Y-%m-%d");
+
+    assert(!dateStream.fail());
+
+    return dateStream.str();
+}
+
+tm parseDate(const string& dateString) {
+    tm time;
+    istringstream ss(dateString);
+
+    ss >> get_time(&time, "%Y-%m-%d");
+
+    assert(!ss.fail());
+
+    return time;
+}

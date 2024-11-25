@@ -40,3 +40,5 @@ string formatNumber(const double&);
 string formatNumber(const double&, const int&);
 string formatDoublePrecision(const double&);
 string formatDoublePrecision(const double&, const int&);
+string parseDate(const tm&);
+tm parseDate(const string&);

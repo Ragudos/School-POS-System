@@ -1,5 +1,10 @@
 #include <contrib/menu.hpp>
 
+MenuItem::MenuItem(const string& id, const string& n, const double& bp,
+                   const MenuItemSizes& s, const uint8_t& q,
+                   const optional<string>& rm)
+    : uid(id), name(n), basePrice(bp), size(s), qty(q), remarks(rm) {}
+
 MenuItemSizeData::MenuItemSizeData(const MenuItemSizes& s, const string& desc,
                                    const double& additionalP)
     : size(s), description(desc), additionalPrice(additionalP) {}

@@ -31,21 +31,28 @@ enum OrderState { PENDING, FINISHED, CANCELLED };
 class Order {
    private:
     vector<MenuItem> items;
-    double totalPrice;
     string orderUid;
+    tm dateCreated;
     OrderState orderState;
+    double totalPrice;
 
     double calculateTotalPrice();
 
    public:
     Order(const vector<MenuItem>&);
-    Order(const vector<MenuItem>&, const OrderState&);
+    Order(const vector<MenuItem>&, const string&);
+    Order(const vector<MenuItem>&, const string&, const tm&);
+    Order(const vector<MenuItem>&, const string&, const tm&, const OrderState&);
+    Order(const vector<MenuItem>&, const string&, const tm&, const OrderState&,
+          const double&);
 
     const vector<MenuItem>& getItems() const noexcept;
 
     double getTotalPrice() const noexcept;
 
     string getOrderUid() const noexcept;
+
+    tm createdAt() const noexcept;
 
     OrderState getOrderState() const noexcept;
     string getOrderStateString() const noexcept;
@@ -54,5 +61,5 @@ class Order {
 
 string orderStateToString(const OrderState&) noexcept;
 OrderState orderStateFromString(const string&);
-Order getOrder(const string&);
+optional<Order> getOrder(const string&);
 void saveOrder(const Order& order);

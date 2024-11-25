@@ -1,16 +1,44 @@
 #include <contrib/storage.hpp>
 
 Order::Order(const vector<MenuItem>& menuItems)
-    : items(menuItems), orderState(OrderState::PENDING) {
+    : items(menuItems),
+      dateCreated(parseDate(getCurrentDate())),
+      orderState(OrderState::PENDING) {
     totalPrice = calculateTotalPrice();
     orderUid = genRandomID(8);
 };
 
-Order::Order(const vector<MenuItem>& menuItems, const OrderState& orderS)
-    : items(menuItems), orderState(orderS) {
+Order::Order(const vector<MenuItem>& menuItems, const string& uid)
+    : items(menuItems),
+      orderUid(uid),
+      dateCreated(parseDate(getCurrentDate())),
+      orderState(OrderState::PENDING) {
     totalPrice = calculateTotalPrice();
     orderUid = genRandomID(8);
 };
+
+Order::Order(const vector<MenuItem>& menuItems, const string& uid,
+             const tm& cat)
+    : items(menuItems),
+      orderUid(uid),
+      dateCreated(cat),
+      orderState(OrderState::PENDING) {
+    totalPrice = calculateTotalPrice();
+};
+
+Order::Order(const vector<MenuItem>& menuItems, const string& uid,
+             const tm& cat, const OrderState& orderS)
+    : items(menuItems), orderUid(uid), dateCreated(cat), orderState(orderS) {
+    totalPrice = calculateTotalPrice();
+};
+
+Order::Order(const vector<MenuItem>& menuItems, const string& uid,
+             const tm& cat, const OrderState& orderS, const double& totalP)
+    : items(menuItems),
+      orderUid(uid),
+      dateCreated(cat),
+      orderState(orderS),
+      totalPrice(totalP){};
 
 // TODO: include add-ons price
 double Order::calculateTotalPrice() {
@@ -30,6 +58,8 @@ const vector<MenuItem>& Order::getItems() const noexcept { return items; }
 double Order::getTotalPrice() const noexcept { return totalPrice; }
 
 string Order::getOrderUid() const noexcept { return orderUid; }
+
+tm Order::createdAt() const noexcept { return dateCreated; }
 
 OrderState Order::getOrderState() const noexcept { return orderState; }
 string Order::getOrderStateString() const noexcept {
@@ -65,7 +95,71 @@ OrderState orderStateFromString(const string& orderState) {
         return OrderState::CANCELLED;
     }
 
-    assert(false);
+    assert(false || "Invalid string");
+}
+
+optional<Order> getOrder(const string& orderUid) {
+    vector<MenuItem> menuItems;
+    OrderState orderState = OrderState::PENDING;
+    tm dateCreated = {};
+    double totalPrice = 0;
+
+    ifstream file("../storage/orders.csv");
+
+    assert(file.is_open());
+
+    string line;
+
+    // skip headers
+    getline(file, line);
+
+    while (getline(file, line)) {
+        stringstream lineSS(line);
+        string cell;
+        vector<string> row;
+
+        while (getline(lineSS, cell, ',')) {
+            row.push_back(cell);
+        }
+
+        if (row.empty()) {
+            continue;
+        }
+
+        string orderId = row.at(0);
+
+        if (orderId != orderUid) {
+            continue;
+        }
+
+        string itemId = row.at(1);
+        string itemName = row.at(3);
+        // todo: handle invalid value with try-catch
+        double basePrice = stod(row.at(4));
+        MenuItemSizes itemSize = fromString(row.at(5));
+        uint8_t itemQty = stoul(row.at(6));
+        optional<string> remarks =
+            row.at(9).empty() ? nullopt : optional(row.at(9));
+
+        // if first time appending
+        if (menuItems.empty()) {
+            orderState = orderStateFromString(row.at(10));
+            dateCreated = parseDate(row.at(2));
+            totalPrice = stod(row.at(8));
+        }
+
+        MenuItem item(itemId, itemName, basePrice, itemSize, itemQty, remarks);
+
+        menuItems.push_back(item);
+    }
+
+    if (menuItems.empty()) {
+        return nullopt;
+    }
+
+    Order order(menuItems, orderUid, dateCreated, orderState, totalPrice);
+
+    return order;
 }
 
 void saveOrder(const Order& order) {
@@ -80,13 +174,15 @@ void saveOrder(const Order& order) {
     assert(file.is_open());
 
     if (!fileExists) {
-        file << "Date Created,Order Uid,Item "
-                "Uid,Name,Size,Quantity,Subtotal,Total,Remarks,Order State\n";
+        file << "Order Uid,Item Uid,Date Created,"
+                "Name,Base Price,Size,Quantity,Subtotal,Total,Remarks,Order "
+                "State\n";
     }
 
     for (auto& item : order.getItems()) {
-        file << getCurrentDate() << "," << order.getOrderUid() << ","
-             << item.getUid() << "," << item.getName() << ","
+        file << order.getOrderUid() << "," << item.getUid() << ","
+             << parseDate(order.createdAt()) << "," << item.getName() << ","
+             << formatDoublePrecision(item.getBasePrice()) << ","
              << toString(item.getSize()) << "," << formatNumber(item.getQty())
              << "," << formatDoublePrecision(item.calculateSubtotal()) << ","
              << formatDoublePrecision(order.getTotalPrice()) << ",";
