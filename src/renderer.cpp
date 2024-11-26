@@ -637,7 +637,55 @@ void Renderer::createOrderResultsView(bool isNew) {
     body->appendChild(orderMetadata);
 }
 
-void Renderer::createAdminMenuView(bool isNew) {}
+void Renderer::createAdminMenuView(bool isNew) {
+    State& state = getState();
+    shared_ptr<GridNode> menuGrid = make_shared<GridNode>();
+    shared_ptr<SelectNode> menuSelect = make_shared<SelectNode>();
+
+    menuGrid->setIsFlexible(true);
+
+    for (const auto& option : state.getAdminMenuOptions()) {
+        shared_ptr<SelectOptionNode> optionNode =
+            make_shared<SelectOptionNode>(option.getName());
+
+        menuSelect->appendChild(optionNode);
+    }
+
+    if (!state.getSelectedAdminMenuOptionName().empty()) {
+        menuSelect->setActiveChildWithValue(
+            state.getSelectedAdminMenuOptionName());
+    } else {
+        state.setSelectedAdminMenuOptionName(
+            state.getAdminMenuOptions()
+                .at(menuSelect->getActiveOptionIdx())
+                .getName());
+    }
+
+    optional<AdminMenuOption> maybeItem = state.getSelectedAdminMenuOptionName(
+        menuSelect->getValueOfSelectedOption().value());
+
+    assert(
+        maybeItem != nullopt ||
+        !"Received nothing from State::getMenuItemWithId() where it shouldn't!");
+
+    shared_ptr<ContainerNode> activeMenuItemNode = make_shared<ContainerNode>();
+
+    menuSelect->subscribe(onMenuSelectUpdated);
+
+    const AdminMenuOption item = maybeItem.value();
+
+    shared_ptr<TextNode> itemDescription =
+        make_shared<TextNode>(item.getDescription());
+
+    /**
+     * TODO: fix bug when order of appending is
+     * reversed below.
+     */
+    menuGrid->appendChild(menuSelect);
+    menuGrid->appendChild(itemDescription);
+
+    body->appendChild(menuGrid);
+}
 
 void Renderer::createMenuFooter(bool isNew) {
     shared_ptr<GridNode> toolTipsContainer = make_shared<GridNode>();
@@ -907,7 +955,11 @@ void onMenuSelectUpdated(optional<string> selectedMenuSelectName) {
         }; break;
         case RendererState::MENU_ITEM_SIZES: {
             state.setSelectedMenuItemSizeName(selectedMenuSelectName.value());
-        }
+        }; break;
+        case RendererState::ADMIN_MENU: {
+            state.setSelectedAdminMenuOptionName(
+                selectedMenuSelectName.value());
+        }; break;
     }
 
     /**

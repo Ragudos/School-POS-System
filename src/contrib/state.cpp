@@ -11,6 +11,8 @@ void initializeState() {
 
 	initializeMenuItemSelectData();
 	initializeMenuItemSizesSelectData();
+    initializeMenuItemAddonSelectData();
+    initializeAdminMenuOptions();
 }
 
 void initializeMenuItemSizesSelectData() {
@@ -112,6 +114,40 @@ void initializeMenuItemAddonSelectData()
     state.appendMenuItemAddonData(addon5);
 }
 
+void initializeAdminMenuOptions() {
+    State& state = getState();
+
+    AdminMenuOption option1("Review Order",
+                            "Review an order by ID and edit it.");
+    AdminMenuOption option2("Daily Sales", "Sales information daily.");
+    AdminMenuOption option3("Weekly Sales", "Sales information weekly.");
+    AdminMenuOption option4("Monthly Sales", "Sales information monthly.");
+    AdminMenuOption option5("Yearly Sales", "Sales information yearly.");
+
+    state.appendAdminMenuOption(option1);
+    state.appendAdminMenuOption(option2);
+    state.appendAdminMenuOption(option3);
+    state.appendAdminMenuOption(option4);
+    state.appendAdminMenuOption(option5);
+}
+
+AdminMenuOption::AdminMenuOption(const string& n, const string& desc)
+    : name(n), description(desc) {}
+
+string AdminMenuOption::getName() const noexcept { return name; }
+void AdminMenuOption::setName(const string& n) { name = n; }
+
+string AdminMenuOption::getDescription() const noexcept { return description; }
+void AdminMenuOption::setDescription(const string& desc) { description = desc; }
+
+/*string AdminCredentials::getUsername() const noexcept { return username; }
+
+void AdminCredentials::setUsername(const string& name) { username = name; }
+
+string AdminCredentials::getPassword() const noexcept { return password; }
+
+void AdminCredentials::setPassword(const string& pass) { password = pass; }*/
+
 void State::appendMenuItemData(const MenuItemData& menuItem) {
     for (auto item : menuItemsData) {
         assert(item.getName() != menuItem.getName());
@@ -162,7 +198,7 @@ void State::removeMenuItemSizeData(const MenuItemSizes& size) {
 
 void State::appendMenuItemAddonData(const MenuItemAddonData& n)
 {
-    for (auto name : menuItemAddonData) {
+    for (auto& name : menuItemAddonData) {
         assert(name.getName() != n.getName());
     }
 
@@ -177,6 +213,23 @@ void State::removeMenuItemAddonData(const string& n)
                       return item.getName() == n;
                   }),
         menuItemAddonData.end());
+}
+
+void State::appendAdminMenuOption(const AdminMenuOption& option) {
+    for (auto& opt : adminMenuOptions) {
+        assert(opt.getName() != option.getName());
+    }
+
+    adminMenuOptions.push_back(option);
+}
+
+void State::removeAdminMenuOption(const string& optionName) {
+    adminMenuOptions.erase(
+        remove_if(adminMenuOptions.begin(), adminMenuOptions.end(),
+                  [&optionName](const AdminMenuOption& option) {
+                      return option.getName() == optionName;
+                  }),
+        adminMenuOptions.end());
 }
 
 optional<MenuItemData> State::getMenuItemDataWithName(const string& itemName) {
@@ -202,15 +255,25 @@ optional<MenuItem*> State::getMenuItemWithUid(const string& uid) {
 }
 
 optional<MenuItemSizeData> State::getSelectedMenuItemSizeName(const string& sizeName) {
-  for (auto item : menuItemSizesData) {
-      if (item.getSize() == fromString(sizeName)) {
-          return item;
-      }
+    for (auto& item : menuItemSizesData) {
+        if (item.getSize() == fromString(sizeName)) {
+            return item;
+        }
     }
 
     return nullopt;
 }
 
+optional<AdminMenuOption> State::getSelectedAdminMenuOptionName(
+    const string& name) {
+    for (auto& option : adminMenuOptions) {
+        if (option.getName() == name) {
+            return option;
+        }
+    }
+
+    return nullopt;
+}
 
 string State::getSelectedMenuItemDataName() const noexcept {
     return selectedMenuItemDataName;
@@ -277,7 +340,7 @@ string State::getselectedMenuItemAddonData() const noexcept
 }
 void State::setselectedMenuItemAddonData(const string& n)
 {
-for (const auto& name : menuItemAddonData) {
+    for (const auto& name : menuItemAddonData) {
         if (name.getName() == n) {
             selectedMenuItemAddonData = n;
 
@@ -288,6 +351,25 @@ for (const auto& name : menuItemAddonData) {
     assert(false ||
            "State::getselectedMenuItemAddonData() received a name that's not in "
            "menuItemAddonData");
+}
+
+string State::getSelectedAdminMenuOptionName() const noexcept {
+    return selectedAdminMenuOptionName;
+}
+
+void State::setSelectedAdminMenuOptionName(const string& n) {
+    for (const auto& option : adminMenuOptions) {
+        if (option.getName() == n) {
+            selectedAdminMenuOptionName = n;
+
+            return;
+        }
+    }
+
+    assert(
+        false ||
+        "State::getSelectedAdminMenuOptionName() received a name that's not in "
+        "menuItemAddonData");
 }
 
 optional<Order> State::getOrderInfo() const noexcept { return orderInfo; }
@@ -311,4 +393,8 @@ void State::clearMenuItemsInCart() noexcept {
 
 const vector<MenuItemSizeData>& State::getMenuItemSizesData() const noexcept {
     return menuItemSizesData;
+}
+
+const vector<AdminMenuOption>& State::getAdminMenuOptions() const noexcept {
+    return adminMenuOptions;
 }

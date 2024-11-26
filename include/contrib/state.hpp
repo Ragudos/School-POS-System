@@ -25,6 +25,35 @@ using namespace std;
 void initializeMenuItemSelectData();
 void initializeMenuItemSizesSelectData();
 void initializeMenuItemAddonSelectData();
+void initializeAdminMenuOptions();
+
+/*struct AdminCredentials {
+   private:
+    string username;
+    string password;
+
+   public:
+    string getUsername() const noexcept;
+    void setUsername(const string&);
+
+    string getPassword() const noexcept;
+    void setPassword(const string&);
+};*/
+
+struct AdminMenuOption {
+   private:
+    string name;
+    string description;
+
+   public:
+    AdminMenuOption(const string&, const string&);
+
+    string getName() const noexcept;
+    void setName(const string&);
+
+    string getDescription() const noexcept;
+    void setDescription(const string&);
+};
 
 class State {
    private:
@@ -44,6 +73,12 @@ class State {
 
     optional<Order> orderInfo;
 
+    string selectedAdminMenuOptionName;
+    vector<AdminMenuOption> adminMenuOptions;
+
+    /*AdminCredentials adminLoginInput;
+    string adminLoginError;*/
+
    public:
     void appendMenuItemData(const MenuItemData&);
     void removeMenuItemDataWithName(const string&);
@@ -57,9 +92,13 @@ class State {
     void appendMenuItemAddonData(const MenuItemAddonData&);
     void removeMenuItemAddonData(const string&);
 
+    void appendAdminMenuOption(const AdminMenuOption&);
+    void removeAdminMenuOption(const string&);
+
     optional<MenuItemData> getMenuItemDataWithName(const string&);
     optional<MenuItem*> getMenuItemWithUid(const string&);
     optional<MenuItemSizeData> getSelectedMenuItemSizeName(const string&);
+    optional<AdminMenuOption> getSelectedAdminMenuOptionName(const string&);
 
     string getSelectedMenuItemDataName() const noexcept;
     void setSelectedMenuItemDataName(const string&);
@@ -75,14 +114,29 @@ class State {
     string getselectedMenuItemAddonData() const noexcept;
     void setselectedMenuItemAddonData(const string&);
 
+    string getSelectedAdminMenuOptionName() const noexcept;
+    void setSelectedAdminMenuOptionName(const string&);
+
     optional<Order> getOrderInfo() const noexcept;
     void setOrderInfo(const Order&) noexcept;
     void resetOrderInfo() noexcept;
 
+    /*AdminCredentials getAdminLoginInput() const noexcept;
+    void setAdminLoginInput(const AdminCredentials&);
+    void resetAdminLoginInput() const noexcept;
+
+    string getAdminLoginError() const noexcept;
+    void setAdminLoginError(const string&);
+    void resetAdminLoginError();*/
+
     const vector<MenuItemData>& getMenuItemsData() const noexcept;
+
     const vector<MenuItem>& getMenuItemsInCart() const noexcept;
     void clearMenuItemsInCart() noexcept;
+
     const vector<MenuItemSizeData>& getMenuItemSizesData() const noexcept;
+
+    const vector<AdminMenuOption>& getAdminMenuOptions() const noexcept;
 };
 
 State& getState() noexcept;
