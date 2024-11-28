@@ -1,9 +1,9 @@
 #include <ast/node.hpp>
 #include <renderer.hpp>
 
-Node::Node() : posX(0), posY(0), width(0), height(0){};
+Node::Node() : posX(0), posY(0), width(0), height(0) {};
 
-Node::Node(unsigned int col) : posX(col), posY(0), width(0), height(0){};
+Node::Node(unsigned int col) : posX(col), posY(0), width(0), height(0) {};
 
 Node::Node(unsigned int col, unsigned int row)
     : posX(col), posY(row), width(0), height(0) {}
@@ -298,14 +298,14 @@ void GridNode::removeAllChildren() noexcept {
 unsigned int GridNode::getColGap() const noexcept { return colGap; }
 
 void GridNode::setColGap(unsigned int c) {
-    assert(c > 0 || !"column gap must be > 0");
+    assert(c >= 0 || !"column gap must be >= 0");
     colGap = c;
 }
 
 unsigned int GridNode::getRowGap() const noexcept { return rowGap; }
 
 void GridNode::setRowGap(unsigned int r) {
-    assert(r > 0 || !"row gap must be > 0");
+    assert(r >= 0 || !"row gap must be >= 0");
     rowGap = r;
 }
 
