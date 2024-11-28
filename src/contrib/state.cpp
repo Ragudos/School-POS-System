@@ -275,6 +275,15 @@ optional<AdminMenuOption> State::getSelectedAdminMenuOptionName(
     return nullopt;
 }
 
+optional<MenuItemAddonData> State::getMenuItemAddonDataWithName(const string& addonName) const {
+    for (const auto& addon : menuItemAddonData) {
+        if (addon.getName() == addonName) {
+            return addon;
+        }
+    }
+    return nullopt;
+}
+
 string State::getSelectedMenuItemDataName() const noexcept {
     return selectedMenuItemDataName;
 }

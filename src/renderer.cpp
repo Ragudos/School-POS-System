@@ -516,35 +516,53 @@ void Renderer::createMenuItemAddonsView(bool isNew) {
     Screen& screen = getScreen();
     State& state = getState();
 
-    shared_ptr<GridNode> addonMetadataContainer =
-        make_shared<GridNode>(screen.getWidth(), screen.getWidth());
+    shared_ptr<GridNode> menuGrid = make_shared<GridNode>();
+    shared_ptr<SelectNode> menuSelect = make_shared<SelectNode>();
 
-    addonMetadataContainer->setRowGap(1);
-    addonMetadataContainer->setIsFlexible(false);
+    menuGrid->setIsFlexible(true);
+    menuSelect->subscribe(onMenuSelectUpdated);
 
     const auto& addons = state.getMenuItemAddonData();
     if (addons.empty()) {
         shared_ptr<TextNode> noAddons =
             make_shared<TextNode>("No add-ons available.");
-        addonMetadataContainer->appendChild(noAddons);
+        menuGrid->appendChild(noAddons);
     } else {
-        shared_ptr<TextNode> title = make_shared<TextNode>("Available Add-ons:");
-        addonMetadataContainer->appendChild(title);
-
         for (const auto& addon : addons) {
-            shared_ptr<TextNode> addonName =
-                make_shared<TextNode>(addon.getName() + ":");
-            shared_ptr<TextNode> addonPrice =
-                make_shared<TextNode>("- Additional Price: ₱" + formatNumber(addon.getPrice()));
-
-            addonMetadataContainer->appendChild(addonName);
-            addonMetadataContainer->appendChild(addonPrice);
+            shared_ptr<SelectOptionNode> optionNode =
+                make_shared<SelectOptionNode>(addon.getName());
+            menuSelect->appendChild(optionNode);
         }
+
+        if (!state.getselectedMenuItemAddonData().empty()) {
+            menuSelect->setActiveChildWithValue(state.getselectedMenuItemAddonData());
+        } else {
+            state.setselectedMenuItemAddonData(
+                addons.at(menuSelect->getActiveOptionIdx()).getName());
+        }
+
+        optional<MenuItemAddonData> maybeAddon = state.getMenuItemAddonDataWithName(
+            menuSelect->getValueOfSelectedOption().value());
+        assert(maybeAddon != nullopt);
+
+        const MenuItemAddonData addon = maybeAddon.value();
+        shared_ptr<GridNode> addonMetadataContainer = make_shared<GridNode>();
+        addonMetadataContainer->setRowGap(1);
+        addonMetadataContainer->setIsFlexible(false);
+
+        shared_ptr<TextNode> addonName =
+            make_shared<TextNode>("Selected Add-on: " + addon.getName());
+        shared_ptr<TextNode> addonPrice =
+            make_shared<TextNode>("Price: ₱" + formatNumber(addon.getPrice()));
+
+        addonMetadataContainer->appendChild(addonName);
+        addonMetadataContainer->appendChild(addonPrice);
+
+        menuGrid->appendChild(menuSelect);
+        menuGrid->appendChild(addonMetadataContainer);
     }
 
-    auto br = make_shared<LineBreakNode>(2);
-    body->appendChild(addonMetadataContainer);
-    body->appendChild(br);
+    body->appendChild(menuGrid);
 }
 
 void Renderer::createOrderConfirmationView(bool isNew) {
@@ -991,10 +1009,13 @@ void onMenuSelectUpdated(optional<string> selectedMenuSelectName) {
         }; break;
         case RendererState::ADMIN_MENU: {
             state.setSelectedAdminMenuOptionName(
-                selectedMenuSelectName.value());
+                selectedMenuSelectName.value());      
+        }; break;
+        case RendererState::MENU_ITEM_ADDONS: {
+            state.setselectedMenuItemAddonData(
+                selectedMenuSelectName.value());      
         }; break;
     }
-
     /**
      *
      * TODO:
@@ -1003,6 +1024,7 @@ void onMenuSelectUpdated(optional<string> selectedMenuSelectName) {
      */
     renderer.createView();
     renderer.renderBuffer();
+
 }
 
 void onEnterBtnClickedMenuSelect(unsigned int) {

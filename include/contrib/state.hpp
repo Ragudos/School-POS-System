@@ -99,6 +99,7 @@ class State {
     optional<MenuItem*> getMenuItemWithUid(const string&);
     optional<MenuItemSizeData> getSelectedMenuItemSizeName(const string&);
     optional<AdminMenuOption> getSelectedAdminMenuOptionName(const string&);
+    optional<MenuItemAddonData> getMenuItemAddonDataWithName(const string&) const;
     
 
     string getSelectedMenuItemDataName() const noexcept;
