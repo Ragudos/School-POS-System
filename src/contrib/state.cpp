@@ -398,3 +398,7 @@ const vector<MenuItemSizeData>& State::getMenuItemSizesData() const noexcept {
 const vector<AdminMenuOption>& State::getAdminMenuOptions() const noexcept {
     return adminMenuOptions;
 }
+
+const vector<MenuItemAddonData>& State::getMenuItemAddonData() const noexcept {
+    return menuItemAddonData;
+}

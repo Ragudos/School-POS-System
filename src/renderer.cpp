@@ -512,7 +512,40 @@ void Renderer::createMenuItemSizesView(bool isNew) {
     body->appendChild(menuGrid);
 }
 
-void Renderer::createMenuItemAddonsView(bool isNew) {}
+void Renderer::createMenuItemAddonsView(bool isNew) {
+    Screen& screen = getScreen();
+    State& state = getState();
+
+    shared_ptr<GridNode> addonMetadataContainer =
+        make_shared<GridNode>(screen.getWidth(), screen.getWidth());
+
+    addonMetadataContainer->setRowGap(1);
+    addonMetadataContainer->setIsFlexible(false);
+
+    const auto& addons = state.getMenuItemAddonData();
+    if (addons.empty()) {
+        shared_ptr<TextNode> noAddons =
+            make_shared<TextNode>("No add-ons available.");
+        addonMetadataContainer->appendChild(noAddons);
+    } else {
+        shared_ptr<TextNode> title = make_shared<TextNode>("Available Add-ons:");
+        addonMetadataContainer->appendChild(title);
+
+        for (const auto& addon : addons) {
+            shared_ptr<TextNode> addonName =
+                make_shared<TextNode>(addon.getName() + ":");
+            shared_ptr<TextNode> addonPrice =
+                make_shared<TextNode>("- Additional Price: ₱" + formatNumber(addon.getPrice()));
+
+            addonMetadataContainer->appendChild(addonName);
+            addonMetadataContainer->appendChild(addonPrice);
+        }
+    }
+
+    auto br = make_shared<LineBreakNode>(2);
+    body->appendChild(addonMetadataContainer);
+    body->appendChild(br);
+}
 
 void Renderer::createOrderConfirmationView(bool isNew) {
     Screen& screen = getScreen();
