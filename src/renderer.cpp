@@ -550,12 +550,9 @@ void Renderer::createMenuItemAddonsView(bool isNew) {
         addonMetadataContainer->setRowGap(1);
         addonMetadataContainer->setIsFlexible(false);
 
-        shared_ptr<TextNode> addonName =
-            make_shared<TextNode>("Selected Add-on: " + addon.getName());
         shared_ptr<TextNode> addonPrice =
             make_shared<TextNode>("Price: ₱" + formatNumber(addon.getPrice()));
 
-        addonMetadataContainer->appendChild(addonName);
         addonMetadataContainer->appendChild(addonPrice);
 
         menuGrid->appendChild(menuSelect);
