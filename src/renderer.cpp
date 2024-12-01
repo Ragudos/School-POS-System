@@ -87,6 +87,21 @@ void Renderer::createView() {
             createAdminMenuView(isNew);
             createAdminMenuFooter(isNew);
         }; break;
+        case RendererState::ADMIN_MENU_DAILY_SALES: {
+            createAdminMenuDailySalesHeader(isNew);
+            createAdminMenuDailySalesView(isNew);
+            createAdminMenuDailySalesFooter(isNew);
+        }; break;
+        case RendererState::ADMIN_MENU_MONTHLY_SALES: {
+            createAdminMenuMonthlySalesHeader(isNew);
+            createAdminMenuMonthlySalesView(isNew);
+            createAdminMenuMonthlySalesFooter(isNew);
+        }; break;
+        case RendererState::ADMIN_MENU_YEARLY_SALES: {
+            createAdminMenuYearlySalesHeader(isNew);
+            createAdminMenuYearlySalesView(isNew);
+            createAdminMenuYearlySalesFooter(isNew);
+        }; break;
     }
 
     shared_ptr<LineBreakNode> headerBr = make_shared<LineBreakNode>(2);
@@ -176,9 +191,10 @@ void Renderer::createMenuItemConfirmHeader(bool isNew) {
 }
 
 void Renderer::createMenuItemSizesHeader(bool isNew) {
-	Screen& screen = getScreen();
-	State& state = getState();
-	shared_ptr<GridNode> navHeader = make_shared<GridNode>(screen.getWidth(), 0);
+    Screen& screen = getScreen();
+    State& state = getState();
+    shared_ptr<GridNode> navHeader =
+        make_shared<GridNode>(screen.getWidth(), 0);
 
     navHeader->setIsFlexible(false);
     navHeader->setColGap(2);
@@ -290,6 +306,66 @@ void Renderer::createAdminMenuHeader(bool isNew) {
 
     navHeader->appendChild(shopBtn);
     navHeader->appendChild(adminBtn);
+
+    header->appendChild(navHeader);
+}
+
+void Renderer::createAdminMenuDailySalesHeader(bool isNew) {
+    Screen& screen = getScreen();
+    State& state = getState();
+    shared_ptr<GridNode> navHeader =
+        make_shared<GridNode>(screen.getWidth(), 0);
+
+    navHeader->setIsFlexible(false);
+    navHeader->setColGap(2);
+    navHeader->setRowGap(1);
+
+    shared_ptr<ButtonNode> backBtn =
+        make_shared<ButtonNode>("←(esc)", "BACK", make_tuple(KEY_ESC, KEY_ESC));
+
+    backBtn->subscribe(onEscBtnClickedOnMenuItem);
+
+    navHeader->appendChild(backBtn);
+
+    header->appendChild(navHeader);
+}
+
+void Renderer::createAdminMenuMonthlySalesHeader(bool isNew) {
+    Screen& screen = getScreen();
+    State& state = getState();
+    shared_ptr<GridNode> navHeader =
+        make_shared<GridNode>(screen.getWidth(), 0);
+
+    navHeader->setIsFlexible(false);
+    navHeader->setColGap(2);
+    navHeader->setRowGap(1);
+
+    shared_ptr<ButtonNode> backBtn =
+        make_shared<ButtonNode>("←(esc)", "BACK", make_tuple(KEY_ESC, KEY_ESC));
+
+    backBtn->subscribe(onEscBtnClickedOnMenuItem);
+
+    navHeader->appendChild(backBtn);
+
+    header->appendChild(navHeader);
+}
+
+void Renderer::createAdminMenuYearlySalesHeader(bool isNew) {
+    Screen& screen = getScreen();
+    State& state = getState();
+    shared_ptr<GridNode> navHeader =
+        make_shared<GridNode>(screen.getWidth(), 0);
+
+    navHeader->setIsFlexible(false);
+    navHeader->setColGap(2);
+    navHeader->setRowGap(1);
+
+    shared_ptr<ButtonNode> backBtn =
+        make_shared<ButtonNode>("←(esc)", "BACK", make_tuple(KEY_ESC, KEY_ESC));
+
+    backBtn->subscribe(onEscBtnClickedOnMenuItem);
+
+    navHeader->appendChild(backBtn);
 
     header->appendChild(navHeader);
 }
@@ -451,13 +527,13 @@ void Renderer::createMenuItemConfirmView(bool isNew) {
 }
 
 void Renderer::createMenuItemSizesView(bool isNew) {
-	State& state = getState();
+    State& state = getState();
     shared_ptr<GridNode> menuGrid = make_shared<GridNode>();
     shared_ptr<SelectNode> menuSelect = make_shared<SelectNode>();
 
     menuGrid->setIsFlexible(true);
 
-    for (const auto item : state.getMenuItemSizesData()) {
+    for (const auto& item : state.getMenuItemSizesData()) {
         shared_ptr<SelectOptionNode> optionNode =
             make_shared<SelectOptionNode>(toString(item.getSize()));
 
@@ -477,8 +553,7 @@ void Renderer::createMenuItemSizesView(bool isNew) {
     optional<MenuItemSizeData> maybeItem = state.getSelectedMenuItemSizeName(
         menuSelect->getValueOfSelectedOption().value());
 
-    assert(
-        maybeItem != nullopt);
+    assert(maybeItem != nullopt);
 
     shared_ptr<ContainerNode> activeMenuItemNode = make_shared<ContainerNode>();
 
@@ -516,48 +591,48 @@ void Renderer::createMenuItemAddonsView(bool isNew) {
     Screen& screen = getScreen();
     State& state = getState();
 
-    shared_ptr<GridNode> menuGrid = make_shared<GridNode>();
+    shared_ptr<GridNode> menuGrid = make_shared<GridNode>(screen.getWidth());
     shared_ptr<SelectNode> menuSelect = make_shared<SelectNode>();
 
+    const auto& addons = state.getMenuItemAddonData();
+
     menuGrid->setIsFlexible(true);
+
+    for (const auto& addon : addons) {
+        shared_ptr<SelectOptionNode> optionNode =
+            make_shared<SelectOptionNode>(addon.getName());
+        menuSelect->appendChild(optionNode);
+    }
+
+    if (!state.getselectedMenuItemAddonData().empty()) {
+        menuSelect->setActiveChildWithValue(
+            state.getselectedMenuItemAddonData());
+    } else {
+        state.setselectedMenuItemAddonData(
+            addons.at(menuSelect->getActiveOptionIdx()).getName());
+    }
+
+    optional<MenuItemAddonData> maybeAddon = state.getMenuItemAddonDataWithName(
+        menuSelect->getValueOfSelectedOption().value());
+
+    assert(maybeAddon.has_value());
+
+    const MenuItemAddonData addon = maybeAddon.value();
+
     menuSelect->subscribe(onMenuSelectUpdated);
 
-    const auto& addons = state.getMenuItemAddonData();
-    if (addons.empty()) {
-        shared_ptr<TextNode> noAddons =
-            make_shared<TextNode>("No add-ons available.");
-        menuGrid->appendChild(noAddons);
-    } else {
-        for (const auto& addon : addons) {
-            shared_ptr<SelectOptionNode> optionNode =
-                make_shared<SelectOptionNode>(addon.getName());
-            menuSelect->appendChild(optionNode);
-        }
+    shared_ptr<GridNode> addonMetadataContainer = make_shared<GridNode>();
 
-        if (!state.getselectedMenuItemAddonData().empty()) {
-            menuSelect->setActiveChildWithValue(state.getselectedMenuItemAddonData());
-        } else {
-            state.setselectedMenuItemAddonData(
-                addons.at(menuSelect->getActiveOptionIdx()).getName());
-        }
+    addonMetadataContainer->setRowGap(1);
+    addonMetadataContainer->setIsFlexible(false);
 
-        optional<MenuItemAddonData> maybeAddon = state.getMenuItemAddonDataWithName(
-            menuSelect->getValueOfSelectedOption().value());
-        assert(maybeAddon != nullopt);
+    shared_ptr<TextNode> addonPrice =
+        make_shared<TextNode>("Price: ₱" + formatNumber(addon.getPrice()));
 
-        const MenuItemAddonData addon = maybeAddon.value();
-        shared_ptr<GridNode> addonMetadataContainer = make_shared<GridNode>();
-        addonMetadataContainer->setRowGap(1);
-        addonMetadataContainer->setIsFlexible(false);
+    menuGrid->appendChild(menuSelect);
+    menuGrid->appendChild(addonMetadataContainer);
 
-        shared_ptr<TextNode> addonPrice =
-            make_shared<TextNode>("Price: ₱" + formatNumber(addon.getPrice()));
-
-        addonMetadataContainer->appendChild(addonPrice);
-
-        menuGrid->appendChild(menuSelect);
-        menuGrid->appendChild(addonMetadataContainer);
-    }
+    addonMetadataContainer->appendChild(addonPrice);
 
     body->appendChild(menuGrid);
 }
@@ -733,6 +808,90 @@ void Renderer::createAdminMenuView(bool isNew) {
     menuGrid->appendChild(itemDescription);
 
     body->appendChild(menuGrid);
+}
+
+void Renderer::createAdminMenuDailySalesView(bool isNew) {
+    Screen& screen = getScreen();
+    State& state = getState();
+    shared_ptr<GridNode> container = make_shared<GridNode>(screen.getWidth());
+
+    container->setIsFlexible(false);
+    container->setRowGap(0);
+    container->setColGap(2);
+
+    map<string, double> dailySalesData = getDailySales();
+
+    shared_ptr<TextNode> title = make_shared<TextNode>("Daily Sales:");
+    shared_ptr<LineBreakNode> titleBr = make_shared<LineBreakNode>(1);
+
+    for (const auto& [day, total] : dailySalesData) {
+        shared_ptr<TextNode> info =
+            make_shared<TextNode>(day + ": " + formatNumber(total));
+
+        container->appendChild(info);
+    }
+
+    shared_ptr<LineBreakNode> containerBr = make_shared<LineBreakNode>(1);
+    body->appendChild(title);
+    body->appendChild(titleBr);
+    body->appendChild(container);
+    body->appendChild(containerBr);
+}
+
+void Renderer::createAdminMenuMonthlySalesView(bool isNew) {
+    Screen& screen = getScreen();
+    State& state = getState();
+    shared_ptr<GridNode> container = make_shared<GridNode>(screen.getWidth());
+
+    container->setIsFlexible(false);
+    container->setRowGap(0);
+    container->setColGap(2);
+
+    map<string, double> monthlySalesData = getMonthlySales();
+
+    shared_ptr<TextNode> title = make_shared<TextNode>("Monthly Sales:");
+    shared_ptr<LineBreakNode> titleBr = make_shared<LineBreakNode>(1);
+
+    for (const auto& [month, total] : monthlySalesData) {
+        shared_ptr<TextNode> info =
+            make_shared<TextNode>(month + ": " + formatNumber(total));
+
+        container->appendChild(info);
+    }
+
+    shared_ptr<LineBreakNode> containerBr = make_shared<LineBreakNode>(1);
+    body->appendChild(title);
+    body->appendChild(titleBr);
+    body->appendChild(container);
+    body->appendChild(containerBr);
+}
+
+void Renderer::createAdminMenuYearlySalesView(bool isNew) {
+    Screen& screen = getScreen();
+    State& state = getState();
+    shared_ptr<GridNode> container = make_shared<GridNode>(screen.getWidth());
+
+    container->setIsFlexible(false);
+    container->setRowGap(0);
+    container->setColGap(2);
+
+    map<string, double> yearlySalesData = getYearlySales();
+
+    shared_ptr<TextNode> title = make_shared<TextNode>("Yearly Sales:");
+    shared_ptr<LineBreakNode> titleBr = make_shared<LineBreakNode>(1);
+
+    for (const auto& [year, total] : yearlySalesData) {
+        shared_ptr<TextNode> info =
+            make_shared<TextNode>(year + ": " + formatNumber(total));
+
+        container->appendChild(info);
+    }
+
+    shared_ptr<LineBreakNode> containerBr = make_shared<LineBreakNode>(1);
+    body->appendChild(title);
+    body->appendChild(titleBr);
+    body->appendChild(container);
+    body->appendChild(containerBr);
 }
 
 void Renderer::createMenuFooter(bool isNew) {
@@ -947,6 +1106,81 @@ void Renderer::createAdminMenuFooter(bool isNew) {
     toolTipsContainer->setColGap(2);
     toolTipsContainer->setRowGap(1);
 
+    shared_ptr<ButtonNode> enterBtn = make_shared<ButtonNode>(
+        "\u23CE", "enter", make_tuple(KEY_ENTER, KEY_ENTER_LINUX), true);
+    // Just a text
+    shared_ptr<ButtonNode> upDownBtn =
+        make_shared<ButtonNode>("↑/↓", "up/down", make_tuple(0, 0), true);
+    shared_ptr<ButtonNode> quitBtn =
+        make_shared<ButtonNode>("q", "quit", make_tuple(0, 0), true);
+
+    enterBtn->subscribe(onEnterBtnClickedMenuSelect);
+
+    toolTipsContainer->appendChild(enterBtn);
+    toolTipsContainer->appendChild(upDownBtn);
+    toolTipsContainer->appendChild(quitBtn);
+
+    shared_ptr<TextNode> lineSeparatorUp =
+        make_shared<TextNode>(string(toolTipsContainer->getWidth(), '-'));
+    shared_ptr<TextNode> lineSeparatorBottom =
+        make_shared<TextNode>(string(toolTipsContainer->getWidth(), '-'));
+
+    footer->appendChild(lineSeparatorUp);
+    footer->appendChild(toolTipsContainer);
+    footer->appendChild(lineSeparatorBottom);
+}
+
+void Renderer::createAdminMenuDailySalesFooter(bool isNew) {
+    shared_ptr<GridNode> toolTipsContainer = make_shared<GridNode>();
+
+    toolTipsContainer->setColGap(2);
+    toolTipsContainer->setRowGap(1);
+
+    // Just a text
+    shared_ptr<ButtonNode> quitBtn =
+        make_shared<ButtonNode>("q", "quit", make_tuple(0, 0), true);
+
+    toolTipsContainer->appendChild(quitBtn);
+
+    shared_ptr<TextNode> lineSeparatorUp =
+        make_shared<TextNode>(string(toolTipsContainer->getWidth(), '-'));
+    shared_ptr<TextNode> lineSeparatorBottom =
+        make_shared<TextNode>(string(toolTipsContainer->getWidth(), '-'));
+
+    footer->appendChild(lineSeparatorUp);
+    footer->appendChild(toolTipsContainer);
+    footer->appendChild(lineSeparatorBottom);
+}
+
+void Renderer::createAdminMenuMonthlySalesFooter(bool isNew) {
+    shared_ptr<GridNode> toolTipsContainer = make_shared<GridNode>();
+
+    toolTipsContainer->setColGap(2);
+    toolTipsContainer->setRowGap(1);
+
+    // Just a text
+    shared_ptr<ButtonNode> quitBtn =
+        make_shared<ButtonNode>("q", "quit", make_tuple(0, 0), true);
+
+    toolTipsContainer->appendChild(quitBtn);
+
+    shared_ptr<TextNode> lineSeparatorUp =
+        make_shared<TextNode>(string(toolTipsContainer->getWidth(), '-'));
+    shared_ptr<TextNode> lineSeparatorBottom =
+        make_shared<TextNode>(string(toolTipsContainer->getWidth(), '-'));
+
+    footer->appendChild(lineSeparatorUp);
+    footer->appendChild(toolTipsContainer);
+    footer->appendChild(lineSeparatorBottom);
+}
+
+void Renderer::createAdminMenuYearlySalesFooter(bool isNew) {
+    shared_ptr<GridNode> toolTipsContainer = make_shared<GridNode>();
+
+    toolTipsContainer->setColGap(2);
+    toolTipsContainer->setRowGap(1);
+
+    // Just a text
     shared_ptr<ButtonNode> quitBtn =
         make_shared<ButtonNode>("q", "quit", make_tuple(0, 0), true);
 
@@ -1006,11 +1240,10 @@ void onMenuSelectUpdated(optional<string> selectedMenuSelectName) {
         }; break;
         case RendererState::ADMIN_MENU: {
             state.setSelectedAdminMenuOptionName(
-                selectedMenuSelectName.value());      
+                selectedMenuSelectName.value());
         }; break;
         case RendererState::MENU_ITEM_ADDONS: {
-            state.setselectedMenuItemAddonData(
-                selectedMenuSelectName.value());      
+            state.setselectedMenuItemAddonData(selectedMenuSelectName.value());
         }; break;
     }
     /**
@@ -1021,7 +1254,6 @@ void onMenuSelectUpdated(optional<string> selectedMenuSelectName) {
      */
     renderer.createView();
     renderer.renderBuffer();
-
 }
 
 void onEnterBtnClickedMenuSelect(unsigned int) {
@@ -1079,6 +1311,19 @@ void onEnterBtnClickedMenuSelect(unsigned int) {
             state.setOrderInfo(order);
 
             renderer.viewState = ORDER_RESULTS;
+        }; break;
+        case RendererState::ADMIN_MENU: {
+            string selectedAdminMenuOptionName =
+                state.getSelectedAdminMenuOptionName();
+
+            if (selectedAdminMenuOptionName == "Daily Sales") {
+                renderer.viewState = RendererState::ADMIN_MENU_DAILY_SALES;
+            } else if (selectedAdminMenuOptionName == "Monthly Sales") {
+                renderer.viewState = RendererState::ADMIN_MENU_MONTHLY_SALES;
+            } else if (selectedAdminMenuOptionName == "Yearly Sales") {
+                renderer.viewState = RendererState::ADMIN_MENU_YEARLY_SALES;
+            } else {
+            }
         }; break;
     }
 
@@ -1140,6 +1385,14 @@ void onEscBtnClickedOnMenuItem(unsigned int) {
             state.resetOrderInfo();
 
             renderer.viewState = RendererState::MENU;
+
+            renderer.createView();
+            renderer.renderBuffer();
+        }; break;
+        case RendererState::ADMIN_MENU_DAILY_SALES:
+        case RendererState::ADMIN_MENU_MONTHLY_SALES:
+        case RendererState::ADMIN_MENU_YEARLY_SALES: {
+            renderer.viewState = RendererState::ADMIN_MENU;
 
             renderer.createView();
             renderer.renderBuffer();

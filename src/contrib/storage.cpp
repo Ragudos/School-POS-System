@@ -105,6 +105,105 @@ OrderState orderStateFromString(const string& orderState) {
     assert(false || "Invalid string");
 }
 
+map<string, double> getDailySales() {
+    map<string, double> dailySales;
+
+    ifstream file("../storage/orders.csv");
+
+    assert(file.is_open());
+
+    string line;
+
+    getline(file, line);
+
+    while (getline(file, line)) {
+        stringstream lineSS(line);
+        string cell;
+        vector<string> row;
+
+        while (getline(lineSS, cell, ',')) {
+            row.push_back(cell);
+        }
+
+        if (row.empty()) {
+            continue;
+        }
+
+        string createdAt = row.at(2);
+        double orderTotal = stod(row.at(8));
+
+        dailySales[createdAt] += orderTotal;
+    }
+
+    return dailySales;
+}
+
+map<string, double> getMonthlySales() {
+    map<string, double> monthlySales;
+
+    ifstream file("../storage/orders.csv");
+
+    assert(file.is_open());
+
+    string line;
+
+    getline(file, line);
+
+    while (getline(file, line)) {
+        stringstream lineSS(line);
+        string cell;
+        vector<string> row;
+
+        while (getline(lineSS, cell, ',')) {
+            row.push_back(cell);
+        }
+
+        if (row.empty()) {
+            continue;
+        }
+
+        string createdAt = row.at(2).substr(0, 7);
+        double orderTotal = stod(row.at(8));
+
+        monthlySales[createdAt] += orderTotal;
+    }
+
+    return monthlySales;
+}
+
+map<string, double> getYearlySales() {
+    map<string, double> yearlySales;
+
+    ifstream file("../storage/orders.csv");
+
+    assert(file.is_open());
+
+    string line;
+
+    getline(file, line);
+
+    while (getline(file, line)) {
+        stringstream lineSS(line);
+        string cell;
+        vector<string> row;
+
+        while (getline(lineSS, cell, ',')) {
+            row.push_back(cell);
+        }
+
+        if (row.empty()) {
+            continue;
+        }
+
+        string createdAt = row.at(2).substr(0, 4);
+        double orderTotal = stod(row.at(8));
+
+        yearlySales[createdAt] += orderTotal;
+    }
+
+    return yearlySales;
+}
+
 optional<Order> getOrder(const string& orderUid) {
     vector<MenuItem> menuItems;
     OrderState orderState = OrderState::PENDING;

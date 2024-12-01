@@ -79,6 +79,8 @@ class State {
     /*AdminCredentials adminLoginInput;
     string adminLoginError;*/
 
+    string orderIdInput;
+
    public:
     void appendMenuItemData(const MenuItemData&);
     void removeMenuItemDataWithName(const string&);
@@ -100,7 +102,6 @@ class State {
     optional<MenuItemSizeData> getSelectedMenuItemSizeName(const string&);
     optional<AdminMenuOption> getSelectedAdminMenuOptionName(const string&);
     optional<MenuItemAddonData> getMenuItemAddonDataWithName(const string&) const;
-    
 
     string getSelectedMenuItemDataName() const noexcept;
     void setSelectedMenuItemDataName(const string&);
@@ -123,6 +124,9 @@ class State {
     void setOrderInfo(const Order&) noexcept;
     void resetOrderInfo() noexcept;
 
+    string getOrderIdInput() const noexcept;
+    void setOrderIdInput(const string&);
+
     /*AdminCredentials getAdminLoginInput() const noexcept;
     void setAdminLoginInput(const AdminCredentials&);
     void resetAdminLoginInput() const noexcept;
@@ -141,7 +145,6 @@ class State {
     const vector<AdminMenuOption>& getAdminMenuOptions() const noexcept;
 
     const vector<MenuItemAddonData>& getMenuItemAddonData() const noexcept;
-    
 };
 
 State& getState() noexcept;

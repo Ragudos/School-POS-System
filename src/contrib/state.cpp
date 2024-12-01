@@ -120,15 +120,13 @@ void initializeAdminMenuOptions() {
     AdminMenuOption option1("Review Order",
                             "Review an order by ID and edit it.");
     AdminMenuOption option2("Daily Sales", "Sales information daily.");
-    AdminMenuOption option3("Weekly Sales", "Sales information weekly.");
-    AdminMenuOption option4("Monthly Sales", "Sales information monthly.");
-    AdminMenuOption option5("Yearly Sales", "Sales information yearly.");
+    AdminMenuOption option3("Monthly Sales", "Sales information monthly.");
+    AdminMenuOption option4("Yearly Sales", "Sales information yearly.");
 
     state.appendAdminMenuOption(option1);
     state.appendAdminMenuOption(option2);
     state.appendAdminMenuOption(option3);
     state.appendAdminMenuOption(option4);
-    state.appendAdminMenuOption(option5);
 }
 
 AdminMenuOption::AdminMenuOption(const string& n, const string& desc)
@@ -386,6 +384,10 @@ optional<Order> State::getOrderInfo() const noexcept { return orderInfo; }
 void State::setOrderInfo(const Order& orderI) noexcept { orderInfo = orderI; }
 
 void State::resetOrderInfo() noexcept { orderInfo = nullopt; }
+
+string State::getOrderIdInput() const noexcept { return orderIdInput; }
+
+void State::setOrderIdInput(const string& str) { orderIdInput = str; }
 
 const vector<MenuItemData>& State::getMenuItemsData() const noexcept {
     return menuItemsData;

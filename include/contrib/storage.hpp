@@ -18,6 +18,7 @@
 #include <filesystem>
 #include <fstream>
 #include <iostream>
+#include <map>
 #include <string>
 #include <utils.hpp>
 #include <vector>
@@ -66,5 +67,9 @@ class Order {
 
 string orderStateToString(const OrderState&) noexcept;
 OrderState orderStateFromString(const string&);
+
+map<string, double> getDailySales();
+map<string, double> getMonthlySales();
+map<string, double> getYearlySales();
 optional<Order> getOrder(const string&);
 void saveOrder(const Order& order);

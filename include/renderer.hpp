@@ -41,7 +41,10 @@ enum RendererState {
     MENU_ITEM_ADDONS,
     ORDER_CONFIRMATION,
     ORDER_RESULTS,
-    ADMIN_MENU
+    ADMIN_MENU,
+    ADMIN_MENU_DAILY_SALES,
+    ADMIN_MENU_MONTHLY_SALES,
+    ADMIN_MENU_YEARLY_SALES,
 };
 
 class Renderer {
@@ -66,6 +69,9 @@ class Renderer {
     void createOrderConfirmationHeader(bool);
     void createOrderResultsHeader(bool);
     void createAdminMenuHeader(bool);
+    void createAdminMenuDailySalesHeader(bool);
+    void createAdminMenuMonthlySalesHeader(bool);
+    void createAdminMenuYearlySalesHeader(bool);
     // body
     void createMenuView(bool);
     void createMenuItemView(bool);
@@ -75,6 +81,9 @@ class Renderer {
     void createOrderConfirmationView(bool);
     void createOrderResultsView(bool);
     void createAdminMenuView(bool);
+    void createAdminMenuDailySalesView(bool);
+    void createAdminMenuMonthlySalesView(bool);
+    void createAdminMenuYearlySalesView(bool);
     // footer
     void createMenuFooter(bool);
     void createMenuItemFooter(bool);
@@ -84,6 +93,9 @@ class Renderer {
     void createOrderConfirmationFooter(bool);
     void createOrderResultsFooter(bool);
     void createAdminMenuFooter(bool);
+    void createAdminMenuDailySalesFooter(bool);
+    void createAdminMenuMonthlySalesFooter(bool);
+    void createAdminMenuYearlySalesFooter(bool);
 
    public:
     /**
