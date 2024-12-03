@@ -32,6 +32,7 @@
 #define KEY_HYPHEN_MINUS 45
 #define KEY_ESC 27
 #define KEY_BACKSPACE 8
+#define KEY_DEL 127
 #define KEY_OPENING_BRACKET 91
 /** Carriage return */
 #define KEY_ENTER 13

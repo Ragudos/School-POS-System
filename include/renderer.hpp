@@ -28,6 +28,8 @@ void onEscBtnClickedOnMenuItem(unsigned int);
 void onSizesBtnClicked(unsigned int);
 void onAddonsBtnClicked(unsigned int);
 
+void onEditBtnClicked(unsigned int);
+
 void onAddMinusBtnClicked(unsigned int);
 
 void onAdminBtnClicked(unsigned int);
@@ -42,6 +44,8 @@ enum RendererState {
     ORDER_CONFIRMATION,
     ORDER_RESULTS,
     ADMIN_MENU,
+    ADMIN_MENU_REVIEW_ORDER_INPUT_READONLY,
+    ADMIN_MENU_REVIEW_ORDER_INPUT_EDIT,
     ADMIN_MENU_DAILY_SALES,
     ADMIN_MENU_MONTHLY_SALES,
     ADMIN_MENU_YEARLY_SALES,
@@ -69,6 +73,8 @@ class Renderer {
     void createOrderConfirmationHeader(bool);
     void createOrderResultsHeader(bool);
     void createAdminMenuHeader(bool);
+    void createAdminMenuReviewOrderInputReadonlyHeader(bool);
+    void createAdminMenuReviewOrderInputEditHeader(bool);
     void createAdminMenuDailySalesHeader(bool);
     void createAdminMenuMonthlySalesHeader(bool);
     void createAdminMenuYearlySalesHeader(bool);
@@ -81,6 +87,8 @@ class Renderer {
     void createOrderConfirmationView(bool);
     void createOrderResultsView(bool);
     void createAdminMenuView(bool);
+    void createAdminMenuReviewOrderInputReadonlyView(bool);
+    void createAdminMenuReviewOrderInputEditView(bool);
     void createAdminMenuDailySalesView(bool);
     void createAdminMenuMonthlySalesView(bool);
     void createAdminMenuYearlySalesView(bool);
@@ -93,6 +101,8 @@ class Renderer {
     void createOrderConfirmationFooter(bool);
     void createOrderResultsFooter(bool);
     void createAdminMenuFooter(bool);
+    void createAdminMenuReviewOrderInputReadonlyFooter(bool);
+    void createAdminMenuReviewOrderInputEditFooter(bool);
     void createAdminMenuDailySalesFooter(bool);
     void createAdminMenuMonthlySalesFooter(bool);
     void createAdminMenuYearlySalesFooter(bool);

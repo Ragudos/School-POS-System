@@ -70,23 +70,52 @@ void programEntryPoint(LoopLambda* loop) {
         // getPressedKeyCode() is a blocking operation on Linux.
         unsigned int pressedKeyCode = getPressedKeyCode();
 
-        switch (pressedKeyCode) {
-            case KEY_LEFT:
-                break;
-            case KEY_RIGHT:
-                break;
-            case KEY_R:
-            case KEY_r:
-                break;
-            case KEY_Q:
-            case KEY_q:
-                // TODO: Cleanup operations
-                loop->stop();
-                break;
-            case KEY_BACKSPACE:
-                break;
-            default:
-                renderer.onKeyPressed(pressedKeyCode);
+        if (renderer.viewState ==
+            RendererState::ADMIN_MENU_REVIEW_ORDER_INPUT_EDIT) {
+            switch (pressedKeyCode) {
+                case KEY_ESC: {
+                    renderer.viewState =
+                        RendererState::ADMIN_MENU_REVIEW_ORDER_INPUT_READONLY;
+                }; break;
+                case KEY_BACKSPACE:
+                case KEY_DEL: {
+                    string id = state.getOrderIdInput();
+
+                    if (!id.empty()) {
+                        id.pop_back();
+
+                        state.setOrderIdInput(id);
+                    }
+                }; break;
+                default: {
+                    char key = pressedKeyCode;
+                    string id = state.getOrderIdInput();
+
+                    state.setOrderIdInput(id + key);
+                }
+            }
+
+            renderer.createView();
+            renderer.renderBuffer();
+        } else {
+            switch (pressedKeyCode) {
+                case KEY_LEFT:
+                    break;
+                case KEY_RIGHT:
+                    break;
+                case KEY_R:
+                case KEY_r:
+                    break;
+                case KEY_Q:
+                case KEY_q:
+                    // TODO: Cleanup operations
+                    loop->stop();
+                    break;
+                case KEY_BACKSPACE:
+                    break;
+                default:
+                    renderer.onKeyPressed(pressedKeyCode);
+            }
         }
     } catch (const exception& e) {
         err = e.what();

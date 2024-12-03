@@ -87,6 +87,16 @@ void Renderer::createView() {
             createAdminMenuView(isNew);
             createAdminMenuFooter(isNew);
         }; break;
+        case RendererState::ADMIN_MENU_REVIEW_ORDER_INPUT_READONLY: {
+            createAdminMenuReviewOrderInputReadonlyHeader(isNew);
+            createAdminMenuReviewOrderInputReadonlyView(isNew);
+            createAdminMenuReviewOrderInputReadonlyFooter(isNew);
+        }; break;
+        case RendererState::ADMIN_MENU_REVIEW_ORDER_INPUT_EDIT: {
+            createAdminMenuReviewOrderInputEditHeader(isNew);
+            createAdminMenuReviewOrderInputEditView(isNew);
+            createAdminMenuReviewOrderInputEditFooter(isNew);
+        }; break;
         case RendererState::ADMIN_MENU_DAILY_SALES: {
             createAdminMenuDailySalesHeader(isNew);
             createAdminMenuDailySalesView(isNew);
@@ -306,6 +316,46 @@ void Renderer::createAdminMenuHeader(bool isNew) {
 
     navHeader->appendChild(shopBtn);
     navHeader->appendChild(adminBtn);
+
+    header->appendChild(navHeader);
+}
+
+void Renderer::createAdminMenuReviewOrderInputReadonlyHeader(bool isNew) {
+    Screen& screen = getScreen();
+    State& state = getState();
+    shared_ptr<GridNode> navHeader =
+        make_shared<GridNode>(screen.getWidth(), 0);
+
+    navHeader->setIsFlexible(false);
+    navHeader->setColGap(2);
+    navHeader->setRowGap(1);
+
+    shared_ptr<ButtonNode> backBtn =
+        make_shared<ButtonNode>("←(esc)", "BACK", make_tuple(KEY_ESC, KEY_ESC));
+
+    backBtn->subscribe(onEscBtnClickedOnMenuItem);
+
+    navHeader->appendChild(backBtn);
+
+    header->appendChild(navHeader);
+}
+
+void Renderer::createAdminMenuReviewOrderInputEditHeader(bool isNew) {
+    Screen& screen = getScreen();
+    State& state = getState();
+    shared_ptr<GridNode> navHeader =
+        make_shared<GridNode>(screen.getWidth(), 0);
+
+    navHeader->setIsFlexible(false);
+    navHeader->setColGap(2);
+    navHeader->setRowGap(1);
+
+    shared_ptr<ButtonNode> backBtn = make_shared<ButtonNode>(
+        "←(esc)", "Stop editing", make_tuple(KEY_ESC, KEY_ESC));
+
+    backBtn->subscribe(onEscBtnClickedOnMenuItem);
+
+    navHeader->appendChild(backBtn);
 
     header->appendChild(navHeader);
 }
@@ -810,6 +860,55 @@ void Renderer::createAdminMenuView(bool isNew) {
     body->appendChild(menuGrid);
 }
 
+void Renderer::createAdminMenuReviewOrderInputReadonlyView(bool isNew) {
+    Screen& screen = getScreen();
+    State& state = getState();
+
+    string orderIdInput = state.getOrderIdInput();
+
+    shared_ptr<GridNode> container =
+        make_shared<GridNode>(screen.getWidth(), screen.getWidth());
+
+    container->setIsFlexible(false);
+    container->setRowGap(1);
+
+    shared_ptr<TextNode> txt =
+        make_shared<TextNode>("Order ID to be reviewed: ");
+    shared_ptr<TextNode> orderIdInputNode = make_shared<TextNode>(
+        orderIdInput.empty() ? "Please input an order ID" : orderIdInput);
+
+    if (orderIdInput.empty()) {
+        orderIdInputNode->setRedColor(255);
+    }
+
+    container->appendChild(txt);
+    container->appendChild(orderIdInputNode);
+
+    body->appendChild(container);
+}
+
+void Renderer::createAdminMenuReviewOrderInputEditView(bool isNew) {
+    Screen& screen = getScreen();
+    State& state = getState();
+
+    string orderIdInput = state.getOrderIdInput();
+
+    shared_ptr<GridNode> container =
+        make_shared<GridNode>(screen.getWidth(), screen.getWidth());
+
+    container->setIsFlexible(false);
+    container->setRowGap(1);
+
+    shared_ptr<TextNode> txt =
+        make_shared<TextNode>("Order ID to be reviewed (Type it in): ");
+    shared_ptr<TextNode> orderIdInputNode = make_shared<TextNode>(orderIdInput);
+
+    container->appendChild(txt);
+    container->appendChild(orderIdInputNode);
+
+    body->appendChild(container);
+}
+
 void Renderer::createAdminMenuDailySalesView(bool isNew) {
     Screen& screen = getScreen();
     State& state = getState();
@@ -1130,6 +1229,58 @@ void Renderer::createAdminMenuFooter(bool isNew) {
     footer->appendChild(lineSeparatorBottom);
 }
 
+void Renderer::createAdminMenuReviewOrderInputReadonlyFooter(bool isNew) {
+    shared_ptr<GridNode> toolTipsContainer = make_shared<GridNode>();
+
+    toolTipsContainer->setColGap(2);
+    toolTipsContainer->setRowGap(1);
+
+    shared_ptr<ButtonNode> enterBtn = make_shared<ButtonNode>(
+        "\u23CE", "enter", make_tuple(KEY_ENTER, KEY_ENTER_LINUX), true);
+    shared_ptr<ButtonNode> editBtn =
+        make_shared<ButtonNode>("c", "edit", make_tuple(KEY_C, KEY_c), true);
+    // Just a text
+    shared_ptr<ButtonNode> quitBtn =
+        make_shared<ButtonNode>("q", "quit", make_tuple(0, 0), true);
+
+    enterBtn->subscribe(onEnterBtnClickedMenuSelect);
+    editBtn->subscribe(onEditBtnClicked);
+
+    toolTipsContainer->appendChild(enterBtn);
+    toolTipsContainer->appendChild(editBtn);
+    toolTipsContainer->appendChild(quitBtn);
+
+    shared_ptr<TextNode> lineSeparatorUp =
+        make_shared<TextNode>(string(toolTipsContainer->getWidth(), '-'));
+    shared_ptr<TextNode> lineSeparatorBottom =
+        make_shared<TextNode>(string(toolTipsContainer->getWidth(), '-'));
+
+    footer->appendChild(lineSeparatorUp);
+    footer->appendChild(toolTipsContainer);
+    footer->appendChild(lineSeparatorBottom);
+}
+
+void Renderer::createAdminMenuReviewOrderInputEditFooter(bool isNew) {
+    shared_ptr<GridNode> toolTipsContainer = make_shared<GridNode>();
+
+    toolTipsContainer->setColGap(2);
+    toolTipsContainer->setRowGap(1);
+
+    shared_ptr<ButtonNode> enterBtn = make_shared<ButtonNode>(
+        "\u23CE", "enter", make_tuple(KEY_ENTER, KEY_ENTER_LINUX), true);
+
+    toolTipsContainer->appendChild(enterBtn);
+
+    shared_ptr<TextNode> lineSeparatorUp =
+        make_shared<TextNode>(string(toolTipsContainer->getWidth(), '-'));
+    shared_ptr<TextNode> lineSeparatorBottom =
+        make_shared<TextNode>(string(toolTipsContainer->getWidth(), '-'));
+
+    footer->appendChild(lineSeparatorUp);
+    footer->appendChild(toolTipsContainer);
+    footer->appendChild(lineSeparatorBottom);
+}
+
 void Renderer::createAdminMenuDailySalesFooter(bool isNew) {
     shared_ptr<GridNode> toolTipsContainer = make_shared<GridNode>();
 
@@ -1323,7 +1474,13 @@ void onEnterBtnClickedMenuSelect(unsigned int) {
             } else if (selectedAdminMenuOptionName == "Yearly Sales") {
                 renderer.viewState = RendererState::ADMIN_MENU_YEARLY_SALES;
             } else {
+                renderer.viewState =
+                    RendererState::ADMIN_MENU_REVIEW_ORDER_INPUT_READONLY;
             }
+        }; break;
+        case RendererState::ADMIN_MENU_REVIEW_ORDER_INPUT_READONLY: {
+        }; break;
+        case RendererState::ADMIN_MENU_REVIEW_ORDER_INPUT_EDIT: {
         }; break;
     }
 
@@ -1391,12 +1548,20 @@ void onEscBtnClickedOnMenuItem(unsigned int) {
         }; break;
         case RendererState::ADMIN_MENU_DAILY_SALES:
         case RendererState::ADMIN_MENU_MONTHLY_SALES:
-        case RendererState::ADMIN_MENU_YEARLY_SALES: {
+        case RendererState::ADMIN_MENU_YEARLY_SALES:
+        case RendererState::ADMIN_MENU_REVIEW_ORDER_INPUT_READONLY: {
             renderer.viewState = RendererState::ADMIN_MENU;
 
             renderer.createView();
             renderer.renderBuffer();
         }; break;
+        case RendererState::ADMIN_MENU_REVIEW_ORDER_INPUT_EDIT: {
+            renderer.viewState =
+                RendererState::ADMIN_MENU_REVIEW_ORDER_INPUT_READONLY;
+
+            renderer.createView();
+            renderer.renderBuffer();
+        };
     }
 }
 
@@ -1423,6 +1588,16 @@ void onAddonsBtnClicked(unsigned int) {
     }
 
     renderer.viewState = RendererState::MENU_ITEM_ADDONS;
+
+    renderer.createView();
+    renderer.renderBuffer();
+}
+
+void onEditBtnClicked(unsigned int keyCode) {
+    Renderer& renderer = getRenderer();
+    State& state = getState();
+
+    renderer.viewState = RendererState::ADMIN_MENU_REVIEW_ORDER_INPUT_EDIT;
 
     renderer.createView();
     renderer.renderBuffer();

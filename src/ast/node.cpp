@@ -612,7 +612,7 @@ void TextNode::render(ostringstream* buf) const {
 }
 
 void TextNode::setWidth(unsigned int w) {
-    assert(w > 0 || !"TextNode::setWidth() received a width that's not > 0");
+    assert(w >= 0 || !"TextNode::setWidth() received a width that's not > 0");
 
     unsigned int textSize = static_cast<unsigned int>(text.size());
 
@@ -629,7 +629,7 @@ void TextNode::setWidth(unsigned int w) {
 }
 
 void TextNode::setHeight(unsigned int h) {
-    assert(h > 0 || !"TextNode::setHeight() received a height that's not > 0");
+    assert(h >= 0 || !"TextNode::setHeight() received a height that's not > 0");
 
     size_t textSize = text.size();
 
