@@ -1,6 +1,12 @@
 # School-POS-System
 A school project as of 10/09/2024 creating a point-of-sale system in C++
 
+
+## Images
+
+<img width="837" height="486" alt="image" src="https://github.com/user-attachments/assets/8b7dd595-ebf7-4626-a74e-6b2e307f197b" />
+
+
 ## Instructions
 
 For my fellow groupmates, please refer to [GUIDE.md](GUIDE.md) to setup your editor and start contributing to the source code.
